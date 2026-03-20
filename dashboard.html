@@ -11,11 +11,13 @@
     .header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-top {
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .header-left { display: flex; align-items: center; gap: 15px; }
     .logo { font-size: 32px; }
@@ -25,6 +27,24 @@
     .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
     .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    
+    .nav-menu {
+      background: rgba(0,0,0,0.1);
+      padding: 0 40px;
+      display: flex;
+      gap: 30px;
+    }
+    .nav-item {
+      padding: 15px 0;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
     
     .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
     .welcome-box { background: white; padding: 40px; border-radius: 15px; margin-bottom: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -74,16 +94,24 @@
 </head>
 <body>
   <div class="header">
-    <div class="header-left">
-      <div class="logo">📅</div>
-      <div class="header-title">HARMONOGRAM</div>
-    </div>
-    <div class="user-info">
-      <div>
-        <div class="user-name" id="userName">Ładowanie...</div>
-        <div class="user-role" id="userRole"></div>
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo">📅</div>
+        <div class="header-title">HARMONOGRAM</div>
       </div>
-      <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item active">Dashboard</a>
+      <a href="projekty.html" class="nav-item">Projekty</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
     </div>
   </div>
 
@@ -214,18 +242,6 @@
       localStorage.removeItem('harmonogram_user');
       window.location.href = 'index.html';
     }
-    // Wymuś przeładowanie przy cofaniu
-window.addEventListener('pageshow', function(event) {
-  if (event.persisted) {
-    window.location.reload();
-  }
-});
-
-function logout() {
-  localStorage.removeItem('harmonogram_token');
-  localStorage.removeItem('harmonogram_user');
-  window.location.href = 'index.html';
-}
   </script>
 </body>
 </html>
