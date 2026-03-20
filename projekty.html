@@ -396,6 +396,16 @@ https://190580-creator.github.io/harmonogram/projekt.html?id=1
     function goToProjects() {
       window.location.href = 'projekty.html';
     }
+    // Wymuś przeładowanie przy cofaniu
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    window.location.reload();
+  }
+});
+
+function goToDashboard() {
+  window.location.href = 'dashboard.html';
+}
   </script>
 </body>
 </html>
