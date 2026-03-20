@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HARMONOGRAM - Projekty</title>
+  <title>HARMONOGRAM - Projekt</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
@@ -17,27 +17,75 @@
       align-items: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-    .logo { font-size: 32px; }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; cursor: pointer; }
     .header-title { font-size: 24px; font-weight: 600; }
-    .btn-back { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-    .btn-back:hover { background: rgba(255,255,255,0.3); }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
     
     .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .section-header h2 { font-size: 32px; color: #333; }
+    
+    .project-header {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .project-header h1 { color: #333; font-size: 32px; margin-bottom: 20px; }
+    .project-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .meta-item { }
+    .meta-label { font-size: 12px; color: #999; margin-bottom: 5px; }
+    .meta-value { font-size: 16px; color: #333; font-weight: 500; }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 30px 0 20px 0;
+    }
+    .section-header h2 { font-size: 24px; color: #333; }
     .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      padding: 14px 28px;
+      padding: 12px 24px;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+    
+    .tasks-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .task-item {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-info { flex: 1; }
+    .task-name { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .task-details { font-size: 13px; color: #666; }
+    .task-status {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #fff3cd;
+      color: #856404;
+    }
+    .task-status.done { background: #d4edda; color: #155724; }
     
     .modal {
       display: none;
@@ -64,27 +112,13 @@
     .modal-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       margin-bottom: 30px;
     }
     .modal-header h3 { font-size: 24px; color: #333; }
-    .btn-close {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #999;
-    }
-    .btn-close:hover { color: #333; }
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
     
     .form-group { margin-bottom: 20px; }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
+    .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -95,131 +129,83 @@
       font-size: 14px;
       font-family: inherit;
     }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-    }
-    .btn-secondary {
-      flex: 1;
-      padding: 12px;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit {
-      flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-actions { display: flex; gap: 15px; margin-top: 30px; }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
     
-    .projects-table {
-      background: white;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    thead { background: #f8f9fa; }
-    th {
-      padding: 20px;
-      text-align: left;
-      font-weight: 600;
-      color: #333;
-      font-size: 14px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-    td {
-      padding: 20px;
-      border-bottom: 1px solid #f0f0f0;
-      color: #666;
-      font-size: 14px;
-    }
-    tr:hover { background: #f9f9f9; cursor: pointer; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
     .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="header-left" onclick="goToDashboard()">
-      <div class="logo">📅</div>
-      <div class="header-title">Projekty</div>
+    <div class="header-left">
+      <div class="logo" onclick="goToProjects()">📅</div>
+      <div class="header-title" id="projectTitle">Projekt</div>
     </div>
-    <div>
-      <button class="btn-back" onclick="goToDashboard()">← Dashboard</button>
-    </div>
+    <button class="btn-back" onclick="goToProjects()">← Projekty</button>
   </div>
 
   <div class="container">
-    <div class="section-header">
-      <h2>Lista projektów</h2>
-      <button class="btn-primary" onclick="openAddModal()">+ Dodaj projekt</button>
+    <div class="project-header" id="projectHeader">
+      <div class="loading">⏳ Ładowanie projektu...</div>
     </div>
 
-    <div class="projects-table">
-      <div id="projectsList" class="loading">⏳ Ładowanie projektów...</div>
+    <div class="section-header">
+      <h2>Zadania</h2>
+      <button class="btn-primary" onclick="openAddTaskModal()">+ Dodaj zadanie</button>
+    </div>
+
+    <div class="tasks-container">
+      <div id="tasksList" class="loading">⏳ Ładowanie zadań...</div>
     </div>
   </div>
 
-  <div id="modalAdd" class="modal">
+  <div id="modalAddTask" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Nowy projekt</h3>
+        <h3>Nowe zadanie</h3>
         <button class="btn-close" onclick="closeModal()">&times;</button>
       </div>
       
-      <form id="formAddProject">
+      <form id="formAddTask">
         <div class="form-group">
-          <label>Nazwa projektu *</label>
-          <input type="text" id="nazwa" required placeholder="np. Remont biura">
+          <label>Nazwa zadania *</label>
+          <input type="text" id="taskNazwa" required placeholder="np. Przygotować dokumentację">
         </div>
         
         <div class="form-group">
-          <label>Klient</label>
-          <input type="text" id="klient" placeholder="np. ABC Sp. z o.o.">
+          <label>Opis</label>
+          <textarea id="taskOpis" rows="3" placeholder="Szczegóły zadania..."></textarea>
         </div>
         
         <div class="form-group">
-          <label>Kierownik projektu *</label>
-          <input type="email" id="kierownik" required placeholder="jan.kowalski@firma.pl">
+          <label>Odpowiedzialny *</label>
+          <input type="email" id="taskOdpowiedzialny" required placeholder="jan.kowalski@firma.pl">
+        </div>
+        
+        <div class="form-group">
+          <label>Priorytet</label>
+          <select id="taskPriorytet">
+            <option value="Niski">Niski</option>
+            <option value="Średni" selected>Średni</option>
+            <option value="Wysoki">Wysoki</option>
+          </select>
         </div>
         
         <div class="form-group">
           <label>Data rozpoczęcia *</label>
-          <input type="date" id="dataRozpoczecia" required>
+          <input type="date" id="taskDataStart" required>
         </div>
         
         <div class="form-group">
           <label>Data zakończenia *</label>
-          <input type="date" id="dataZakonczenia" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Budżet (PLN)</label>
-          <input type="number" id="budzet" placeholder="0" min="0" step="100">
+          <input type="date" id="taskDataEnd" required>
         </div>
         
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
-          <button type="submit" class="btn-submit" id="btnSubmit">Dodaj projekt</button>
+          <button type="submit" class="btn-submit" id="btnSubmitTask">Dodaj zadanie</button>
         </div>
       </form>
     </div>
@@ -228,11 +214,24 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
+    let currentProjektId = null;
+    let currentProjekt = null;
 
     window.onload = function() {
       checkAuth();
       loadUserInfo();
-      loadProjects();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      currentProjektId = urlParams.get('id');
+      
+      if (!currentProjektId) {
+        alert('Brak ID projektu');
+        goToProjects();
+        return;
+      }
+      
+      loadProjekt();
+      loadTasks();
     };
 
     function checkAuth() {
@@ -249,122 +248,146 @@
       }
     }
 
-    async function loadProjects() {
-      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
+    function loadProjekt() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjektResponse';
       
-      window.handleProjectsResponse = function(result) {
+      window.handleProjektResponse = function(result) {
         if (result.success) {
-          displayProjectsTable(result.projekty);
-        } else {
-          document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+          currentProjekt = result.projekty.find(p => p.id == currentProjektId);
+          if (currentProjekt) {
+            displayProjekt(currentProjekt);
+          } else {
+            document.getElementById('projectHeader').innerHTML = '<div class="empty-state">❌ Projekt nie znaleziony</div>';
+          }
         }
       };
       
       const script = document.createElement('script');
       script.src = url;
-      script.onerror = function() {
-        document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      };
       document.body.appendChild(script);
     }
 
-    function displayProjectsTable(projekty) {
-      const listDiv = document.getElementById('projectsList');
-
-      if (!projekty || projekty.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state">📋 Brak projektów. Dodaj pierwszy projekt!</div>';
-        return;
-      }
-
-      listDiv.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nazwa</th>
-              <th>Klient</th>
-              <th>Kierownik</th>
-              <th>Termin</th>
-              <th>Budżet</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${projekty.map(p => `
-              <tr onclick="openProject(${p.id})">
-                <td>${p.id}</td>
-                <td><strong>${p.nazwa}</strong></td>
-                <td>${p.klient || '-'}</td>
-                <td>${p.kierownik}</td>
-                <td>${p.dataRozpoczecia} - ${p.dataZakonczenia}</td>
-                <td>${p.budzet} PLN</td>
-                <td>${p.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+    function displayProjekt(projekt) {
+      document.getElementById('projectTitle').textContent = projekt.nazwa;
+      document.getElementById('projectHeader').innerHTML = `
+        <h1>${projekt.nazwa}</h1>
+        <div class="project-meta">
+          <div class="meta-item">
+            <div class="meta-label">Klient</div>
+            <div class="meta-value">${projekt.klient || '-'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Kierownik</div>
+            <div class="meta-value">${projekt.kierownik}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Data rozpoczęcia</div>
+            <div class="meta-value">${projekt.dataRozpoczecia}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Data zakończenia</div>
+            <div class="meta-value">${projekt.dataZakonczenia}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Budżet</div>
+            <div class="meta-value">${projekt.budzet} PLN</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status</div>
+            <div class="meta-value">${projekt.status}</div>
+          </div>
+        </div>
       `;
     }
 
-    function openAddModal() {
-      document.getElementById('modalAdd').classList.add('active');
+    function loadTasks() {
+      const url = API_URL + '?action=getZadania&projektId=' + currentProjektId + '&callback=handleTasksResponse';
+      
+      window.handleTasksResponse = function(result) {
+        if (result.success) {
+          displayTasks(result.zadania);
+        } else {
+          document.getElementById('tasksList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function displayTasks(zadania) {
+      const listDiv = document.getElementById('tasksList');
+
+      if (!zadania || zadania.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">📋 Brak zadań. Dodaj pierwsze zadanie!</div>';
+        return;
+      }
+
+      listDiv.innerHTML = zadania.map(z => `
+        <div class="task-item">
+          <div class="task-info">
+            <div class="task-name">${z.nazwa}</div>
+            <div class="task-details">
+              👤 ${z.odpowiedzialny} | 📅 ${z.dataRozpoczecia} - ${z.dataZakonczenia} | 🎯 ${z.priorytet}
+            </div>
+          </div>
+          <span class="task-status ${z.status === 'Zakończone' ? 'done' : ''}">${z.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function openAddTaskModal() {
+      document.getElementById('modalAddTask').classList.add('active');
     }
 
     function closeModal() {
-      document.getElementById('modalAdd').classList.remove('active');
-      document.getElementById('formAddProject').reset();
+      document.getElementById('modalAddTask').classList.remove('active');
+      document.getElementById('formAddTask').reset();
     }
 
-    document.getElementById('formAddProject').addEventListener('submit', async function(e) {
+    document.getElementById('formAddTask').addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      const btnSubmit = document.getElementById('btnSubmit');
+      const btnSubmit = document.getElementById('btnSubmitTask');
       btnSubmit.disabled = true;
       btnSubmit.textContent = 'Dodawanie...';
       
-      const projekt = {
-        nazwa: document.getElementById('nazwa').value,
-        klient: document.getElementById('klient').value,
-        kierownik: document.getElementById('kierownik').value,
-        dataRozpoczecia: document.getElementById('dataRozpoczecia').value,
-        dataZakonczenia: document.getElementById('dataZakonczenia').value,
-        budzet: document.getElementById('budzet').value || 0
+      const zadanie = {
+        projektId: currentProjektId,
+        nazwa: document.getElementById('taskNazwa').value,
+        opis: document.getElementById('taskOpis').value,
+        odpowiedzialny: document.getElementById('taskOdpowiedzialny').value,
+        priorytet: document.getElementById('taskPriorytet').value,
+        dataRozpoczecia: document.getElementById('taskDataStart').value,
+        dataZakonczenia: document.getElementById('taskDataEnd').value
       };
       
       const url = API_URL + 
-        '?action=dodajProjekt' +
-        '&projekt=' + encodeURIComponent(JSON.stringify(projekt)) +
+        '?action=dodajZadanie' +
+        '&zadanie=' + encodeURIComponent(JSON.stringify(zadanie)) +
         '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-        '&callback=handleAddProjectResponse';
+        '&callback=handleAddTaskResponse';
       
-      window.handleAddProjectResponse = function(result) {
+      window.handleAddTaskResponse = function(result) {
         if (result.success) {
-          alert('✅ Projekt dodany pomyślnie!');
+          alert('✅ Zadanie dodane pomyślnie!');
           closeModal();
-          loadProjects();
+          loadTasks();
         } else {
           alert('❌ Błąd: ' + result.message);
         }
         btnSubmit.disabled = false;
-        btnSubmit.textContent = 'Dodaj projekt';
+        btnSubmit.textContent = 'Dodaj zadanie';
       };
       
       const script = document.createElement('script');
       script.src = url;
-      script.onerror = function() {
-        alert('❌ Błąd połączenia');
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = 'Dodaj projekt';
-      };
       document.body.appendChild(script);
     });
 
-    function openProject(id) {
-      window.location.href = 'projekt.html?id=' + id;
-    }
-
-    function goToDashboard() {
-      window.location.href = 'dashboard.html';
+    function goToProjects() {
+      window.location.href = 'projekty.html';
     }
   </script>
 </body>
