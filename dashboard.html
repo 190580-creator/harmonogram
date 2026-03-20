@@ -152,25 +152,24 @@
       }
     }
 
-    async function loadProjects() {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'getProjekty', user: currentUser })
-        });
-
-        const result = await response.json();
-
+    function loadProjects() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
+      
+      window.handleProjectsResponse = function(result) {
         if (result.success) {
           displayProjects(result.projekty);
           updateStats(result.projekty);
         } else {
           document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ Błąd: ' + result.message + '</div>';
         }
-      } catch (err) {
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
         document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      }
+      };
+      document.body.appendChild(script);
     }
 
     function displayProjects(projekty) {
