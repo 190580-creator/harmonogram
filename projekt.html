@@ -248,16 +248,10 @@
       }
     }
 
-    async function loadProjekt() {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'getProjekty', user: currentUser })
-        });
-
-        const result = await response.json();
-
+    function loadProjekt() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjektResponse';
+      
+      window.handleProjektResponse = function(result) {
         if (result.success) {
           currentProjekt = result.projekty.find(p => p.id == currentProjektId);
           if (currentProjekt) {
@@ -266,9 +260,11 @@
             document.getElementById('projectHeader').innerHTML = '<div class="empty-state">❌ Projekt nie znaleziony</div>';
           }
         }
-      } catch (err) {
-        document.getElementById('projectHeader').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
     }
 
     function displayProjekt(projekt) {
@@ -304,24 +300,20 @@
       `;
     }
 
-    async function loadTasks() {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'getZadania', projektId: currentProjektId })
-        });
-
-        const result = await response.json();
-
+    function loadTasks() {
+      const url = API_URL + '?action=getZadania&projektId=' + currentProjektId + '&callback=handleTasksResponse';
+      
+      window.handleTasksResponse = function(result) {
         if (result.success) {
           displayTasks(result.zadania);
         } else {
           document.getElementById('tasksList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
         }
-      } catch (err) {
-        document.getElementById('tasksList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
     }
 
     function displayTasks(zadania) {
@@ -371,15 +363,13 @@
         dataZakonczenia: document.getElementById('taskDataEnd').value
       };
       
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'dodajZadanie', zadanie: zadanie, user: currentUser })
-        });
-
-        const result = await response.json();
-
+      const url = API_URL + 
+        '?action=dodajZadanie' +
+        '&zadanie=' + encodeURIComponent(JSON.stringify(zadanie)) +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+        '&callback=handleAddTaskResponse';
+      
+      window.handleAddTaskResponse = function(result) {
         if (result.success) {
           alert('✅ Zadanie dodane pomyślnie!');
           closeModal();
@@ -387,17 +377,19 @@
         } else {
           alert('❌ Błąd: ' + result.message);
         }
-      } catch (err) {
-        alert('❌ Błąd połączenia');
-      }
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Dodaj zadanie';
+      };
       
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = 'Dodaj zadanie';
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
     });
 
     function goToProjects() {
       window.location.href = 'projekty.html';
     }
   </script>
+  <!-- FORCE UPDATE v4.0 -->
 </body>
 </html>
