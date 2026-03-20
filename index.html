@@ -97,12 +97,13 @@ console.log('API URL:', API_URL); // DEBUG
       btnLogin.disabled = true;
       btnLogin.textContent = 'Logowanie...';
       
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'login', email: email, password: password })
-        });
+   try {
+  const loginUrl = API_URL + '?action=login&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password);
+  
+  const response = await fetch(loginUrl, {
+    method: 'GET',
+    redirect: 'follow'
+  });
         
         const result = await response.json();
         
