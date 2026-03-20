@@ -68,12 +68,12 @@
     <form id="loginForm">
       <div class="input-group">
         <label for="email">Email</label>
-        <input type="email" id="email" placeholder="twoj.email@firma.pl" required>
+        <input type="email" id="email" placeholder="twoj.email@firma.pl" required value="test@test.pl">
       </div>
       
       <div class="input-group">
         <label for="password">Hasło</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" id="password" placeholder="••••••••" required value="test123">
       </div>
       
       <button type="submit" class="btn-login" id="btnLogin">Zaloguj się</button>
@@ -83,8 +83,8 @@
   </div>
 
   <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
-console.log('API URL:', API_URL); // DEBUG
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
@@ -97,26 +97,48 @@ console.log('API URL:', API_URL); // DEBUG
       btnLogin.disabled = true;
       btnLogin.textContent = 'Logowanie...';
       
-   try {
-  const loginUrl = API_URL + '?action=login&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password);
-  
-  const response = await fetch(loginUrl, {
-    method: 'GET',
-    redirect: 'follow'
-  });
+      try {
+        // Używamy iframe trick - Apps Script działa tylko tak
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
         
-        const result = await response.json();
+        const loginUrl = API_URL + 
+          '?action=login' +
+          '&email=' + encodeURIComponent(email) +
+          '&password=' + encodeURIComponent(password) +
+          '&callback=handleLoginResponse';
         
-        if (result.success) {
-          localStorage.setItem('harmonogram_token', result.token);
-          localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
-          window.location.href = 'dashboard.html';
-        } else {
-          errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
-          errorDiv.style.display = 'block';
-          btnLogin.disabled = false;
-          btnLogin.textContent = 'Zaloguj się';
-        }
+        // JSONP callback
+        window.handleLoginResponse = function(result) {
+          document.body.removeChild(iframe);
+          
+          if (result.success) {
+            localStorage.setItem('harmonogram_token', result.token);
+            localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
+            window.location.href = 'dashboard.html';
+          } else {
+            errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
+            errorDiv.style.display = 'block';
+            btnLogin.disabled = false;
+            btnLogin.textContent = 'Zaloguj się';
+          }
+        };
+        
+        // Load w iframe
+        iframe.src = loginUrl;
+        
+        // Timeout po 10 sekundach
+        setTimeout(function() {
+          if (iframe.parentNode) {
+            document.body.removeChild(iframe);
+            errorDiv.textContent = 'Przekroczono limit czasu';
+            errorDiv.style.display = 'block';
+            btnLogin.disabled = false;
+            btnLogin.textContent = 'Zaloguj się';
+          }
+        }, 10000);
+        
       } catch (err) {
         console.error('Login error:', err);
         errorDiv.textContent = 'Błąd połączenia z serwerem';
