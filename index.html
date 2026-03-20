@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Logowanie</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-container {
+      background: white;
+      padding: 50px 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo { font-size: 48px; margin-bottom: 10px; }
+    h1 { color: #667eea; font-size: 32px; margin-bottom: 10px; font-weight: 600; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 40px; }
+    .input-group { margin-bottom: 20px; text-align: left; }
+    label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; font-weight: 500; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    .btn-login {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error { background: #fee; color: #c33; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; display: none; }
+    .footer { margin-top: 30px; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">📅</div>
+    <h1>HARMONOGRAM</h1>
+    <p class="subtitle">System Zarządzania Projektami</p>
+    
+    <div id="error" class="error"></div>
+    
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="twoj.email@firma.pl" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      
+      <button type="submit" class="btn-login" id="btnLogin">Zaloguj się</button>
+    </form>
+    
+    <div class="footer">© 2025 Seweryn Baran | RN-Elektro</div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btnLogin = document.getElementById('btnLogin');
+      const errorDiv = document.getElementById('error');
+      
+      errorDiv.style.display = 'none';
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Logowanie...';
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'login', email: email, password: password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          localStorage.setItem('harmonogram_token', result.token);
+          localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
+          window.location.href = 'dashboard.html';
+        } else {
+          errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
+          errorDiv.style.display = 'block';
+          btnLogin.disabled = false;
+          btnLogin.textContent = 'Zaloguj się';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Błąd połączenia z serwerem';
+        errorDiv.style.display = 'block';
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'Zaloguj się';
+      }
+    });
+  </script>
+</body>
+</html>
