@@ -97,69 +97,36 @@
       btnLogin.disabled = true;
       btnLogin.textContent = 'Logowanie...';
       
-      try {
-        // Używamy iframe trick - Apps Script działa tylko tak
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        
-        const loginUrl = API_URL + 
-          '?action=login' +
-          '&email=' + encodeURIComponent(email) +
-          '&password=' + encodeURIComponent(password) +
-          '&callback=handleLoginResponse';
-        
-        // JSONP callback
-        window.handleLoginResponse = function(result) {
-          document.body.removeChild(iframe);
-          
-          if (result.success) {
-            localStorage.setItem('harmonogram_token', result.token);
-            localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
-            window.location.href = 'dashboard.html';
-          } else {
-            errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
-            errorDiv.style.display = 'block';
-            btnLogin.disabled = false;
-            btnLogin.textContent = 'Zaloguj się';
-          }
-        };
-        
-        // Load w iframe
-        iframe.src = loginUrl;
-        
-        // Timeout po 10 sekundach
-        setTimeout(function() {
-          if (iframe.parentNode) {
-            document.body.removeChild(iframe);
-            errorDiv.textContent = 'Przekroczono limit czasu';
-            errorDiv.style.display = 'block';
-            btnLogin.disabled = false;
-            btnLogin.textContent = 'Zaloguj się';
-          }
-        }, 10000);
-        
-      } catch (err) {
-        console.error('Login error:', err);
+      const loginUrl = API_URL + 
+        '?action=login' +
+        '&email=' + encodeURIComponent(email) +
+        '&password=' + encodeURIComponent(password) +
+        '&callback=handleLoginResponse';
+      
+      window.handleLoginResponse = function(result) {
+        if (result.success) {
+          localStorage.setItem('harmonogram_token', result.token);
+          localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
+          window.location.href = 'dashboard.html';
+        } else {
+          errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
+          errorDiv.style.display = 'block';
+          btnLogin.disabled = false;
+          btnLogin.textContent = 'Zaloguj się';
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = loginUrl;
+      script.onerror = function() {
         errorDiv.textContent = 'Błąd połączenia z serwerem';
         errorDiv.style.display = 'block';
         btnLogin.disabled = false;
         btnLogin.textContent = 'Zaloguj się';
-      }
+      };
+      
+      document.body.appendChild(script);
     });
   </script>
 </body>
-</script>
-  <!-- Version 2.0 - JSONP -->
-</body>
-</html>
-```
-
-### **6. Commit changes**
-
-### **7. Poczekaj 2 MINUTY**
-
-### **8. Otwórz incognito:**
-```
-https://190580-creator.github.io/harmonogram/  
 </html>
