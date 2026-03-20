@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Projekty</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+    .logo { font-size: 32px; }
+    .header-title { font-size: 24px; font-weight: 600; }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn-back:hover { background: rgba(255,255,255,0.3); }
+    
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .section-header h2 { font-size: 32px; color: #333; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .modal-header h3 { font-size: 24px; color: #333; }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+    .btn-close:hover { color: #333; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .projects-table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f8f9fa; }
+    th {
+      padding: 20px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    td {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #666;
+      font-size: 14px;
+    }
+    tr:hover { background: #f9f9f9; cursor: pointer; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left" onclick="goToDashboard()">
+      <div class="logo">📅</div>
+      <div class="header-title">Projekty</div>
+    </div>
+    <div>
+      <button class="btn-back" onclick="goToDashboard()">← Dashboard</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section-header">
+      <h2>Lista projektów</h2>
+      <button class="btn-primary" onclick="openAddModal()">+ Dodaj projekt</button>
+    </div>
+
+    <div class="projects-table">
+      <div id="projectsList" class="loading">⏳ Ładowanie projektów...</div>
+    </div>
+  </div>
+
+  <div id="modalAdd" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nowy projekt</h3>
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <form id="formAddProject">
+        <div class="form-group">
+          <label>Nazwa projektu *</label>
+          <input type="text" id="nazwa" required placeholder="np. Remont biura">
+        </div>
+        
+        <div class="form-group">
+          <label>Klient</label>
+          <input type="text" id="klient" placeholder="np. ABC Sp. z o.o.">
+        </div>
+        
+        <div class="form-group">
+          <label>Kierownik projektu *</label>
+          <input type="email" id="kierownik" required placeholder="jan.kowalski@firma.pl">
+        </div>
+        
+        <div class="form-group">
+          <label>Data rozpoczęcia *</label>
+          <input type="date" id="dataRozpoczecia" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Data zakończenia *</label>
+          <input type="date" id="dataZakonczenia" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Budżet (PLN)</label>
+          <input type="number" id="budzet" placeholder="0" min="0" step="100">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnSubmit">Dodaj projekt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let currentUser = null;
+
+    window.onload = function() {
+      checkAuth();
+      loadUserInfo();
+      loadProjects();
+    };
+
+    function checkAuth() {
+      const token = localStorage.getItem('harmonogram_token');
+      if (!token) {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function loadUserInfo() {
+      const userStr = localStorage.getItem('harmonogram_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+      }
+    }
+
+    async function loadProjects() {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getProjekty', user: currentUser })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          displayProjectsTable(result.projekty);
+        } else {
+          document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+        }
+      } catch (err) {
+        document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
+      }
+    }
+
+    function displayProjectsTable(projekty) {
+      const listDiv = document.getElementById('projectsList');
+
+      if (!projekty || projekty.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">📋 Brak projektów. Dodaj pierwszy projekt!</div>';
+        return;
+      }
+
+      listDiv.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nazwa</th>
+              <th>Klient</th>
+              <th>Kierownik</th>
+              <th>Termin</th>
+              <th>Budżet</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${projekty.map(p => `
+              <tr onclick="openProject(${p.id})">
+                <td>${p.id}</td>
+                <td><strong>${p.nazwa}</strong></td>
+                <td>${p.klient || '-'}</td>
+                <td>${p.kierownik}</td>
+                <td>${p.dataRozpoczecia} - ${p.dataZakonczenia}</td>
+                <td>${p.budzet} PLN</td>
+                <td>${p.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function openAddModal() {
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalAdd').classList.remove('active');
+      document.getElementById('formAddProject').reset();
+    }
+
+    document.getElementById('formAddProject').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Dodawanie...';
+      
+      const projekt = {
+        nazwa: document.getElementById('nazwa').value,
+        klient: document.getElementById('klient').value,
+        kierownik: document.getElementById('kierownik').value,
+        dataRozpoczecia: document.getElementById('dataRozpoczecia').value,
+        dataZakonczenia: document.getElementById('dataZakonczenia').value,
+        budzet: document.getElementById('budzet').value || 0
+      };
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'dodajProjekt', projekt: projekt, user: currentUser })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('✅ Projekt dodany pomyślnie!');
+          closeModal();
+          loadProjects();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+      } catch (err) {
+        alert('❌ Błąd połączenia');
+      }
+      
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Dodaj projekt';
+    });
+
+    function openProject(id) {
+      window.location.href = 'projekt.html?id=' + id;
+    }
+
+    function goToDashboard() {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
