@@ -347,27 +347,26 @@
     }
 
     function displayReminders(reminders) {
-      const listDiv = document.getElementById('remindersList');
+    const listDiv = document.getElementById('remindersList');
 
-      if (!reminders || reminders.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state">⏰ Brak przypomnień. Dodaj pierwsze przypomnienie!</div>';
-        return;
-      }
+    if (!reminders || reminders.length === 0) {
+    listDiv.innerHTML = '<div class="empty-state">⏰ Brak przypomnień. Dodaj pierwsze przypomnienie!</div>';
+    return;
+     }
 
-      listDiv.innerHTML = reminders.map(r => `
-        <div class="reminder-item ${r.wykonane === 'TAK' ? 'done' : ''}">
-          <div class="reminder-info">
-            <div class="reminder-date">
-              ⏰ ${r.dataRemindera}
-              <span class="reminder-priority priority-${r.priorytet.toLowerCase()}">${r.priorytet}</span>
-            </div>
-            <div class="reminder-title">${r.tytul}</div>
-            ${r.opis ? '<div class="reminder-desc">' + r.opis + '</div>' : ''}
-          </div>
-          ${r.wykonane !== 'TAK' ? '<button class="btn-check" onclick="markDone(' + r.id + ')">✓ Wykonane</button>' : '<span style="color: #28a745; font-weight: 600;">✓ Wykonane</span>'}
+     listDiv.innerHTML = reminders.map(r => `
+     <div class="reminder-item ${r.status === 'Wykonane' ? 'done' : ''}">
+      <div class="reminder-info">
+        <div class="reminder-date">
+          ⏰ ${r.dataOd}${r.godzina ? ' ' + r.godzina : ''}
         </div>
-      `).join('');
-    }
+        <div class="reminder-title">${r.tytul}</div>
+        ${r.dlaKogo ? '<div class="reminder-desc">👤 Dla: ' + r.dlaKogo + '</div>' : ''}
+      </div>
+      ${r.status !== 'Wykonane' ? '<button class="btn-check" onclick="markDone(' + r.id + ')">✓ Wykonane</button>' : '<span style="color: #28a745; font-weight: 600;">✓ Wykonane</span>'}
+    </div>
+  `).join('');
+}
 
     function markDone(id) {
       const url = API_URL + 
