@@ -250,23 +250,22 @@
     }
 
     async function loadProjects() {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'getProjekty', user: currentUser })
-        });
-
-        const result = await response.json();
-
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
+      
+      window.handleProjectsResponse = function(result) {
         if (result.success) {
           displayProjectsTable(result.projekty);
         } else {
           document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
         }
-      } catch (err) {
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
         document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      }
+      };
+      document.body.appendChild(script);
     }
 
     function displayProjectsTable(projekty) {
@@ -332,15 +331,13 @@
         budzet: document.getElementById('budzet').value || 0
       };
       
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'dodajProjekt', projekt: projekt, user: currentUser })
-        });
-
-        const result = await response.json();
-
+      const url = API_URL + 
+        '?action=dodajProjekt' +
+        '&projekt=' + encodeURIComponent(JSON.stringify(projekt)) +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+        '&callback=handleAddProjectResponse';
+      
+      window.handleAddProjectResponse = function(result) {
         if (result.success) {
           alert('✅ Projekt dodany pomyślnie!');
           closeModal();
@@ -348,12 +345,18 @@
         } else {
           alert('❌ Błąd: ' + result.message);
         }
-      } catch (err) {
-        alert('❌ Błąd połączenia');
-      }
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Dodaj projekt';
+      };
       
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = 'Dodaj projekt';
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
+        alert('❌ Błąd połączenia');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Dodaj projekt';
+      };
+      document.body.appendChild(script);
     });
 
     function openProject(id) {
