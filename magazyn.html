@@ -133,7 +133,7 @@
     }
     .btn-close:hover { color: #333; }
     
-    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group { margin-bottom: 20px; }
     .form-group label {
       display: block;
       margin-bottom: 8px;
@@ -155,28 +155,6 @@
       outline: none;
       border-color: #667eea;
     }
-    .suggestions {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 2px solid #667eea;
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 100;
-      display: none;
-    }
-    .suggestions.active { display: block; }
-    .suggestion-item {
-      padding: 10px;
-      cursor: pointer;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .suggestion-item:hover { background: #f0f0f0; }
-    .suggestion-item:last-child { border-bottom: none; }
     .form-actions {
       display: flex;
       gap: 15px;
@@ -208,6 +186,7 @@
     
     .loading { text-align: center; padding: 40px; color: #667eea; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .hint { font-size: 12px; color: #999; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -254,14 +233,32 @@
       
       <form id="formAddMaterial">
         <div class="form-group">
-          <label>Kod KRES (podpowiedzi z Norwegii)</label>
-          <input type="text" id="kodKres" placeholder="Zacznij pisać..." autocomplete="off">
-          <div id="suggestions" class="suggestions"></div>
+          <label>Kod KRES</label>
+          <select id="kodKres">
+            <option value="">Wybierz grupę...</option>
+            <option value="00-09">00-09: Kabel og ledning</option>
+            <option value="10-19">10-19: Kabeltilbehør</option>
+            <option value="20-29">20-29: Installasjonsmateriell</option>
+            <option value="30-39">30-39: Rør og kanal</option>
+            <option value="40-49">40-49: Sikringsmateriell/Tavleutstyr</option>
+            <option value="50-59">50-59: Belysning</option>
+            <option value="60-69">60-69: Varme</option>
+            <option value="70-79">70-79: Svakstrøm/Automasjon</option>
+            <option value="80-89">80-89: Verktøy og sikkerhetsutstyr</option>
+            <option value="90-99">90-99: Data/Tele/Fiber</option>
+          </select>
+          <div class="hint">Wybierz grupę główną KRES</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Kod EAN (alternatywny)</label>
+          <input type="text" id="kodEan" placeholder="np. 5901234567890">
+          <div class="hint">Kod EAN produktu (opcjonalnie)</div>
         </div>
         
         <div class="form-group">
           <label>Nazwa materiału *</label>
-          <input type="text" id="nazwa" required placeholder="np. Kabel 3x2.5mm">
+          <input type="text" id="nazwa" required placeholder="np. Kabel YDYp 3x2.5mm²">
         </div>
         
         <div class="form-group">
@@ -299,27 +296,13 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
-    
-    // Główne grupy z Norwegii (podpowiedzi)
-    const GRUPY_NORWESKIE = [
-      '01 - Kable',
-      '02 - Przewody',
-      '03 - Rozdzielnice',
-      '04 - Osprzęt',
-      '05 - Łączniki',
-      '06 - Oświetlenie',
-      '07 - Gniazda',
-      '08 - Zabezpieczenia',
-      '09 - Czujniki',
-      '10 - Automatyka'
-    ];
 
     window.onload = function() {
       checkAuth();
       loadUserInfo();
       loadProjects();
       loadMaterials();
-      setupAutocomplete();
+      loadLastKodKres();
     };
 
     function checkAuth() {
@@ -390,6 +373,7 @@
           <thead>
             <tr>
               <th>Kod KRES</th>
+              <th>Kod EAN</th>
               <th>Nazwa</th>
               <th>Ilość</th>
               <th>Jednostka</th>
@@ -401,6 +385,7 @@
             ${materialy.map(m => `
               <tr>
                 <td>${m.kodKres || '-'}</td>
+                <td>${m.kodEan || '-'}</td>
                 <td><strong>${m.nazwa}</strong></td>
                 <td>${m.ilosc}</td>
                 <td>${m.jednostka}</td>
@@ -413,44 +398,16 @@
       `;
     }
 
-    function setupAutocomplete() {
-      const input = document.getElementById('kodKres');
-      const suggestionsDiv = document.getElementById('suggestions');
-      
-      input.addEventListener('input', function() {
-        const value = this.value.toLowerCase();
-        
-        if (value.length < 1) {
-          suggestionsDiv.classList.remove('active');
-          return;
-        }
-        
-        const filtered = GRUPY_NORWESKIE.filter(g => g.toLowerCase().includes(value));
-        
-        if (filtered.length > 0) {
-          suggestionsDiv.innerHTML = filtered.map(g => 
-            '<div class="suggestion-item" onclick="selectSuggestion(\'' + g + '\')">' + g + '</div>'
-          ).join('');
-          suggestionsDiv.classList.add('active');
-        } else {
-          suggestionsDiv.classList.remove('active');
-        }
-      });
-      
-      document.addEventListener('click', function(e) {
-        if (!input.contains(e.target) && !suggestionsDiv.contains(e.target)) {
-          suggestionsDiv.classList.remove('active');
-        }
-      });
-    }
-
-    function selectSuggestion(value) {
-      document.getElementById('kodKres').value = value;
-      document.getElementById('suggestions').classList.remove('active');
+    function loadLastKodKres() {
+      const lastKod = localStorage.getItem('lastKodKres');
+      if (lastKod) {
+        document.getElementById('kodKres').value = lastKod;
+      }
     }
 
     function openAddModal() {
       document.getElementById('modalAdd').classList.add('active');
+      loadLastKodKres();
     }
 
     function closeModal() {
@@ -465,13 +422,21 @@
       btnSubmit.disabled = true;
       btnSubmit.textContent = 'Dodawanie...';
       
+      const kodKres = document.getElementById('kodKres').value;
+      
       const material = {
-        kodKres: document.getElementById('kodKres').value,
+        kodKres: kodKres,
+        kodEan: document.getElementById('kodEan').value,
         nazwa: document.getElementById('nazwa').value,
         ilosc: document.getElementById('ilosc').value,
         jednostka: document.getElementById('jednostka').value,
         projektId: document.getElementById('projektId').value || null
       };
+      
+      // Zapisz ostatni użyty kod
+      if (kodKres) {
+        localStorage.setItem('lastKodKres', kodKres);
+      }
       
       const url = API_URL + 
         '?action=dodajMaterial' +
