@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Widok Harmonogramu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-top {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; }
+    .header-title { font-size: 24px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    
+    .nav-menu {
+      background: rgba(0,0,0,0.1);
+      padding: 0 40px;
+      display: flex;
+      gap: 30px;
+    }
+    .nav-item {
+      padding: 15px 0;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
+    
+    .container { max-width: 1600px; margin: 30px auto; padding: 0 30px; }
+    
+    /* Wybór projektu */
+    .project-selector {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .project-selector label { font-weight: 600; color: #333; font-size: 16px; }
+    .project-selector select {
+      padding: 12px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      min-width: 300px;
+    }
+    .project-selector select:focus { outline: none; border-color: #667eea; }
+    .project-summary {
+      margin-left: auto;
+      display: flex;
+      gap: 25px;
+      font-size: 14px;
+      color: #666;
+    }
+    .project-summary strong { color: #333; }
+    
+    /* Kontrolki */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .controls h2 { font-size: 24px; color: #333; }
+    .controls-right { display: flex; gap: 10px; }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+    .btn-success { background: #28a745; color: white; }
+    .btn-success:hover { background: #218838; }
+    .btn-outline {
+      background: white;
+      border: 2px solid #e0e0e0;
+      color: #333;
+    }
+    .btn-outline:hover { border-color: #667eea; background: #f0f0ff; }
+    
+    /* Podsumowanie postępu */
+    .progress-overview {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 25px;
+    }
+    .progress-card { text-align: center; }
+    .progress-card-label { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+    .progress-bar-big {
+      height: 35px;
+      background: #e9ecef;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-big .fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      transition: width 0.5s;
+      border-radius: 18px;
+    }
+    .fill-tasks { background: linear-gradient(to right, #667eea, #764ba2); }
+    .fill-time { background: linear-gradient(to right, #17a2b8, #138496); }
+    .fill-hours { background: linear-gradient(to right, #28a745, #1e7e34); }
+    
+    /* Tabela harmonogramu */
+    .harmonogram-table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #667eea; color: white; }
+    th {
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
+    tbody tr:hover { background: #f9f9f9; }
+    td { padding: 14px 12px; font-size: 14px; color: #333; }
+    
+    /* Wiersz etapu */
+    .etap-row {
+      background: #f0f0ff !important;
+      border-left: 4px solid #667eea;
+    }
+    .etap-row td {
+      font-weight: 700;
+      font-size: 15px;
+      color: #333;
+    }
+    .etap-toggle {
+      cursor: pointer;
+      user-select: none;
+    }
+    .etap-toggle:hover { color: #667eea; }
+    
+    /* Wiersz zadania */
+    .zadanie-row td:first-child { padding-left: 40px; }
+    
+    /* Progress bar w tabeli */
+    .progress-bar-sm {
+      height: 24px;
+      background: #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+      min-width: 100px;
+    }
+    .progress-bar-sm .fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 11px;
+      border-radius: 12px;
+    }
+    .fill-green { background: #28a745; }
+    .fill-yellow { background: #ffc107; color: #333 !important; }
+    .fill-red { background: #dc3545; }
+    .fill-blue { background: linear-gradient(to right, #667eea, #764ba2); }
+    
+    /* Status badges */
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-ok { background: #d4edda; color: #155724; }
+    .badge-progress { background: #d1ecf1; color: #0c5460; }
+    .badge-delay { background: #f8d7da; color: #721c24; }
+    .badge-waiting { background: #e2e3e5; color: #383d41; }
+    
+    /* Godziny */
+    .hours-cell { white-space: nowrap; }
+    .hours-planned { color: #666; }
+    .hours-done { color: #28a745; font-weight: 600; }
+    
+    /* Materiały link */
+    .mat-link {
+      padding: 3px 8px;
+      background: #e9ecef;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-block;
+      margin: 2px 0;
+    }
+    .mat-link:hover { background: #dee2e6; }
+    
+    /* Uwagi */
+    .uwagi-cell {
+      max-width: 200px;
+      font-size: 12px;
+      color: #666;
+    }
+    .uwagi-delay { color: #dc3545; font-weight: 600; }
+    
+    /* Akcje */
+    .btn-icon {
+      width: 30px; height: 30px;
+      border: none; border-radius: 6px;
+      cursor: pointer; font-size: 13px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      margin: 0 2px;
+    }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-edit:hover { background: #ffc107; color: #333; }
+    .btn-delete { background: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background: #dc3545; color: white; }
+    .btn-approve { background: #d4edda; color: #155724; }
+    .btn-approve:hover { background: #28a745; color: white; }
+    
+    /* Gantt */
+    .gantt-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+      overflow-x: auto;
+    }
+    .gantt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .gantt-header h3 { font-size: 20px; color: #333; }
+    .gantt-chart { position: relative; min-height: 100px; }
+    .gantt-timeline {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 10px;
+    }
+    .gantt-week {
+      min-width: 80px;
+      text-align: center;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #666;
+      border-right: 1px solid #e9ecef;
+    }
+    .gantt-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      min-height: 32px;
+    }
+    .gantt-label {
+      width: 200px;
+      min-width: 200px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+      padding-right: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gantt-label.etap { font-weight: 700; color: #667eea; }
+    .gantt-bars { flex: 1; position: relative; height: 24px; }
+    .gantt-bar {
+      position: absolute;
+      height: 20px;
+      border-radius: 4px;
+      top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+      min-width: 4px;
+    }
+    .gantt-bar.planned { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    .gantt-bar.progress { background: linear-gradient(to right, #667eea, #764ba2); }
+    .gantt-bar.done { background: #28a745; }
+    .gantt-bar.delay { background: #dc3545; }
+    .gantt-today-line {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: #dc3545;
+      z-index: 10;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none; position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; padding: 35px;
+      border-radius: 20px;
+      max-width: 700px; width: 95%;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 25px; padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    .modal-header h3 { font-size: 22px; color: #333; }
+    .btn-close {
+      background: none; border: none;
+      font-size: 28px; cursor: pointer; color: #999;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; margin-bottom: 6px;
+      color: #333; font-weight: 500; font-size: 14px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 11px;
+      border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 14px; font-family: inherit;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: #667eea;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    .form-actions { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-secondary {
+      flex: 1; padding: 12px; background: #e0e0e0; color: #333;
+      border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    .btn-submit {
+      flex: 1; padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 8px;
+      font-weight: 600; cursor: pointer;
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .hint { font-size: 12px; color: #999; margin-top: 4px; }
+    
+    /* Tabs widok */
+    .view-tabs { display: flex; gap: 5px; }
+    .view-tab {
+      padding: 8px 18px; border: 2px solid #e0e0e0;
+      border-radius: 8px; background: white;
+      cursor: pointer; font-size: 13px; font-weight: 600; color: #666;
+    }
+    .view-tab.active { background: #667eea; color: white; border-color: #667eea; }
+    .view-tab:hover { border-color: #667eea; }
+
+    @media (max-width: 1000px) {
+      .progress-overview { grid-template-columns: 1fr; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .container { padding: 0 15px; }
+      .project-summary { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo">📋</div>
+        <div class="header-title">Harmonogram</div>
+      </div>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+      <a href="projekty.html" class="nav-item">Projekty</a>
+      <a href="harmonogram.html" class="nav-item active">Harmonogram</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
+      <a href="magazyn.html" class="nav-item">Magazyn</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Wybór projektu -->
+    <div class="project-selector">
+      <label>Projekt:</label>
+      <select id="projectSelect" onchange="onProjectChange()">
+        <option value="">-- Wybierz projekt --</option>
+      </select>
+      <div class="project-summary" id="projectSummary"></div>
+    </div>
+
+    <!-- Podsumowanie postępu -->
+    <div class="progress-overview" id="progressOverview" style="display: none;">
+      <div class="progress-card">
+        <div class="progress-card-label">Postęp zadań</div>
+        <div class="progress-bar-big">
+          <div class="fill fill-tasks" id="fillTasks" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div class="progress-card">
+        <div class="progress-card-label">Postęp czasowy</div>
+        <div class="progress-bar-big">
+          <div class="fill fill-time" id="fillTime" style="width: 0%">0%</div>
+        </div>
+      </div>
+      <div class="progress-card">
+        <div class="progress-card-label">Godziny</div>
+        <div class="progress-bar-big">
+          <div class="fill fill-hours" id="fillHours" style="width: 0%">0 / 0h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kontrolki -->
+    <div class="controls" id="controlsBar" style="display: none;">
+      <h2>📋 Harmonogram prac</h2>
+      <div class="controls-right">
+        <div class="view-tabs">
+          <div class="view-tab active" onclick="showView('table', this)">📊 Tabela</div>
+          <div class="view-tab" onclick="showView('gantt', this)">📈 Gantt</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddEtapModal()">+ Etap</button>
+        <button class="btn btn-primary" onclick="openAddZadanieModal()">+ Zadanie</button>
+      </div>
+    </div>
+
+    <!-- WIDOK TABELA -->
+    <div class="harmonogram-table" id="viewTable" style="display: none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nr</th>
+            <th>Opis zadania</th>
+            <th>Odpowiedzialny</th>
+            <th>Data od</th>
+            <th>Data do</th>
+            <th>Godziny</th>
+            <th>Postęp</th>
+            <th>Materiały</th>
+            <th>Uwagi</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="harmonogramBody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- WIDOK GANTT -->
+    <div class="gantt-container" id="viewGantt" style="display: none;">
+      <div class="gantt-header">
+        <h3>📈 Wykres Gantta</h3>
+      </div>
+      <div id="ganttChart" class="gantt-chart"></div>
+    </div>
+
+    <!-- Pusta strona -->
+    <div id="emptyState" class="empty-state">
+      <p style="font-size: 48px; margin-bottom: 20px;">📋</p>
+      <p style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 10px;">Wybierz projekt aby zobaczyć harmonogram</p>
+      <p>Harmonogram zawiera etapy i zadania z postępem prac, godzinami i materiałami.</p>
+    </div>
+  </div>
+
+  <!-- MODAL: DODAJ/EDYTUJ ETAP -->
+  <div id="modalEtap" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="etapModalTitle">Nowy etap</h3>
+        <button class="btn-close" onclick="closeModal('modalEtap')">&times;</button>
+      </div>
+      <form id="formEtap">
+        <input type="hidden" id="etapEditId" value="">
+        <div class="form-group">
+          <label>Numer etapu *</label>
+          <input type="number" id="etapNumer" required min="1" placeholder="np. 1">
+          <div class="hint">Kolejny numer porządkowy etapu</div>
+        </div>
+        <div class="form-group">
+          <label>Nazwa etapu *</label>
+          <input type="text" id="etapNazwa" required placeholder="np. Uziemienie i odgrom">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalEtap')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnEtapSubmit">Dodaj etap</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DODAJ/EDYTUJ ZADANIE -->
+  <div id="modalZadanie" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="zadanieModalTitle">Nowe zadanie</h3>
+        <button class="btn-close" onclick="closeModal('modalZadanie')">&times;</button>
+      </div>
+      <form id="formZadanie">
+        <input type="hidden" id="zadanieEditId" value="">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Etap *</label>
+            <select id="zadanieEtapId" required>
+              <option value="">Wybierz etap...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Podpunkt *</label>
+            <input type="text" id="zadaniePodpunkt" required placeholder="np. 1 (stanie się 1.1)">
+            <div class="hint">Nr w ramach etapu</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Opis zadania *</label>
+          <textarea id="zadanieOpis" rows="2" required placeholder="np. Spawanie bednarek od osi K do M"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Odpowiedzialni</label>
+          <input type="text" id="zadanieOdpowiedzialny" placeholder="np. Arek i Krzysztof">
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Data od *</label>
+            <input type="date" id="zadanieDataOd" required>
+          </div>
+          <div class="form-group">
+            <label>Data do *</label>
+            <input type="date" id="zadanieDataDo" required>
+          </div>
+          <div class="form-group">
+            <label>Godziny plan.</label>
+            <input type="number" id="zadanieGodziny" min="0" step="0.5" placeholder="np. 50">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Uwagi</label>
+          <textarea id="zadanieUwagi" rows="2" placeholder="np. Nie wykonano spawania w osi M - brak wykonanej podbudowy"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalZadanie')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnZadanieSubmit">Dodaj zadanie</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ZATWIERDŹ POSTĘP -->
+  <div id="modalPostep" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✅ Zatwierdź postęp</h3>
+        <button class="btn-close" onclick="closeModal('modalPostep')">&times;</button>
+      </div>
+      <div id="postepInfo" style="margin-bottom: 20px;"></div>
+      <form id="formPostep">
+        <input type="hidden" id="postepZadanieId" value="">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Postęp (%) *</label>
+            <input type="number" id="postepWartosc" required min="0" max="100" step="5" placeholder="np. 75">
+          </div>
+          <div class="form-group">
+            <label>Godziny wykonane</label>
+            <input type="number" id="postepGodziny" min="0" step="0.5" placeholder="np. 35">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Uwagi / Opóźnienia</label>
+          <textarea id="postepUwagi" rows="3" placeholder="np. Nie wykonano spawania w osi M - brak wykonanej podbudowy"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalPostep')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnPostepSubmit">✅ Zatwierdź postęp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let currentUser = null;
+    let currentProjektId = null;
+    let allProjekty = [];
+    let allEtapy = [];
+    let allZadaniaHarm = [];
+    let currentView = 'table';
+
+    window.onload = function() {
+      checkAuth();
+      loadUserInfo();
+      loadProjects();
+    };
+    window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
+
+    function checkAuth() {
+      if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html';
+    }
+    function loadUserInfo() {
+      const u = localStorage.getItem('harmonogram_user');
+      if (u) {
+        currentUser = JSON.parse(u);
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userRole').textContent = currentUser.role;
+      }
+    }
+
+    // ==================== PROJEKTY ====================
+    function loadProjects() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbProj';
+      window.cbProj = function(r) {
+        if (r.success) {
+          allProjekty = r.projekty || [];
+          const sel = document.getElementById('projectSelect');
+          allProjekty.forEach(p => {
+            sel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa }));
+          });
+          // Jeśli URL ma ?id= , wybierz projekt
+          const urlId = new URLSearchParams(window.location.search).get('id');
+          if (urlId) {
+            sel.value = urlId;
+            onProjectChange();
+          }
+        }
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+    }
+
+    function onProjectChange() {
+      currentProjektId = document.getElementById('projectSelect').value;
+      if (!currentProjektId) {
+        document.getElementById('progressOverview').style.display = 'none';
+        document.getElementById('controlsBar').style.display = 'none';
+        document.getElementById('viewTable').style.display = 'none';
+        document.getElementById('viewGantt').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+      }
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('progressOverview').style.display = 'grid';
+      document.getElementById('controlsBar').style.display = 'flex';
+      
+      // Pokaż podsumowanie projektu
+      const proj = allProjekty.find(p => p.id == currentProjektId);
+      if (proj) {
+        document.getElementById('projectSummary').innerHTML = 
+          '<span>👤 <strong>' + (proj.kierownik||'-') + '</strong></span>' +
+          '<span>📅 ' + (proj.dataRozpoczecia||'-') + ' → ' + (proj.dataZakonczenia||'-') + '</span>';
+      }
+      
+      loadHarmonogram();
+    }
+
+    // ==================== ŁADOWANIE HARMONOGRAMU ====================
+    function loadHarmonogram() {
+      // Ładuj etapy
+      const urlE = API_URL + '?action=getEtapy&projektId=' + currentProjektId + '&callback=cbEtapy';
+      window.cbEtapy = function(r) {
+        allEtapy = r.success ? (r.etapy || []) : [];
+        // Ładuj zadania harmonogramu
+        const urlZ = API_URL + '?action=getZadaniaHarmonogram&projektId=' + currentProjektId + '&callback=cbZadHarm';
+        window.cbZadHarm = function(r2) {
+          allZadaniaHarm = r2.success ? (r2.zadania || []) : [];
+          renderAll();
+        };
+        document.body.appendChild(Object.assign(document.createElement('script'), { src: urlZ }));
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: urlE }));
+    }
+
+    function renderAll() {
+      updateEtapSelect();
+      renderTable();
+      renderGantt();
+      updateProgressOverview();
+      showView(currentView);
+    }
+
+    // ==================== RENDEROWANIE TABELI ====================
+    function renderTable() {
+      const tbody = document.getElementById('harmonogramBody');
+      
+      if (allEtapy.length === 0 && allZadaniaHarm.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty-state">📋 Brak etapów. Dodaj pierwszy etap, a potem zadania!</td></tr>';
+        return;
+      }
+
+      let html = '';
+      
+      // Sortuj etapy po numerze
+      const sortedEtapy = [...allEtapy].sort((a,b) => a.numer - b.numer);
+      
+      sortedEtapy.forEach(etap => {
+        // Wiersz etapu
+        const zadaniaEtapu = allZadaniaHarm.filter(z => z.etapId == etap.id);
+        const avgPostep = zadaniaEtapu.length > 0 
+          ? Math.round(zadaniaEtapu.reduce((s,z) => s + (z.postep||0), 0) / zadaniaEtapu.length) 
+          : 0;
+        const totalGodz = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyPlan)||0), 0);
+        const totalGodzWyk = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyWyk)||0), 0);
+        
+        html += '<tr class="etap-row">';
+        html += '<td class="etap-toggle">' + etap.numer + '.</td>';
+        html += '<td colspan="4"><strong>' + esc(etap.nazwa) + '</strong></td>';
+        html += '<td class="hours-cell"><span class="hours-done">' + totalGodzWyk + '</span> / <span class="hours-planned">' + totalGodz + 'h</span></td>';
+        html += '<td>' + progressBarSm(avgPostep) + '</td>';
+        html += '<td></td>';
+        html += '<td></td>';
+        html += '<td>';
+        html += '<button class="btn-icon btn-edit" onclick="editEtap(' + etap.id + ')" title="Edytuj">✏️</button>';
+        html += '<button class="btn-icon btn-delete" onclick="deleteEtap(' + etap.id + ',\'' + escJ(etap.nazwa) + '\')" title="Usuń">🗑️</button>';
+        html += '</td>';
+        html += '</tr>';
+        
+        // Zadania etapu (sortuj po podpunkcie)
+        const sorted = [...zadaniaEtapu].sort((a,b) => (a.podpunkt||0) - (b.podpunkt||0));
+        sorted.forEach(z => {
+          const statusBadge = getStatusBadge(z);
+          html += '<tr class="zadanie-row">';
+          html += '<td>' + etap.numer + '.' + z.podpunkt + '</td>';
+          html += '<td><strong>' + esc(z.opis) + '</strong></td>';
+          html += '<td>' + esc(z.odpowiedzialny || '-') + '</td>';
+          html += '<td>' + (z.dataOd || '-') + '</td>';
+          html += '<td>' + (z.dataDo || '-') + '</td>';
+          html += '<td class="hours-cell"><span class="hours-done">' + (z.godzinyWyk||0) + '</span> / <span class="hours-planned">' + (z.godzinyPlan||0) + 'h</span></td>';
+          html += '<td>' + progressBarSm(z.postep||0) + '</td>';
+          html += '<td>' + renderMaterials(z) + '</td>';
+          html += '<td class="uwagi-cell">' + (z.uwagi ? '<span class="' + (z.postep < 100 && z.uwagi ? 'uwagi-delay' : '') + '">' + esc(truncStr(z.uwagi, 30)) + '</span>' : '-') + '</td>';
+          html += '<td style="white-space: nowrap;">';
+          html += '<button class="btn-icon btn-approve" onclick="openPostepModal(' + z.id + ')" title="Zatwierdź postęp">✅</button>';
+          html += '<button class="btn-icon btn-edit" onclick="editZadanie(' + z.id + ')" title="Edytuj">✏️</button>';
+          html += '<button class="btn-icon btn-delete" onclick="deleteZadanie(' + z.id + ',\'' + escJ(z.opis) + '\')" title="Usuń">🗑️</button>';
+          html += '</td>';
+          html += '</tr>';
+        });
+      });
+      
+      tbody.innerHTML = html;
+    }
+
+    function progressBarSm(val) {
+      const v = Math.min(100, Math.max(0, val||0));
+      let cls = 'fill-blue';
+      if (v >= 100) cls = 'fill-green';
+      else if (v >= 50) cls = 'fill-yellow';
+      else if (v > 0) cls = 'fill-blue';
+      const w = Math.max(v, v > 0 ? 15 : 0);
+      return '<div class="progress-bar-sm"><div class="fill ' + cls + '" style="width:' + w + '%">' + v + '%</div></div>';
+    }
+
+    function getStatusBadge(z) {
+      if (z.postep >= 100) return '<span class="status-badge badge-ok">✅ Wykonane</span>';
+      if (z.postep > 0) return '<span class="status-badge badge-progress">🔄 W toku</span>';
+      return '<span class="status-badge badge-waiting">⏳ Oczekuje</span>';
+    }
+
+    function renderMaterials(z) {
+      if (!z.materialInfo) return '-';
+      return '<span class="mat-link">📦 ' + esc(truncStr(z.materialInfo, 20)) + '</span>';
+    }
+
+    // ==================== GANTT ====================
+    function renderGantt() {
+      const chart = document.getElementById('ganttChart');
+      if (allEtapy.length === 0) {
+        chart.innerHTML = '<div class="empty-state">Dodaj etapy i zadania aby zobaczyć wykres Gantta</div>';
+        return;
+      }
+
+      // Znajdź zakres dat
+      let minDate = null, maxDate = null;
+      allZadaniaHarm.forEach(z => {
+        if (z.dataOd) { const d = new Date(z.dataOd); if (!minDate || d < minDate) minDate = d; }
+        if (z.dataDo) { const d = new Date(z.dataDo); if (!maxDate || d > maxDate) maxDate = d; }
+      });
+
+      if (!minDate || !maxDate) {
+        chart.innerHTML = '<div class="empty-state">Dodaj zadania z datami aby zobaczyć wykres</div>';
+        return;
+      }
+
+      // Dodaj bufor
+      minDate = new Date(minDate); minDate.setDate(minDate.getDate() - 3);
+      maxDate = new Date(maxDate); maxDate.setDate(maxDate.getDate() + 7);
+      const totalDays = Math.ceil((maxDate - minDate) / (1000*60*60*24));
+      const dayWidth = Math.max(12, 800 / totalDays);
+      const totalWidth = totalDays * dayWidth;
+
+      let html = '';
+      
+      // Timeline - tygodnie
+      html += '<div class="gantt-timeline" style="width:' + (200 + totalWidth) + 'px">';
+      html += '<div style="width:200px;min-width:200px"></div>';
+      const d = new Date(minDate);
+      while (d <= maxDate) {
+        const weekStart = new Date(d);
+        const weekEnd = new Date(d); weekEnd.setDate(weekEnd.getDate() + 6);
+        const label = weekStart.getDate() + '.' + (weekStart.getMonth()+1);
+        html += '<div class="gantt-week" style="width:' + (dayWidth * 7) + 'px">' + label + '</div>';
+        d.setDate(d.getDate() + 7);
+      }
+      html += '</div>';
+
+      // Rows
+      const sortedEtapy = [...allEtapy].sort((a,b) => a.numer - b.numer);
+      sortedEtapy.forEach(etap => {
+        // Etap row
+        html += '<div class="gantt-row" style="width:' + (200 + totalWidth) + 'px">';
+        html += '<div class="gantt-label etap">' + etap.numer + '. ' + esc(truncStr(etap.nazwa, 25)) + '</div>';
+        html += '<div class="gantt-bars" style="width:' + totalWidth + 'px"></div>';
+        html += '</div>';
+
+        // Zadania
+        const zadania = allZadaniaHarm.filter(z => z.etapId == etap.id).sort((a,b) => (a.podpunkt||0) - (b.podpunkt||0));
+        zadania.forEach(z => {
+          html += '<div class="gantt-row" style="width:' + (200 + totalWidth) + 'px">';
+          html += '<div class="gantt-label">&nbsp;&nbsp;' + etap.numer + '.' + z.podpunkt + ' ' + esc(truncStr(z.opis, 20)) + '</div>';
+          html += '<div class="gantt-bars" style="width:' + totalWidth + 'px;position:relative">';
+          
+          if (z.dataOd && z.dataDo) {
+            const start = new Date(z.dataOd);
+            const end = new Date(z.dataDo);
+            const left = Math.max(0, (start - minDate) / (1000*60*60*24)) * dayWidth;
+            const width = Math.max(dayWidth, ((end - start) / (1000*60*60*24) + 1) * dayWidth);
+            
+            // Planned bar
+            html += '<div class="gantt-bar planned" style="left:' + left + 'px;width:' + width + 'px"></div>';
+            
+            // Progress bar
+            if (z.postep > 0) {
+              const pWidth = width * (z.postep / 100);
+              const cls = z.postep >= 100 ? 'done' : 'progress';
+              html += '<div class="gantt-bar ' + cls + '" style="left:' + left + 'px;width:' + pWidth + 'px">' + z.postep + '%</div>';
+            }
+          }
+          
+          html += '</div></div>';
+        });
+      });
+
+      // Today line
+      const today = new Date();
+      if (today >= minDate && today <= maxDate) {
+        const todayLeft = 200 + ((today - minDate) / (1000*60*60*24)) * dayWidth;
+        html += '<div class="gantt-today-line" style="left:' + todayLeft + 'px;top:0;height:100%"></div>';
+      }
+
+      chart.innerHTML = html;
+      chart.style.position = 'relative';
+    }
+
+    // ==================== PROGRESS OVERVIEW ====================
+    function updateProgressOverview() {
+      if (allZadaniaHarm.length === 0) {
+        setProgress('fillTasks', 0, '0%');
+        setProgress('fillTime', 0, '0%');
+        setProgress('fillHours', 0, '0 / 0h');
+        return;
+      }
+
+      // Postęp zadań
+      const avgPostep = Math.round(allZadaniaHarm.reduce((s,z) => s + (z.postep||0), 0) / allZadaniaHarm.length);
+      setProgress('fillTasks', avgPostep, avgPostep + '%');
+
+      // Postęp czasowy
+      const proj = allProjekty.find(p => p.id == currentProjektId);
+      if (proj && proj.dataRozpoczecia && proj.dataZakonczenia) {
+        const start = new Date(proj.dataRozpoczecia);
+        const end = new Date(proj.dataZakonczenia);
+        const now = new Date();
+        const total = end - start;
+        const elapsed = Math.max(0, now - start);
+        const timePercent = Math.min(100, Math.round((elapsed / total) * 100));
+        setProgress('fillTime', timePercent, timePercent + '% (' + Math.round(elapsed/(1000*60*60*24)) + ' dni)');
+      }
+
+      // Godziny
+      const totalPlan = allZadaniaHarm.reduce((s,z) => s + (parseFloat(z.godzinyPlan)||0), 0);
+      const totalWyk = allZadaniaHarm.reduce((s,z) => s + (parseFloat(z.godzinyWyk)||0), 0);
+      const hoursPercent = totalPlan > 0 ? Math.round((totalWyk / totalPlan) * 100) : 0;
+      setProgress('fillHours', hoursPercent, totalWyk + ' / ' + totalPlan + 'h');
+    }
+
+    function setProgress(id, percent, label) {
+      const el = document.getElementById(id);
+      el.style.width = Math.max(percent, percent > 0 ? 15 : 0) + '%';
+      el.textContent = label;
+    }
+
+    // ==================== WIDOK ====================
+    function showView(view, tabEl) {
+      currentView = view;
+      document.getElementById('viewTable').style.display = view === 'table' ? 'block' : 'none';
+      document.getElementById('viewGantt').style.display = view === 'gantt' ? 'block' : 'none';
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+      if (tabEl) tabEl.classList.add('active');
+      else document.querySelector('.view-tab').classList.add('active');
+    }
+
+    // ==================== ETAPY CRUD ====================
+    function updateEtapSelect() {
+      const sel = document.getElementById('zadanieEtapId');
+      while (sel.options.length > 1) sel.remove(1);
+      allEtapy.sort((a,b) => a.numer - b.numer).forEach(e => {
+        sel.appendChild(Object.assign(document.createElement('option'), { value: e.id, textContent: e.numer + '. ' + e.nazwa }));
+      });
+    }
+
+    function openAddEtapModal() {
+      document.getElementById('etapEditId').value = '';
+      document.getElementById('etapModalTitle').textContent = 'Nowy etap';
+      document.getElementById('btnEtapSubmit').textContent = 'Dodaj etap';
+      document.getElementById('formEtap').reset();
+      // Sugeruj następny numer
+      const maxNum = allEtapy.reduce((m,e) => Math.max(m, e.numer||0), 0);
+      document.getElementById('etapNumer').value = maxNum + 1;
+      document.getElementById('modalEtap').classList.add('active');
+    }
+
+    function editEtap(id) {
+      const e = allEtapy.find(x => x.id == id);
+      if (!e) return;
+      document.getElementById('etapEditId').value = id;
+      document.getElementById('etapModalTitle').textContent = 'Edytuj etap';
+      document.getElementById('btnEtapSubmit').textContent = 'Zapisz zmiany';
+      document.getElementById('etapNumer').value = e.numer;
+      document.getElementById('etapNazwa').value = e.nazwa;
+      document.getElementById('modalEtap').classList.add('active');
+    }
+
+    function deleteEtap(id, nazwa) {
+      if (!confirm('Usunąć etap "' + nazwa + '"?\nUWAGA: Zostaną też usunięte wszystkie zadania w tym etapie!')) return;
+      jsonpCall('usunEtap', { id: id }, function(r) {
+        if (r.success) loadHarmonogram(); else alert('❌ ' + r.message);
+      });
+    }
+
+    document.getElementById('formEtap').addEventListener('submit', function(ev) {
+      ev.preventDefault();
+      const btn = document.getElementById('btnEtapSubmit');
+      btn.disabled = true;
+      const eid = document.getElementById('etapEditId').value;
+      const isEdit = eid !== '';
+      const data = {
+        projektId: currentProjektId,
+        numer: document.getElementById('etapNumer').value,
+        nazwa: document.getElementById('etapNazwa').value
+      };
+      if (isEdit) data.id = eid;
+      
+      const action = isEdit ? 'edytujEtap' : 'dodajEtap';
+      btn.textContent = isEdit ? 'Zapisywanie...' : 'Dodawanie...';
+      
+      jsonpCall(action, { etap: JSON.stringify(data) }, function(r) {
+        if (r.success) { closeModal('modalEtap'); loadHarmonogram(); } else alert('❌ ' + r.message);
+        btn.disabled = false;
+        btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj etap';
+      });
+    });
+
+    // ==================== ZADANIA HARMONOGRAM CRUD ====================
+    function openAddZadanieModal() {
+      if (allEtapy.length === 0) { alert('Najpierw dodaj etap!'); return; }
+      document.getElementById('zadanieEditId').value = '';
+      document.getElementById('zadanieModalTitle').textContent = 'Nowe zadanie';
+      document.getElementById('btnZadanieSubmit').textContent = 'Dodaj zadanie';
+      document.getElementById('formZadanie').reset();
+      document.getElementById('modalZadanie').classList.add('active');
+    }
+
+    function editZadanie(id) {
+      const z = allZadaniaHarm.find(x => x.id == id);
+      if (!z) return;
+      document.getElementById('zadanieEditId').value = id;
+      document.getElementById('zadanieModalTitle').textContent = 'Edytuj zadanie';
+      document.getElementById('btnZadanieSubmit').textContent = 'Zapisz zmiany';
+      document.getElementById('zadanieEtapId').value = z.etapId || '';
+      document.getElementById('zadaniePodpunkt').value = z.podpunkt || '';
+      document.getElementById('zadanieOpis').value = z.opis || '';
+      document.getElementById('zadanieOdpowiedzialny').value = z.odpowiedzialny || '';
+      document.getElementById('zadanieDataOd').value = z.dataOd || '';
+      document.getElementById('zadanieDataDo').value = z.dataDo || '';
+      document.getElementById('zadanieGodziny').value = z.godzinyPlan || '';
+      document.getElementById('zadanieUwagi').value = z.uwagi || '';
+      document.getElementById('modalZadanie').classList.add('active');
+    }
+
+    function deleteZadanie(id, opis) {
+      if (!confirm('Usunąć zadanie "' + opis + '"?')) return;
+      jsonpCall('usunZadanieHarm', { id: id }, function(r) {
+        if (r.success) loadHarmonogram(); else alert('❌ ' + r.message);
+      });
+    }
+
+    document.getElementById('formZadanie').addEventListener('submit', function(ev) {
+      ev.preventDefault();
+      const btn = document.getElementById('btnZadanieSubmit');
+      btn.disabled = true;
+      const eid = document.getElementById('zadanieEditId').value;
+      const isEdit = eid !== '';
+      const data = {
+        projektId: currentProjektId,
+        etapId: document.getElementById('zadanieEtapId').value,
+        podpunkt: document.getElementById('zadaniePodpunkt').value,
+        opis: document.getElementById('zadanieOpis').value,
+        odpowiedzialny: document.getElementById('zadanieOdpowiedzialny').value,
+        dataOd: document.getElementById('zadanieDataOd').value,
+        dataDo: document.getElementById('zadanieDataDo').value,
+        godzinyPlan: document.getElementById('zadanieGodziny').value || 0,
+        uwagi: document.getElementById('zadanieUwagi').value
+      };
+      if (isEdit) data.id = eid;
+      
+      const action = isEdit ? 'edytujZadanieHarm' : 'dodajZadanieHarm';
+      btn.textContent = isEdit ? 'Zapisywanie...' : 'Dodawanie...';
+      
+      jsonpCall(action, { zadanie: JSON.stringify(data) }, function(r) {
+        if (r.success) { closeModal('modalZadanie'); loadHarmonogram(); } else alert('❌ ' + r.message);
+        btn.disabled = false;
+        btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj zadanie';
+      });
+    });
+
+    // ==================== ZATWIERDZANIE POSTĘPU ====================
+    function openPostepModal(zadanieId) {
+      const z = allZadaniaHarm.find(x => x.id == zadanieId);
+      if (!z) return;
+      
+      const etap = allEtapy.find(e => e.id == z.etapId);
+      document.getElementById('postepInfo').innerHTML = 
+        '<div style="padding:15px;background:#f8f9fa;border-radius:10px;border-left:4px solid #667eea">' +
+        '<strong>' + (etap ? etap.numer + '.' : '') + z.podpunkt + ' ' + esc(z.opis) + '</strong><br>' +
+        '<span style="color:#666;font-size:13px">Obecny postęp: ' + (z.postep||0) + '% | Godziny: ' + (z.godzinyWyk||0) + ' / ' + (z.godzinyPlan||0) + 'h</span>' +
+        '</div>';
+      
+      document.getElementById('postepZadanieId').value = zadanieId;
+      document.getElementById('postepWartosc').value = z.postep || 0;
+      document.getElementById('postepGodziny').value = z.godzinyWyk || '';
+      document.getElementById('postepUwagi').value = z.uwagi || '';
+      document.getElementById('modalPostep').classList.add('active');
+    }
+
+    document.getElementById('formPostep').addEventListener('submit', function(ev) {
+      ev.preventDefault();
+      const btn = document.getElementById('btnPostepSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Zatwierdzanie...';
+      
+      const data = {
+        id: document.getElementById('postepZadanieId').value,
+        postep: document.getElementById('postepWartosc').value,
+        godzinyWyk: document.getElementById('postepGodziny').value || 0,
+        uwagi: document.getElementById('postepUwagi').value
+      };
+      
+      jsonpCall('zatwierdzPostep', { zadanie: JSON.stringify(data) }, function(r) {
+        if (r.success) { closeModal('modalPostep'); loadHarmonogram(); } else alert('❌ ' + r.message);
+        btn.disabled = false;
+        btn.textContent = '✅ Zatwierdź postęp';
+      });
+    });
+
+    // ==================== HELPERS ====================
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function jsonpCall(action, params, callback) {
+      const cbName = 'cb_' + action + '_' + Date.now();
+      let url = API_URL + '?action=' + action + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=' + cbName;
+      for (const key in params) {
+        url += '&' + key + '=' + encodeURIComponent(params[key]);
+      }
+      window[cbName] = function(r) {
+        callback(r);
+        delete window[cbName];
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+    }
+
+    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+    function escJ(s) { return s ? s.replace(/\\/g,'\\\\').replace(/'/g,"\\'") : ''; }
+    function truncStr(s, n) { return s && s.length > n ? s.substring(0,n) + '…' : (s||''); }
+
+    function logout() {
+      localStorage.removeItem('harmonogram_token');
+      localStorage.removeItem('harmonogram_user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
