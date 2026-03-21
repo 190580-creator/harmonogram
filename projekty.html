@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Projekty</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-top {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; cursor: pointer; }
+    .header-title { font-size: 24px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    
+    .nav-menu {
+      background: rgba(0,0,0,0.1);
+      padding: 0 40px;
+      display: flex;
+      gap: 30px;
+    }
+    .nav-item {
+      padding: 15px 0;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
+    
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .section-header h2 { font-size: 32px; color: #333; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+    
+    .projects-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .project-item {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .project-item:hover { background: #f9f9f9; }
+    .project-item:last-child { border-bottom: none; }
+    .project-info {
+      flex: 1;
+      cursor: pointer;
+    }
+    .project-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .project-details { display: flex; gap: 20px; font-size: 13px; color: #666; flex-wrap: wrap; }
+    .project-status {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-aktywny { background: #d4edda; color: #155724; }
+    .status-planowany { background: #d1ecf1; color: #0c5460; }
+    .status-zakonczony { background: #e2e3e5; color: #383d41; }
+    .status-wstrzymany { background: #fff3cd; color: #856404; }
+    
+    /* Przyciski akcji */
+    .project-actions { display: flex; gap: 8px; margin-left: 15px; align-items: center; }
+    .btn-icon {
+      width: 36px; height: 36px;
+      border: none; border-radius: 8px;
+      cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-edit:hover { background: #ffc107; color: #333; }
+    .btn-delete { background: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background: #dc3545; color: white; }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .modal-header h3 { font-size: 24px; color: #333; }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+    .btn-close:hover { color: #333; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo" onclick="window.location.href='dashboard.html'">📅</div>
+        <div class="header-title">Projekty</div>
+      </div>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+      <a href="projekty.html" class="nav-item active">Projekty</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
+      <a href="magazyn.html" class="nav-item">Magazyn</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section-header">
+      <h2>Lista projektów</h2>
+      <button class="btn-primary" onclick="openAddModal()">+ Dodaj projekt</button>
+    </div>
+
+    <div class="projects-container">
+      <div id="projectsList" class="loading">⏳ Ładowanie projektów...</div>
+    </div>
+  </div>
+
+  <!-- MODAL DODAJ / EDYTUJ PROJEKT -->
+  <div id="modalAdd" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nowy projekt</h3>
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <form id="formAddProject">
+        <input type="hidden" id="editId" value="">
+        
+        <div class="form-group">
+          <label>Nazwa projektu *</label>
+          <input type="text" id="nazwa" required placeholder="np. Rozbudowa hali produkcyjnej">
+        </div>
+        
+        <div class="form-group">
+          <label>Klient</label>
+          <input type="text" id="klient" placeholder="np. ABC Sp. z o.o.">
+        </div>
+        
+        <div class="form-group">
+          <label>Kierownik *</label>
+          <input type="text" id="kierownik" required placeholder="np. Jan Kowalski">
+        </div>
+        
+        <div class="form-group">
+          <label>Dyrektor</label>
+          <input type="text" id="dyrektor" placeholder="np. Dyrektor R">
+        </div>
+        
+        <div class="form-group">
+          <label>Data rozpoczęcia *</label>
+          <input type="date" id="dataStart" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Data zakończenia *</label>
+          <input type="date" id="dataEnd" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Budżet (PLN)</label>
+          <input type="number" id="budzet" step="0.01" min="0" placeholder="0.00">
+        </div>
+        
+        <div class="form-group">
+          <label>Status</label>
+          <select id="status">
+            <option value="Aktywny">Aktywny</option>
+            <option value="Planowany">Planowany</option>
+            <option value="Wstrzymany">Wstrzymany</option>
+            <option value="Zakończony">Zakończony</option>
+          </select>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnSubmit">Dodaj projekt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let currentUser = null;
+    let allProjekty = [];
+
+    window.onload = function() {
+      checkAuth();
+      loadUserInfo();
+      loadProjects();
+    };
+
+    // pageshow - odśwież przy cofaniu
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    function checkAuth() {
+      const token = localStorage.getItem('harmonogram_token');
+      if (!token) {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function loadUserInfo() {
+      const userStr = localStorage.getItem('harmonogram_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userRole').textContent = currentUser.role;
+      }
+    }
+
+    function loadProjects() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
+      
+      window.handleProjectsResponse = function(result) {
+        if (result.success) {
+          allProjekty = result.projekty || [];
+          displayProjects(allProjekty);
+        } else {
+          document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ Błąd: ' + result.message + '</div>';
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
+        document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia z serwerem</div>';
+      };
+      document.body.appendChild(script);
+    }
+
+    function getStatusClass(status) {
+      const s = (status || '').toLowerCase();
+      if (s.includes('aktywn')) return 'status-aktywny';
+      if (s.includes('planow')) return 'status-planowany';
+      if (s.includes('zakon')) return 'status-zakonczony';
+      if (s.includes('wstrzym')) return 'status-wstrzymany';
+      return 'status-aktywny';
+    }
+
+    function displayProjects(projekty) {
+      const listDiv = document.getElementById('projectsList');
+
+      if (!projekty || projekty.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">📋 Brak projektów. Dodaj pierwszy projekt!</div>';
+        return;
+      }
+
+      listDiv.innerHTML = projekty.map(p => `
+        <div class="project-item">
+          <div class="project-info" onclick="openProject(${p.id})">
+            <div class="project-name">${p.nazwa}</div>
+            <div class="project-details">
+              <span>👤 ${p.kierownik || '-'}</span>
+              <span>🏢 ${p.klient || '-'}</span>
+              <span>📅 ${p.dataRozpoczecia || '-'} - ${p.dataZakonczenia || '-'}</span>
+              <span>💰 ${p.budzet || 0} PLN</span>
+            </div>
+          </div>
+          <div class="project-actions">
+            <button class="btn-icon btn-edit" onclick="editProject(${p.id})" title="Edytuj">✏️</button>
+            <button class="btn-icon btn-delete" onclick="deleteProject(${p.id}, '${(p.nazwa || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
+            <span class="project-status ${getStatusClass(p.status)}">${p.status || 'Aktywny'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openProject(id) {
+      window.location.href = 'projekt.html?id=' + id;
+    }
+
+    // === DODAWANIE ===
+    function openAddModal() {
+      document.getElementById('editId').value = '';
+      document.getElementById('modalTitle').textContent = 'Nowy projekt';
+      document.getElementById('btnSubmit').textContent = 'Dodaj projekt';
+      document.getElementById('formAddProject').reset();
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    // === EDYCJA ===
+    function editProject(id) {
+      const projekt = allProjekty.find(p => p.id == id);
+      if (!projekt) { alert('Nie znaleziono projektu'); return; }
+      
+      document.getElementById('editId').value = id;
+      document.getElementById('modalTitle').textContent = 'Edytuj projekt';
+      document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
+      document.getElementById('nazwa').value = projekt.nazwa || '';
+      document.getElementById('klient').value = projekt.klient || '';
+      document.getElementById('kierownik').value = projekt.kierownik || '';
+      document.getElementById('dyrektor').value = projekt.dyrektor || '';
+      document.getElementById('dataStart').value = projekt.dataRozpoczecia || '';
+      document.getElementById('dataEnd').value = projekt.dataZakonczenia || '';
+      document.getElementById('budzet').value = projekt.budzet || '';
+      document.getElementById('status').value = projekt.status || 'Aktywny';
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    // === USUWANIE ===
+    function deleteProject(id, nazwa) {
+      if (!confirm('Czy na pewno usunąć projekt "' + nazwa + '"?\n\nUWAGA: Zostaną też usunięte wszystkie powiązane zadania!')) return;
+      
+      const url = API_URL + '?action=usunProjekt&id=' + id +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+        '&callback=handleDeleteProjectResponse';
+      
+      window.handleDeleteProjectResponse = function(result) {
+        if (result.success) {
+          loadProjects();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function closeModal() {
+      document.getElementById('modalAdd').classList.remove('active');
+      document.getElementById('formAddProject').reset();
+      document.getElementById('editId').value = '';
+    }
+
+    document.getElementById('formAddProject').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      
+      const editId = document.getElementById('editId').value;
+      const isEdit = editId !== '';
+      
+      const projekt = {
+        nazwa: document.getElementById('nazwa').value,
+        klient: document.getElementById('klient').value,
+        kierownik: document.getElementById('kierownik').value,
+        dyrektor: document.getElementById('dyrektor').value,
+        dataRozpoczecia: document.getElementById('dataStart').value,
+        dataZakonczenia: document.getElementById('dataEnd').value,
+        budzet: document.getElementById('budzet').value,
+        status: document.getElementById('status').value
+      };
+      
+      let url;
+      if (isEdit) {
+        btnSubmit.textContent = 'Zapisywanie...';
+        projekt.id = editId;
+        url = API_URL + 
+          '?action=edytujProjekt' +
+          '&projekt=' + encodeURIComponent(JSON.stringify(projekt)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveProjectResponse';
+      } else {
+        btnSubmit.textContent = 'Dodawanie...';
+        url = API_URL + 
+          '?action=dodajProjekt' +
+          '&projekt=' + encodeURIComponent(JSON.stringify(projekt)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveProjectResponse';
+      }
+      
+      window.handleSaveProjectResponse = function(result) {
+        if (result.success) {
+          alert(isEdit ? '✅ Projekt zaktualizowany!' : '✅ Projekt dodany pomyślnie!');
+          closeModal();
+          loadProjects();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj projekt';
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    });
+
+    function logout() {
+      localStorage.removeItem('harmonogram_token');
+      localStorage.removeItem('harmonogram_user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
