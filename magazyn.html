@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Magazyn</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-top {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; }
+    .header-title { font-size: 24px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    
+    .nav-menu {
+      background: rgba(0,0,0,0.1);
+      padding: 0 40px;
+      display: flex;
+      gap: 30px;
+    }
+    .nav-item {
+      padding: 15px 0;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
+    
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .section-header h2 { font-size: 32px; color: #333; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+    
+    .materials-table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f8f9fa; }
+    th {
+      padding: 20px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    td {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #666;
+      font-size: 14px;
+    }
+    tr:hover { background: #f9f9f9; }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-dostepny { background: #d4edda; color: #155724; }
+    
+    /* Przyciski akcji */
+    .btn-icon {
+      width: 32px; height: 32px;
+      border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      margin: 0 2px;
+    }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-edit:hover { background: #ffc107; color: #333; }
+    .btn-delete { background: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background: #dc3545; color: white; }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .modal-header h3 { font-size: 24px; color: #333; }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .kod-builder {
+      display: grid;
+      grid-template-columns: 1fr 100px 80px;
+      gap: 10px;
+    }
+    .kod-builder input {
+      text-align: center;
+      font-weight: 600;
+      font-family: monospace;
+      font-size: 16px;
+    }
+    .kod-preview {
+      padding: 15px;
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .hint { font-size: 12px; color: #999; margin-top: 4px; }
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo">📦</div>
+        <div class="header-title">Magazyn</div>
+      </div>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+      <a href="projekty.html" class="nav-item">Projekty</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
+      <a href="magazyn.html" class="nav-item active">Magazyn</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section-header">
+      <h2>Materiały KRES</h2>
+      <button class="btn-primary" onclick="openAddModal()">+ Dodaj materiał</button>
+    </div>
+
+    <div class="materials-table">
+      <div id="materialsList" class="loading">⏳ Ładowanie materiałów...</div>
+    </div>
+  </div>
+
+  <!-- MODAL DODAJ / EDYTUJ -->
+  <div id="modalAdd" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nowy materiał</h3>
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <form id="formAddMaterial">
+        <input type="hidden" id="editId" value="">
+        
+        <div class="form-group">
+          <label>Kod KRES</label>
+          <div class="kod-builder">
+            <select id="grupaKres" onchange="updateKodPreview()">
+              <option value="">Wybierz...</option>
+              <option value="10">10 - Kable i przewody</option>
+              <option value="11">11 - Przewody instalacyjne</option>
+              <option value="12">12 - Włączniki</option>
+              <option value="13">13 - Gniazda pojedyncze</option>
+              <option value="14">14 - Gniazda podwójne</option>
+              <option value="15">15 - Gniazda specjalne</option>
+              <option value="16">16 - Ramki i puszki</option>
+              <option value="20">20 - Rozdzielnice</option>
+              <option value="21">21 - Aparatura modułowa</option>
+              <option value="22">22 - Złączki i zaciski</option>
+              <option value="30">30 - Oprawy oświetleniowe</option>
+              <option value="31">31 - Źródła światła</option>
+              <option value="40">40 - Systemy alarmowe</option>
+              <option value="50">50 - Ogrzewanie elektryczne</option>
+              <option value="60">60 - Oprawy zewnętrzne</option>
+              <option value="70">70 - Narzędzia elektryczne</option>
+              <option value="80">80 - Ochrona ppoż</option>
+              <option value="90">90 - Materiały eksploatacyjne</option>
+            </select>
+            <!-- POPRAWKA #1: Pola indeks i wariant BEZ disabled - w pełni edytowalne -->
+            <input type="text" id="indeks" placeholder="001" maxlength="3" oninput="updateKodPreview()">
+            <input type="text" id="wariant" placeholder="10" maxlength="2" oninput="updateKodPreview()">
+          </div>
+          <div class="kod-preview" id="kodPreview">-- --- --</div>
+          <div class="hint">Przykład: 10 001 10 = Kabel PEN 3x2,5 | 13 117 33 = Gniazdo ELKO</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Kod EAN (opcjonalnie)</label>
+          <input type="text" id="kodEan" placeholder="5901234567890">
+          <div class="hint">Kod kreskowy hurtowni</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Nazwa materiału *</label>
+          <input type="text" id="nazwa" required placeholder="np. PEN 3x2,5 lub Gniazdo ELKO białe">
+        </div>
+        
+        <div class="form-group">
+          <label>Ilość *</label>
+          <input type="number" id="ilosc" required step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label>Jednostka *</label>
+          <select id="jednostka" required>
+            <option value="">Wybierz...</option>
+            <option value="szt">szt</option>
+            <option value="mb">mb</option>
+            <option value="m2">m2</option>
+            <option value="kg">kg</option>
+            <option value="opak">opak</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Projekt</label>
+          <select id="projektId">
+            <option value="">Brak powiązania</option>
+          </select>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnSubmit">Dodaj materiał</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let currentUser = null;
+    let allMaterialy = []; // cache do edycji
+
+    window.onload = function() {
+      checkAuth();
+      loadUserInfo();
+      loadProjects();
+      loadMaterials();
+    };
+
+    // POPRAWKA #8: pageshow - odśwież przy cofaniu
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    function checkAuth() {
+      const token = localStorage.getItem('harmonogram_token');
+      if (!token) window.location.href = 'index.html';
+    }
+
+    function loadUserInfo() {
+      const userStr = localStorage.getItem('harmonogram_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userRole').textContent = currentUser.role;
+      }
+    }
+
+    function loadProjects() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
+      window.handleProjectsResponse = function(result) {
+        if (result.success && result.projekty) {
+          const select = document.getElementById('projektId');
+          while (select.options.length > 1) select.remove(1);
+          result.projekty.forEach(p => {
+            select.appendChild(Object.assign(document.createElement('option'), {value: p.id, textContent: p.nazwa}));
+          });
+        }
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), {src: url}));
+    }
+
+    function loadMaterials() {
+      const url = API_URL + '?action=getMaterialy&callback=handleMaterialsResponse';
+      window.handleMaterialsResponse = function(result) {
+        if (result.success) {
+          allMaterialy = result.materialy || [];
+          displayMaterials(allMaterialy);
+        }
+        else document.getElementById('materialsList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+      };
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = () => document.getElementById('materialsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
+      document.body.appendChild(script);
+    }
+
+    function displayMaterials(materialy) {
+      const listDiv = document.getElementById('materialsList');
+      if (!materialy || materialy.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">📦 Brak materiałów. Dodaj pierwszy!</div>';
+        return;
+      }
+      listDiv.innerHTML = `<table><thead><tr>
+        <th>Kod KRES</th><th>EAN</th><th>Nazwa</th><th>Ilość</th><th>Jedn.</th><th>Projekt</th><th>Status</th><th>Akcje</th>
+      </tr></thead><tbody>${materialy.map(m => `<tr>
+        <td><strong>${m.kodKres || '-'}</strong></td>
+        <td>${m.kodEan || '-'}</td>
+        <td>${m.nazwa}</td>
+        <td>${m.ilosc}</td>
+        <td>${m.jednostka}</td>
+        <td>${m.projektNazwa || '-'}</td>
+        <td><span class="status-badge status-dostepny">${m.status || 'Dostępny'}</span></td>
+        <td>
+          <button class="btn-icon btn-edit" onclick="editMaterial(${m.id})" title="Edytuj">✏️</button>
+          <button class="btn-icon btn-delete" onclick="deleteMaterial(${m.id}, '${(m.nazwa || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
+        </td>
+      </tr>`).join('')}</tbody></table>`;
+    }
+
+    function updateKodPreview() {
+      const grupa = document.getElementById('grupaKres').value || '--';
+      const indeks = document.getElementById('indeks').value || '---';
+      const wariant = document.getElementById('wariant').value || '--';
+      document.getElementById('kodPreview').textContent = `${grupa} ${indeks} ${wariant}`;
+    }
+
+    // === DODAWANIE ===
+    function openAddModal() {
+      document.getElementById('editId').value = '';
+      document.getElementById('modalTitle').textContent = 'Nowy materiał';
+      document.getElementById('btnSubmit').textContent = 'Dodaj materiał';
+      document.getElementById('formAddMaterial').reset();
+      updateKodPreview();
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    // === EDYCJA ===
+    function editMaterial(id) {
+      const mat = allMaterialy.find(m => m.id == id);
+      if (!mat) { alert('Nie znaleziono materiału'); return; }
+      
+      document.getElementById('editId').value = id;
+      document.getElementById('modalTitle').textContent = 'Edytuj materiał';
+      document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
+      
+      // Parsuj kod KRES (np. "10 001 10") na grupy
+      if (mat.kodKres) {
+        const parts = mat.kodKres.split(' ');
+        document.getElementById('grupaKres').value = parts[0] || '';
+        document.getElementById('indeks').value = parts[1] || '';
+        document.getElementById('wariant').value = parts[2] || '';
+      }
+      
+      document.getElementById('kodEan').value = mat.kodEan || '';
+      document.getElementById('nazwa').value = mat.nazwa || '';
+      document.getElementById('ilosc').value = mat.ilosc || '';
+      document.getElementById('jednostka').value = mat.jednostka || '';
+      document.getElementById('projektId').value = mat.projektId || '';
+      updateKodPreview();
+      document.getElementById('modalAdd').classList.add('active');
+    }
+
+    // === USUWANIE ===
+    function deleteMaterial(id, nazwa) {
+      if (!confirm('Czy na pewno usunąć materiał "' + nazwa + '"?')) return;
+      
+      const url = API_URL + '?action=usunMaterial&id=' + id +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+        '&callback=handleDeleteMaterialResponse';
+      
+      window.handleDeleteMaterialResponse = function(result) {
+        if (result.success) {
+          loadMaterials();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function closeModal() {
+      document.getElementById('modalAdd').classList.remove('active');
+      document.getElementById('formAddMaterial').reset();
+      document.getElementById('editId').value = '';
+      updateKodPreview();
+    }
+
+    document.getElementById('formAddMaterial').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      
+      const editId = document.getElementById('editId').value;
+      const isEdit = editId !== '';
+      
+      const grupa = document.getElementById('grupaKres').value;
+      const indeks = document.getElementById('indeks').value.padStart(3, '0');
+      const wariant = document.getElementById('wariant').value;
+      const kodKres = grupa && indeks && wariant ? `${grupa} ${indeks} ${wariant}` : '';
+      
+      const material = {
+        kodKres: kodKres,
+        kodEan: document.getElementById('kodEan').value,
+        nazwa: document.getElementById('nazwa').value,
+        ilosc: document.getElementById('ilosc').value,
+        jednostka: document.getElementById('jednostka').value,
+        projektId: document.getElementById('projektId').value || null
+      };
+      
+      let url;
+      if (isEdit) {
+        btnSubmit.textContent = 'Zapisywanie...';
+        material.id = editId;
+        url = API_URL + '?action=edytujMaterial&material=' + encodeURIComponent(JSON.stringify(material)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveMaterialResponse';
+      } else {
+        btnSubmit.textContent = 'Dodawanie...';
+        url = API_URL + '?action=dodajMaterial&material=' + encodeURIComponent(JSON.stringify(material)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveMaterialResponse';
+      }
+      
+      window.handleSaveMaterialResponse = function(result) {
+        alert(result.success 
+          ? (isEdit ? '✅ Materiał zaktualizowany!' : '✅ Materiał dodany!') 
+          : '❌ Błąd: ' + result.message);
+        if (result.success) { closeModal(); loadMaterials(); }
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj materiał';
+      };
+      
+      document.body.appendChild(Object.assign(document.createElement('script'), {src: url}));
+    });
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
