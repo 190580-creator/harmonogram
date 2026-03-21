@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Projekt</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    
+    /* POPRAWKA #3: Nowy header z menu nawigacji */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header-top {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; cursor: pointer; }
+    .header-title { font-size: 24px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .btn-logout:hover { background: rgba(255,255,255,0.3); }
+    
+    .nav-menu {
+      background: rgba(0,0,0,0.1);
+      padding: 0 40px;
+      display: flex;
+      gap: 30px;
+    }
+    .nav-item {
+      padding: 15px 0;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
+    
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
+    
+    .project-header {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .project-header h1 { color: #333; font-size: 32px; margin-bottom: 20px; }
+    .project-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .meta-label { font-size: 12px; color: #999; margin-bottom: 5px; }
+    .meta-value { font-size: 16px; color: #333; font-weight: 500; }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 30px 0 20px 0;
+    }
+    .section-header h2 { font-size: 24px; color: #333; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+    
+    .tasks-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .task-item {
+      padding: 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-info { flex: 1; }
+    .task-name { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .task-details { font-size: 13px; color: #666; }
+    .task-status {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #fff3cd;
+      color: #856404;
+    }
+    .task-status.done { background: #d4edda; color: #155724; }
+    
+    /* Przyciski akcji edytuj/usuń */
+    .task-actions { display: flex; gap: 8px; margin-left: 15px; align-items: center; }
+    .btn-icon {
+      width: 36px; height: 36px;
+      border: none; border-radius: 8px;
+      cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-edit { background: #fff3cd; color: #856404; }
+    .btn-edit:hover { background: #ffc107; color: #333; }
+    .btn-delete { background: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background: #dc3545; color: white; }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .modal-header h3 { font-size: 24px; color: #333; }
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+    .btn-close:hover { color: #333; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .form-actions { display: flex; gap: 15px; margin-top: 30px; }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+  </style>
+</head>
+<body>
+  <!-- POPRAWKA #3: Pełny header z menu nawigacji (zamiast prostego headera) -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo" onclick="window.location.href='dashboard.html'">📅</div>
+        <div class="header-title" id="projectTitle">Projekt</div>
+      </div>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+      <a href="projekty.html" class="nav-item active">Projekty</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
+      <a href="magazyn.html" class="nav-item">Magazyn</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="project-header" id="projectHeader">
+      <div class="loading">⏳ Ładowanie projektu...</div>
+    </div>
+
+    <div class="section-header">
+      <h2>Zadania</h2>
+      <button class="btn-primary" onclick="openAddTaskModal()">+ Dodaj zadanie</button>
+    </div>
+
+    <div class="tasks-container">
+      <div id="tasksList" class="loading">⏳ Ładowanie zadań...</div>
+    </div>
+  </div>
+
+  <!-- MODAL DODAJ / EDYTUJ ZADANIE -->
+  <div id="modalAddTask" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nowe zadanie</h3>
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <form id="formAddTask">
+        <input type="hidden" id="editTaskId" value="">
+        
+        <div class="form-group">
+          <label>Nazwa zadania *</label>
+          <input type="text" id="taskNazwa" required placeholder="np. Przygotować dokumentację">
+        </div>
+        
+        <div class="form-group">
+          <label>Opis</label>
+          <textarea id="taskOpis" rows="3" placeholder="Szczegóły zadania..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <!-- POPRAWKA #6: text zamiast email -->
+          <label>Odpowiedzialny *</label>
+          <input type="text" id="taskOdpowiedzialny" required placeholder="np. Jan Kowalski">
+        </div>
+        
+        <div class="form-group">
+          <label>Priorytet</label>
+          <select id="taskPriorytet">
+            <option value="Niski">Niski</option>
+            <option value="Średni" selected>Średni</option>
+            <option value="Wysoki">Wysoki</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Data rozpoczęcia *</label>
+          <input type="date" id="taskDataStart" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Data zakończenia *</label>
+          <input type="date" id="taskDataEnd" required>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnSubmitTask">Dodaj zadanie</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let currentUser = null;
+    let currentProjektId = null;
+    let currentProjekt = null;
+    let allZadania = []; // cache do edycji
+
+    window.onload = function() {
+      checkAuth();
+      loadUserInfo();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      currentProjektId = urlParams.get('id');
+      
+      if (!currentProjektId) {
+        alert('Brak ID projektu');
+        goToProjects();
+        return;
+      }
+      
+      loadProjekt();
+      loadTasks();
+    };
+
+    // POPRAWKA #8: pageshow - odśwież przy cofaniu
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    function checkAuth() {
+      const token = localStorage.getItem('harmonogram_token');
+      if (!token) {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function loadUserInfo() {
+      const userStr = localStorage.getItem('harmonogram_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userRole').textContent = currentUser.role;
+      }
+    }
+
+    function loadProjekt() {
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjektResponse';
+      
+      window.handleProjektResponse = function(result) {
+        if (result.success) {
+          currentProjekt = result.projekty.find(p => p.id == currentProjektId);
+          if (currentProjekt) {
+            displayProjekt(currentProjekt);
+          } else {
+            document.getElementById('projectHeader').innerHTML = '<div class="empty-state">❌ Projekt nie znaleziony</div>';
+          }
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function displayProjekt(projekt) {
+      document.getElementById('projectTitle').textContent = projekt.nazwa;
+      document.getElementById('projectHeader').innerHTML = `
+        <h1>${projekt.nazwa}</h1>
+        <div class="project-meta">
+          <div class="meta-item">
+            <div class="meta-label">Klient</div>
+            <div class="meta-value">${projekt.klient || '-'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Kierownik</div>
+            <div class="meta-value">${projekt.kierownik}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Data rozpoczęcia</div>
+            <div class="meta-value">${projekt.dataRozpoczecia}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Data zakończenia</div>
+            <div class="meta-value">${projekt.dataZakonczenia}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Budżet</div>
+            <div class="meta-value">${projekt.budzet} PLN</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status</div>
+            <div class="meta-value">${projekt.status}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function loadTasks() {
+      const url = API_URL + '?action=getZadania&projektId=' + currentProjektId + '&callback=handleTasksResponse';
+      
+      window.handleTasksResponse = function(result) {
+        if (result.success) {
+          allZadania = result.zadania || [];
+          displayTasks(allZadania);
+        } else {
+          document.getElementById('tasksList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function displayTasks(zadania) {
+      const listDiv = document.getElementById('tasksList');
+
+      if (!zadania || zadania.length === 0) {
+        listDiv.innerHTML = '<div class="empty-state">📋 Brak zadań. Dodaj pierwsze zadanie!</div>';
+        return;
+      }
+
+      listDiv.innerHTML = zadania.map(z => `
+        <div class="task-item">
+          <div class="task-info">
+            <div class="task-name">${z.nazwa}</div>
+            <div class="task-details">
+              👤 ${z.odpowiedzialny} | 📅 ${z.dataRozpoczecia} - ${z.dataZakonczenia} | 🎯 ${z.priorytet}
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="btn-icon btn-edit" onclick="editTask(${z.id})" title="Edytuj">✏️</button>
+            <button class="btn-icon btn-delete" onclick="deleteTask(${z.id}, '${(z.nazwa || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
+            <span class="task-status ${z.status === 'Zakończone' ? 'done' : ''}">${z.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // === DODAWANIE ===
+    function openAddTaskModal() {
+      document.getElementById('editTaskId').value = '';
+      document.getElementById('modalTitle').textContent = 'Nowe zadanie';
+      document.getElementById('btnSubmitTask').textContent = 'Dodaj zadanie';
+      document.getElementById('formAddTask').reset();
+      document.getElementById('modalAddTask').classList.add('active');
+    }
+
+    // === EDYCJA ===
+    function editTask(id) {
+      const zadanie = allZadania.find(z => z.id == id);
+      if (!zadanie) { alert('Nie znaleziono zadania'); return; }
+      
+      document.getElementById('editTaskId').value = id;
+      document.getElementById('modalTitle').textContent = 'Edytuj zadanie';
+      document.getElementById('btnSubmitTask').textContent = 'Zapisz zmiany';
+      document.getElementById('taskNazwa').value = zadanie.nazwa || '';
+      document.getElementById('taskOpis').value = zadanie.opis || '';
+      document.getElementById('taskOdpowiedzialny').value = zadanie.odpowiedzialny || '';
+      document.getElementById('taskPriorytet').value = zadanie.priorytet || 'Średni';
+      document.getElementById('taskDataStart').value = zadanie.dataRozpoczecia || '';
+      document.getElementById('taskDataEnd').value = zadanie.dataZakonczenia || '';
+      document.getElementById('modalAddTask').classList.add('active');
+    }
+
+    // === USUWANIE ===
+    function deleteTask(id, nazwa) {
+      if (!confirm('Czy na pewno usunąć zadanie "' + nazwa + '"?')) return;
+      
+      const url = API_URL + '?action=usunZadanie&id=' + id +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+        '&callback=handleDeleteTaskResponse';
+      
+      window.handleDeleteTaskResponse = function(result) {
+        if (result.success) {
+          loadTasks();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function closeModal() {
+      document.getElementById('modalAddTask').classList.remove('active');
+      document.getElementById('formAddTask').reset();
+      document.getElementById('editTaskId').value = '';
+    }
+
+    document.getElementById('formAddTask').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const btnSubmit = document.getElementById('btnSubmitTask');
+      btnSubmit.disabled = true;
+      
+      const editId = document.getElementById('editTaskId').value;
+      const isEdit = editId !== '';
+      
+      const zadanie = {
+        projektId: currentProjektId,
+        nazwa: document.getElementById('taskNazwa').value,
+        opis: document.getElementById('taskOpis').value,
+        odpowiedzialny: document.getElementById('taskOdpowiedzialny').value,
+        priorytet: document.getElementById('taskPriorytet').value,
+        dataRozpoczecia: document.getElementById('taskDataStart').value,
+        dataZakonczenia: document.getElementById('taskDataEnd').value
+      };
+      
+      let url;
+      if (isEdit) {
+        btnSubmit.textContent = 'Zapisywanie...';
+        zadanie.id = editId;
+        url = API_URL + 
+          '?action=edytujZadanie' +
+          '&zadanie=' + encodeURIComponent(JSON.stringify(zadanie)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveTaskResponse';
+      } else {
+        btnSubmit.textContent = 'Dodawanie...';
+        url = API_URL + 
+          '?action=dodajZadanie' +
+          '&zadanie=' + encodeURIComponent(JSON.stringify(zadanie)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
+          '&callback=handleSaveTaskResponse';
+      }
+      
+      window.handleSaveTaskResponse = function(result) {
+        if (result.success) {
+          alert(isEdit ? '✅ Zadanie zaktualizowane!' : '✅ Zadanie dodane pomyślnie!');
+          closeModal();
+          loadTasks();
+        } else {
+          alert('❌ Błąd: ' + result.message);
+        }
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj zadanie';
+      };
+      
+      const script = document.createElement('script');
+      script.src = url;
+      document.body.appendChild(script);
+    });
+
+    function goToProjects() {
+      window.location.href = 'projekty.html';
+    }
+
+    function logout() {
+      localStorage.removeItem('harmonogram_token');
+      localStorage.removeItem('harmonogram_user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
