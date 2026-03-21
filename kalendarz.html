@@ -46,47 +46,170 @@
     .nav-item:hover { color: white; border-bottom-color: white; }
     .nav-item.active { color: white; border-bottom-color: white; }
     
-    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .section-header h2 { font-size: 32px; color: #333; }
+    .container { max-width: 1400px; margin: 30px auto; padding: 0 40px; }
+    
+    .calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .calendar-controls h2 { font-size: 28px; color: #333; }
+    .calendar-nav { display: flex; align-items: center; gap: 15px; }
+    .btn-nav {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-nav:hover { border-color: #667eea; background: #f0f0ff; }
+    .month-label {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      min-width: 200px;
+      text-align: center;
+    }
+    .btn-today {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none;
+      padding: 8px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-today:hover { transform: translateY(-1px); }
     .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
+      color: white; border: none;
+      padding: 12px 24px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
       transition: transform 0.2s;
     }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
     
-    .calendar-container {
+    .calendar {
       background: white;
       border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .note-item {
       padding: 20px;
-      border-bottom: 1px solid #f0f0f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 2px solid #e9ecef;
     }
-    .note-item:last-child { border-bottom: none; }
-    .note-info { flex: 1; }
-    .note-date { font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 8px; }
-    .note-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 5px; }
-    .note-content { font-size: 14px; color: #666; }
-    .note-project { font-size: 12px; color: #999; margin-top: 5px; }
-    /* Przyciski akcji edytuj/usuń */
-    .note-actions { display: flex; gap: 8px; margin-left: 15px; align-items: flex-start; }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .calendar-day-header {
+      text-align: center;
+      font-weight: 600;
+      padding: 12px 5px;
+      color: #6c757d;
+      font-size: 14px;
+    }
+    .calendar-day {
+      min-height: 110px;
+      padding: 8px;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .calendar-day:hover {
+      background: #f0f0ff;
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+    }
+    .calendar-day.empty {
+      opacity: 0.3; cursor: default; min-height: 50px;
+    }
+    .calendar-day.empty:hover {
+      background: transparent; border-color: #e9ecef; box-shadow: none;
+    }
+    .calendar-day.today {
+      border: 2px solid #667eea;
+      background: #f0f0ff;
+    }
+    .calendar-day.today .calendar-day-number {
+      background: #667eea; color: white;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .calendar-day.has-notes { background: #fffbf0; border-color: #ffc107; }
+    .calendar-day.has-reminders { background: #f0f7ff; border-color: #17a2b8; }
+    .calendar-day.has-both {
+      background: linear-gradient(135deg, #fffbf0 50%, #f0f7ff 50%);
+      border-color: #667eea;
+    }
+    .calendar-day-number {
+      font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #333;
+    }
+    .calendar-task {
+      padding: 3px 6px; margin: 2px 0;
+      border-radius: 4px; font-size: 10px;
+      white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; line-height: 1.3;
+    }
+    .calendar-task.note { background: #fff3cd; color: #856404; }
+    .calendar-task.reminder { background: #d1ecf1; color: #0c5460; }
+    .calendar-task.reminder-done { background: #d4edda; color: #155724; }
+    .day-count {
+      position: absolute; bottom: 4px; right: 6px;
+      font-size: 10px; color: #999;
+    }
+    
+    .modal {
+      display: none; position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; padding: 30px;
+      border-radius: 20px;
+      max-width: 650px; width: 95%;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 25px; padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    .modal-header h3 { font-size: 22px; color: #333; }
+    .btn-close {
+      background: none; border: none;
+      font-size: 28px; cursor: pointer; color: #999;
+    }
+    .btn-close:hover { color: #333; }
+    
+    .day-section-title {
+      font-size: 14px; font-weight: 600; color: #667eea;
+      margin: 15px 0 8px 0;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .entry-item {
+      padding: 12px 15px; border-radius: 10px;
+      margin-bottom: 8px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .entry-note { background: #fffbf0; border-left: 4px solid #ffc107; }
+    .entry-reminder { background: #f0f7ff; border-left: 4px solid #17a2b8; }
+    .entry-reminder.done { background: #f0fff4; border-left-color: #28a745; opacity: 0.7; }
+    .entry-info { flex: 1; }
+    .entry-title { font-weight: 600; color: #333; font-size: 15px; }
+    .entry-detail { font-size: 12px; color: #666; margin-top: 3px; }
+    .entry-actions { display: flex; gap: 6px; margin-left: 10px; }
     .btn-icon {
-      width: 36px; height: 36px;
-      border: none; border-radius: 8px;
-      cursor: pointer; font-size: 16px;
+      width: 32px; height: 32px;
+      border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s;
     }
@@ -94,100 +217,62 @@
     .btn-edit:hover { background: #ffc107; color: #333; }
     .btn-delete { background: #f8d7da; color: #721c24; }
     .btn-delete:hover { background: #dc3545; color: white; }
+    .btn-done { background: #d4edda; color: #155724; }
+    .btn-done:hover { background: #28a745; color: white; }
     
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+    .empty-day { text-align: center; padding: 30px; color: #999; font-size: 14px; }
+    .day-actions {
+      display: flex; gap: 10px; margin-top: 15px;
+      padding-top: 15px; border-top: 1px solid #e9ecef;
     }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
+    .btn-add-day {
+      flex: 1; padding: 10px;
+      border: 2px dashed #e0e0e0; border-radius: 8px;
+      background: white; cursor: pointer;
+      font-size: 14px; font-weight: 500; color: #666;
+      transition: all 0.2s;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-    .modal-header h3 { font-size: 24px; color: #333; }
-    .btn-close {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #999;
-    }
-    .btn-close:hover { color: #333; }
+    .btn-add-day:hover { border-color: #667eea; color: #667eea; background: #f0f0ff; }
     
     .form-group { margin-bottom: 20px; }
     .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
+      display: block; margin-bottom: 8px;
+      color: #333; font-weight: 500; font-size: 14px;
     }
     .form-group input,
     .form-group select,
     .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
+      width: 100%; padding: 12px;
+      border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 14px; font-family: inherit;
     }
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
+      outline: none; border-color: #667eea;
     }
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-    }
+    .form-actions { display: flex; gap: 15px; margin-top: 25px; }
     .btn-secondary {
-      flex: 1;
-      padding: 12px;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
+      flex: 1; padding: 12px; background: #e0e0e0; color: #333;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
     }
     .btn-submit {
-      flex: 1;
-      padding: 12px;
+      flex: 1; padding: 12px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
+      color: white; border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
     }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    
     .loading { text-align: center; padding: 40px; color: #667eea; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+
+    @media (max-width: 900px) {
+      .calendar-day { min-height: 70px; padding: 5px; }
+      .calendar-task { font-size: 9px; }
+      .calendar-day-number { font-size: 12px; }
+      .container { padding: 0 15px; }
+      .header-top { padding: 15px 20px; }
+      .nav-menu { padding: 0 20px; gap: 15px; }
+    }
   </style>
 </head>
 <body>
@@ -205,7 +290,6 @@
         <button class="btn-logout" onclick="logout()">Wyloguj</button>
       </div>
     </div>
-    <!-- POPRAWKA #2: Dodany link Magazyn -->
     <div class="nav-menu">
       <a href="dashboard.html" class="nav-item">Dashboard</a>
       <a href="projekty.html" class="nav-item">Projekty</a>
@@ -216,52 +300,68 @@
   </div>
 
   <div class="container">
-    <div class="section-header">
-      <h2>Notatki kalendarzowe</h2>
-      <button class="btn-primary" onclick="openAddModal()">+ Dodaj notatkę</button>
+    <div class="calendar-controls">
+      <h2>📅 Kalendarz</h2>
+      <div class="calendar-nav">
+        <button class="btn-nav" onclick="changeMonth(-1)">◀</button>
+        <div class="month-label" id="monthLabel">...</div>
+        <button class="btn-nav" onclick="changeMonth(1)">▶</button>
+        <button class="btn-today" onclick="goToday()">Dziś</button>
+      </div>
+      <button class="btn-primary" onclick="openAddNoteModal()">+ Dodaj notatkę</button>
     </div>
-
-    <div class="calendar-container">
-      <div id="notesList" class="loading">⏳ Ładowanie notatek...</div>
+    <div class="calendar">
+      <div class="calendar-grid" id="calendarGrid">
+        <div class="loading" style="grid-column: 1/-1;">⏳ Ładowanie kalendarza...</div>
+      </div>
     </div>
   </div>
 
-  <!-- MODAL DODAJ / EDYTUJ -->
-  <div id="modalAdd" class="modal">
+  <!-- MODAL: WIDOK DNIA -->
+  <div id="modalDay" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="modalTitle">Nowa notatka</h3>
-        <button class="btn-close" onclick="closeModal()">&times;</button>
+        <h3 id="dayModalTitle">📅 Dzień</h3>
+        <button class="btn-close" onclick="closeDayModal()">&times;</button>
       </div>
-      
-      <form id="formAddNote">
-        <input type="hidden" id="editId" value="">
-        
+      <div id="dayEntries"></div>
+      <div class="day-actions">
+        <button class="btn-add-day" onclick="addNoteForDay()">📝 + Notatka</button>
+        <button class="btn-add-day" onclick="addReminderForDay()">⏰ + Reminder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DODAJ / EDYTUJ NOTATKĘ -->
+  <div id="modalNote" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="noteModalTitle">Nowa notatka</h3>
+        <button class="btn-close" onclick="closeNoteModal()">&times;</button>
+      </div>
+      <form id="formNote">
+        <input type="hidden" id="noteEditId" value="">
         <div class="form-group">
           <label>Data *</label>
-          <input type="date" id="data" required>
+          <input type="date" id="noteData" required>
         </div>
-        
         <div class="form-group">
           <label>Tytuł *</label>
-          <input type="text" id="tytul" required placeholder="np. Spotkanie z klientem">
+          <input type="text" id="noteTytul" required placeholder="np. Spotkanie z klientem">
         </div>
-        
         <div class="form-group">
           <label>Treść</label>
-          <textarea id="tresc" rows="4" placeholder="Szczegóły notatki..."></textarea>
+          <textarea id="noteTresc" rows="4" placeholder="Szczegóły notatki..."></textarea>
         </div>
-        
         <div class="form-group">
           <label>Projekt</label>
-          <select id="projektId">
+          <select id="noteProjektId">
             <option value="">Brak powiązania</option>
           </select>
         </div>
-        
         <div class="form-actions">
-          <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
-          <button type="submit" class="btn-submit" id="btnSubmit">Dodaj notatkę</button>
+          <button type="button" class="btn-secondary" onclick="closeNoteModal()">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnNoteSubmit">Dodaj notatkę</button>
         </div>
       </form>
     </div>
@@ -270,211 +370,262 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
-    let allNotatki = []; // cache do edycji
+    let allNotatki = [];
+    let allReminders = [];
+    let currentYear, currentMonth;
+    let selectedDate = null;
+
+    const MONTH_NAMES = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const DAY_NAMES = ['PN','WT','ŚR','CZ','PT','SO','ND'];
 
     window.onload = function() {
       checkAuth();
       loadUserInfo();
       loadProjects();
-      loadNotes();
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+      loadAllData();
     };
 
-    // POPRAWKA #8: pageshow - odśwież przy cofaniu
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    });
+    window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
 
     function checkAuth() {
-      const token = localStorage.getItem('harmonogram_token');
-      if (!token) {
-        window.location.href = 'index.html';
-      }
+      if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html';
     }
-
     function loadUserInfo() {
-      const userStr = localStorage.getItem('harmonogram_user');
-      if (userStr) {
-        currentUser = JSON.parse(userStr);
+      const u = localStorage.getItem('harmonogram_user');
+      if (u) {
+        currentUser = JSON.parse(u);
         document.getElementById('userName').textContent = currentUser.name;
         document.getElementById('userRole').textContent = currentUser.role;
       }
     }
-
     function loadProjects() {
-      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
-      
-      window.handleProjectsResponse = function(result) {
-        if (result.success && result.projekty) {
-          const select = document.getElementById('projektId');
-          // Wyczyść opcje (zachowaj pierwszą)
-          while (select.options.length > 1) select.remove(1);
-          result.projekty.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = p.nazwa;
-            select.appendChild(option);
-          });
+      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbProjects';
+      window.cbProjects = function(r) {
+        if (r.success && r.projekty) {
+          const sel = document.getElementById('noteProjektId');
+          while (sel.options.length > 1) sel.remove(1);
+          r.projekty.forEach(p => sel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa })));
         }
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
 
+    // ==================== LOAD DATA ====================
+    let dataLoaded = 0;
+    function loadAllData() {
+      dataLoaded = 0;
+      loadNotes();
+      loadReminders();
+    }
+    function onDataReady() {
+      dataLoaded++;
+      if (dataLoaded >= 2) renderCalendar();
+    }
     function loadNotes() {
-      const url = API_URL + '?action=getNotatki&callback=handleNotesResponse';
-      
-      window.handleNotesResponse = function(result) {
-        if (result.success) {
-          allNotatki = result.notatki || [];
-          displayNotes(allNotatki);
-        } else {
-          document.getElementById('notesList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
-        }
-      };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = function() {
-        document.getElementById('notesList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      };
-      document.body.appendChild(script);
+      window.cbNotes = function(r) { allNotatki = r.success ? (r.notatki || []) : []; onDataReady(); };
+      const s = document.createElement('script');
+      s.src = API_URL + '?action=getNotatki&callback=cbNotes';
+      s.onerror = function() { allNotatki = []; onDataReady(); };
+      document.body.appendChild(s);
+    }
+    function loadReminders() {
+      window.cbReminders = function(r) { allReminders = r.success ? (r.reminders || []) : []; onDataReady(); };
+      const s = document.createElement('script');
+      s.src = API_URL + '?action=getReminders&callback=cbReminders';
+      s.onerror = function() { allReminders = []; onDataReady(); };
+      document.body.appendChild(s);
     }
 
-    function displayNotes(notatki) {
-      const listDiv = document.getElementById('notesList');
+    // ==================== RENDER CALENDAR ====================
+    function renderCalendar() {
+      document.getElementById('monthLabel').textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+      const grid = document.getElementById('calendarGrid');
+      let html = '';
 
-      if (!notatki || notatki.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state">📋 Brak notatek. Dodaj pierwszą notatkę!</div>';
-        return;
+      DAY_NAMES.forEach(d => { html += '<div class="calendar-day-header">' + d + '</div>'; });
+
+      let startDay = new Date(currentYear, currentMonth, 1).getDay() - 1;
+      if (startDay < 0) startDay = 6;
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const today = new Date();
+      const todayStr = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+      const notesMap = {}, remMap = {};
+      allNotatki.forEach(n => { const k = n.data; if (!notesMap[k]) notesMap[k] = []; notesMap[k].push(n); });
+      allReminders.forEach(r => { const k = r.dataOd; if (!remMap[k]) remMap[k] = []; remMap[k].push(r); });
+
+      for (let i = 0; i < startDay; i++) html += '<div class="calendar-day empty"></div>';
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ds = fmtDate(currentYear, currentMonth, day);
+        const dn = notesMap[ds] || [], dr = remMap[ds] || [];
+        const hn = dn.length > 0, hr = dr.length > 0;
+        let cls = 'calendar-day';
+        if (ds === todayStr) cls += ' today';
+        if (hn && hr) cls += ' has-both';
+        else if (hn) cls += ' has-notes';
+        else if (hr) cls += ' has-reminders';
+
+        html += '<div class="' + cls + '" onclick="openDay(\'' + ds + '\')">';
+        html += '<div class="calendar-day-number">' + day + '</div>';
+
+        let shown = 0;
+        dn.forEach(n => { if (shown < 3) { html += '<div class="calendar-task note" title="' + esc(n.tytul) + '">📝 ' + esc(trunc(n.tytul, 18)) + '</div>'; shown++; }});
+        dr.forEach(r => { if (shown < 3) { const c = r.status === 'Wykonane' ? 'reminder-done' : 'reminder'; const ic = r.status === 'Wykonane' ? '✅' : '⏰'; html += '<div class="calendar-task ' + c + '" title="' + esc(r.tytul) + '">' + ic + ' ' + esc(trunc(r.tytul, 18)) + '</div>'; shown++; }});
+        const tot = dn.length + dr.length;
+        if (tot > 3) html += '<div class="day-count">+' + (tot - 3) + ' więcej</div>';
+        html += '</div>';
       }
-
-      listDiv.innerHTML = notatki.map(n => `
-        <div class="note-item">
-          <div class="note-info">
-            <div class="note-date">📅 ${n.data}</div>
-            <div class="note-title">${n.tytul}</div>
-            <div class="note-content">${n.tresc || ''}</div>
-            ${n.projektNazwa ? '<div class="note-project">📁 Projekt: ' + n.projektNazwa + '</div>' : ''}
-          </div>
-          <div class="note-actions">
-            <button class="btn-icon btn-edit" onclick="editNote(${n.id})" title="Edytuj">✏️</button>
-            <button class="btn-icon btn-delete" onclick="deleteNote(${n.id}, '${(n.tytul || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
-          </div>
-        </div>
-      `).join('');
+      grid.innerHTML = html;
     }
 
-    // === DODAWANIE ===
-    function openAddModal() {
-      document.getElementById('editId').value = '';
-      document.getElementById('modalTitle').textContent = 'Nowa notatka';
-      document.getElementById('btnSubmit').textContent = 'Dodaj notatkę';
-      document.getElementById('formAddNote').reset();
-      document.getElementById('modalAdd').classList.add('active');
+    // ==================== NAV ====================
+    function changeMonth(d) {
+      currentMonth += d;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    }
+    function goToday() {
+      const t = new Date();
+      currentYear = t.getFullYear(); currentMonth = t.getMonth();
+      renderCalendar();
     }
 
-    // === EDYCJA ===
-    function editNote(id) {
-      const notatka = allNotatki.find(n => n.id == id);
-      if (!notatka) { alert('Nie znaleziono notatki'); return; }
-      
-      document.getElementById('editId').value = id;
-      document.getElementById('modalTitle').textContent = 'Edytuj notatkę';
-      document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
-      document.getElementById('data').value = notatka.data || '';
-      document.getElementById('tytul').value = notatka.tytul || '';
-      document.getElementById('tresc').value = notatka.tresc || '';
-      document.getElementById('projektId').value = notatka.projektId || '';
-      document.getElementById('modalAdd').classList.add('active');
+    // ==================== DAY MODAL ====================
+    function openDay(ds) {
+      selectedDate = ds;
+      const p = ds.split('-');
+      document.getElementById('dayModalTitle').textContent = '📅 ' + parseInt(p[2]) + ' ' + MONTH_NAMES[parseInt(p[1])-1] + ' ' + p[0];
+      const dn = allNotatki.filter(n => n.data === ds);
+      const dr = allReminders.filter(r => r.dataOd === ds);
+      let html = '';
+      if (!dn.length && !dr.length) html = '<div class="empty-day">Brak wpisów na ten dzień. Dodaj notatkę lub reminder!</div>';
+
+      if (dn.length) {
+        html += '<div class="day-section-title">📝 Notatki (' + dn.length + ')</div>';
+        dn.forEach(n => {
+          html += '<div class="entry-item entry-note"><div class="entry-info"><div class="entry-title">' + esc(n.tytul) + '</div>';
+          if (n.tresc) html += '<div class="entry-detail">' + esc(n.tresc) + '</div>';
+          if (n.projektNazwa) html += '<div class="entry-detail">📁 ' + esc(n.projektNazwa) + '</div>';
+          html += '</div><div class="entry-actions">';
+          html += '<button class="btn-icon btn-edit" onclick="editNoteDay(' + n.id + ')" title="Edytuj">✏️</button>';
+          html += '<button class="btn-icon btn-delete" onclick="delNoteDay(' + n.id + ',\'' + escJ(n.tytul) + '\')" title="Usuń">🗑️</button>';
+          html += '</div></div>';
+        });
+      }
+      if (dr.length) {
+        html += '<div class="day-section-title">⏰ Przypomnienia (' + dr.length + ')</div>';
+        dr.forEach(r => {
+          const done = r.status === 'Wykonane';
+          html += '<div class="entry-item entry-reminder ' + (done?'done':'') + '"><div class="entry-info"><div class="entry-title">' + (done?'✅ ':'') + esc(r.tytul) + '</div>';
+          if (r.godzina) html += '<div class="entry-detail">🕐 ' + r.godzina + '</div>';
+          if (r.dlaKogo) html += '<div class="entry-detail">👤 ' + esc(r.dlaKogo) + '</div>';
+          html += '</div><div class="entry-actions">';
+          if (!done) html += '<button class="btn-icon btn-done" onclick="markDoneDay(' + r.id + ')" title="Wykonane">✓</button>';
+          html += '<button class="btn-icon btn-delete" onclick="delRemDay(' + r.id + ',\'' + escJ(r.tytul) + '\')" title="Usuń">🗑️</button>';
+          html += '</div></div>';
+        });
+      }
+      document.getElementById('dayEntries').innerHTML = html;
+      document.getElementById('modalDay').classList.add('active');
+    }
+    function closeDayModal() { document.getElementById('modalDay').classList.remove('active'); }
+
+    // ==================== DAY ACTIONS ====================
+    function addNoteForDay() {
+      closeDayModal();
+      document.getElementById('noteEditId').value = '';
+      document.getElementById('noteModalTitle').textContent = 'Nowa notatka';
+      document.getElementById('btnNoteSubmit').textContent = 'Dodaj notatkę';
+      document.getElementById('formNote').reset();
+      document.getElementById('noteData').value = selectedDate;
+      document.getElementById('modalNote').classList.add('active');
+    }
+    function addReminderForDay() {
+      closeDayModal();
+      window.location.href = 'reminder.html';
+    }
+    function editNoteDay(id) {
+      closeDayModal();
+      const n = allNotatki.find(x => x.id == id);
+      if (!n) return;
+      document.getElementById('noteEditId').value = id;
+      document.getElementById('noteModalTitle').textContent = 'Edytuj notatkę';
+      document.getElementById('btnNoteSubmit').textContent = 'Zapisz zmiany';
+      document.getElementById('noteData').value = n.data || '';
+      document.getElementById('noteTytul').value = n.tytul || '';
+      document.getElementById('noteTresc').value = n.tresc || '';
+      document.getElementById('noteProjektId').value = n.projektId || '';
+      document.getElementById('modalNote').classList.add('active');
+    }
+    function delNoteDay(id, t) {
+      if (!confirm('Usunąć notatkę "' + t + '"?')) return;
+      window.cbDel = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=usunNotatke&id=' + id + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbDel' }));
+    }
+    function markDoneDay(id) {
+      window.cbMark = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=markReminderDone&id=' + id + '&callback=cbMark' }));
+    }
+    function delRemDay(id, t) {
+      if (!confirm('Usunąć reminder "' + t + '"?')) return;
+      window.cbDelR = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=usunReminder&id=' + id + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbDelR' }));
     }
 
-    // === USUWANIE ===
-    function deleteNote(id, tytul) {
-      if (!confirm('Czy na pewno usunąć notatkę "' + tytul + '"?')) return;
-      
-      const url = API_URL + '?action=usunNotatke&id=' + id +
-        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-        '&callback=handleDeleteNoteResponse';
-      
-      window.handleDeleteNoteResponse = function(result) {
-        if (result.success) {
-          loadNotes();
-        } else {
-          alert('❌ Błąd: ' + result.message);
-        }
-      };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+    // ==================== NOTE MODAL ====================
+    function openAddNoteModal() {
+      document.getElementById('noteEditId').value = '';
+      document.getElementById('noteModalTitle').textContent = 'Nowa notatka';
+      document.getElementById('btnNoteSubmit').textContent = 'Dodaj notatkę';
+      document.getElementById('formNote').reset();
+      document.getElementById('modalNote').classList.add('active');
+    }
+    function closeNoteModal() {
+      document.getElementById('modalNote').classList.remove('active');
+      document.getElementById('formNote').reset();
+      document.getElementById('noteEditId').value = '';
     }
 
-    function closeModal() {
-      document.getElementById('modalAdd').classList.remove('active');
-      document.getElementById('formAddNote').reset();
-      document.getElementById('editId').value = '';
-    }
-
-    document.getElementById('formAddNote').addEventListener('submit', function(e) {
+    document.getElementById('formNote').addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      const btnSubmit = document.getElementById('btnSubmit');
-      btnSubmit.disabled = true;
-      
-      const editId = document.getElementById('editId').value;
-      const isEdit = editId !== '';
-      
+      const btn = document.getElementById('btnNoteSubmit');
+      btn.disabled = true;
+      const eid = document.getElementById('noteEditId').value;
+      const isEdit = eid !== '';
       const notatka = {
-        data: document.getElementById('data').value,
-        tytul: document.getElementById('tytul').value,
-        tresc: document.getElementById('tresc').value,
-        projektId: document.getElementById('projektId').value || null
+        data: document.getElementById('noteData').value,
+        tytul: document.getElementById('noteTytul').value,
+        tresc: document.getElementById('noteTresc').value,
+        projektId: document.getElementById('noteProjektId').value || null
       };
-      
       let url;
       if (isEdit) {
-        btnSubmit.textContent = 'Zapisywanie...';
-        notatka.id = editId;
-        url = API_URL + 
-          '?action=edytujNotatke' +
-          '&notatka=' + encodeURIComponent(JSON.stringify(notatka)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveNoteResponse';
+        btn.textContent = 'Zapisywanie...';
+        notatka.id = eid;
+        url = API_URL + '?action=edytujNotatke&notatka=' + encodeURIComponent(JSON.stringify(notatka)) + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbSaveNote';
       } else {
-        btnSubmit.textContent = 'Dodawanie...';
-        url = API_URL + 
-          '?action=dodajNotatke' +
-          '&notatka=' + encodeURIComponent(JSON.stringify(notatka)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveNoteResponse';
+        btn.textContent = 'Dodawanie...';
+        url = API_URL + '?action=dodajNotatke&notatka=' + encodeURIComponent(JSON.stringify(notatka)) + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbSaveNote';
       }
-      
-      window.handleSaveNoteResponse = function(result) {
-        if (result.success) {
-          alert(isEdit ? '✅ Notatka zaktualizowana!' : '✅ Notatka dodana pomyślnie!');
-          closeModal();
-          loadNotes();
-        } else {
-          alert('❌ Błąd: ' + result.message);
-        }
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj notatkę';
+      window.cbSaveNote = function(r) {
+        if (r.success) { closeNoteModal(); loadAllData(); } else alert('❌ ' + r.message);
+        btn.disabled = false;
+        btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj notatkę';
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     });
 
-    function logout() {
-      localStorage.removeItem('harmonogram_token');
-      localStorage.removeItem('harmonogram_user');
-      window.location.href = 'index.html';
-    }
+    // ==================== HELPERS ====================
+    function fmtDate(y, m, d) { return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0'); }
+    function trunc(s, n) { return s && s.length > n ? s.substring(0,n) + '…' : (s||''); }
+    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+    function escJ(s) { return s ? s.replace(/\\/g,'\\\\').replace(/'/g,"\\'") : ''; }
+    function logout() { localStorage.removeItem('harmonogram_token'); localStorage.removeItem('harmonogram_user'); window.location.href = 'index.html'; }
   </script>
 </body>
 </html>
