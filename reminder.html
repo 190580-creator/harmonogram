@@ -13,36 +13,16 @@
       color: white;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .header-top {
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .header-top { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
     .header-left { display: flex; align-items: center; gap: 15px; }
-    .logo { font-size: 32px; }
-    .header-title { font-size: 24px; font-weight: 600; }
+    .logo { font-size: 32px; } .header-title { font-size: 24px; font-weight: 600; }
     .user-info { display: flex; align-items: center; gap: 20px; }
     .user-name { font-size: 14px; font-weight: 500; }
     .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
     .btn-logout:hover { background: rgba(255,255,255,0.3); }
-    
-    .nav-menu {
-      background: rgba(0,0,0,0.1);
-      padding: 0 40px;
-      display: flex;
-      gap: 30px;
-    }
-    .nav-item {
-      padding: 15px 0;
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
+    .nav-menu { background: rgba(0,0,0,0.1); padding: 0 40px; display: flex; gap: 30px; }
+    .nav-item { padding: 15px 0; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.3s; }
     .nav-item:hover { color: white; border-bottom-color: white; }
     .nav-item.active { color: white; border-bottom-color: white; }
     
@@ -51,164 +31,85 @@
     .section-header h2 { font-size: 32px; color: #333; }
     .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
+      color: white; border: none; padding: 14px 28px; border-radius: 10px;
+      font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s;
     }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
     
-    .reminder-container {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
+    .reminder-container { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .reminder-item {
-      padding: 20px;
-      border-bottom: 1px solid #f0f0f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
+      padding: 20px; border-bottom: 1px solid #f0f0f0;
+      display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;
     }
     .reminder-item:hover { background: #f9f9f9; }
     .reminder-item:last-child { border-bottom: none; }
-    .reminder-item.done { opacity: 0.6; }
+    .reminder-item.done { opacity: 0.6; background: #f8fff8; }
+    .reminder-item.overdue { background: #fff5f5; border-left: 4px solid #dc3545; }
     .reminder-info { flex: 1; }
     .reminder-date { font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 5px; }
+    .reminder-item.overdue .reminder-date { color: #dc3545; }
     .reminder-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 5px; }
     .reminder-desc { font-size: 14px; color: #666; }
-    .reminder-priority {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      margin-left: 10px;
-    }
-    .priority-wysoki { background: #fee; color: #c33; }
-    .priority-sredni { background: #fff3cd; color: #856404; }
-    .priority-niski { background: #d4edda; color: #155724; }
+    .overdue-badge { display: inline-block; padding: 2px 8px; background: #dc3545; color: white; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 8px; }
     
     /* Przyciski akcji */
     .reminder-actions { display: flex; gap: 8px; margin-left: 15px; align-items: center; }
     .btn-icon {
-      width: 36px; height: 36px;
-      border: none; border-radius: 8px;
+      width: 36px; height: 36px; border: none; border-radius: 8px;
       cursor: pointer; font-size: 16px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
     }
     .btn-edit { background: #fff3cd; color: #856404; }
     .btn-edit:hover { background: #ffc107; color: #333; }
     .btn-delete { background: #f8d7da; color: #721c24; }
     .btn-delete:hover { background: #dc3545; color: white; }
+    
+    /* POPRAWKA: Przycisk "Wykonane" - NIEBIESKI (nie zielony!) */
     .btn-check {
       padding: 8px 16px;
-      background: #28a745;
+      background: #667eea;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
     }
-    .btn-check:hover { background: #218838; }
+    .btn-check:hover { background: #5568d3; transform: translateY(-1px); }
+    
+    /* Przycisk "Wykonane" gdy po terminie - CZERWONY */
+    .btn-check.overdue {
+      background: #dc3545;
+    }
+    .btn-check.overdue:hover { background: #c82333; }
+    
+    /* Status "Wykonane" - zielony napis */
+    .done-label { color: #28a745; font-weight: 600; font-size: 14px; }
     
     .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
     }
     .modal.active { display: flex; }
     .modal-content {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
+      background: white; padding: 40px; border-radius: 20px;
+      max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .modal-header h3 { font-size: 24px; color: #333; }
-    .btn-close {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #999;
-    }
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
     .btn-close:hover { color: #333; }
-    
     .form-group { margin-bottom: 20px; }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
+    .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit;
     }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-    }
-    .btn-secondary {
-      flex: 1;
-      padding: 12px;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit {
-      flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+    .form-actions { display: flex; gap: 15px; margin-top: 30px; }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    
     .loading { text-align: center; padding: 40px; color: #667eea; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
   </style>
@@ -228,7 +129,6 @@
         <button class="btn-logout" onclick="logout()">Wyloguj</button>
       </div>
     </div>
-    <!-- POPRAWKA #2: Dodany link Magazyn -->
     <div class="nav-menu">
       <a href="dashboard.html" class="nav-item">Dashboard</a>
       <a href="projekty.html" class="nav-item">Projekty</a>
@@ -244,39 +144,31 @@
       <h2>Przypomnienia</h2>
       <button class="btn-primary" onclick="openAddModal()">+ Dodaj reminder</button>
     </div>
-
     <div class="reminder-container">
       <div id="remindersList" class="loading">⏳ Ładowanie przypomnień...</div>
     </div>
   </div>
 
-  <!-- MODAL DODAJ / EDYTUJ -->
   <div id="modalAdd" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modalTitle">Nowe przypomnienie</h3>
         <button class="btn-close" onclick="closeModal()">&times;</button>
       </div>
-      
       <form id="formAddReminder">
         <input type="hidden" id="editId" value="">
-        
         <div class="form-group">
-          <!-- POPRAWKA #5: datetime-local zamiast date -->
           <label>Data i godzina przypomnienia *</label>
           <input type="datetime-local" id="dataRemindera" required>
         </div>
-        
         <div class="form-group">
           <label>Tytuł *</label>
           <input type="text" id="tytul" required placeholder="np. Sprawdzić postęp projektu">
         </div>
-        
         <div class="form-group">
           <label>Opis</label>
           <textarea id="opis" rows="3" placeholder="Szczegóły przypomnienia..."></textarea>
         </div>
-        
         <div class="form-group">
           <label>Priorytet</label>
           <select id="priorytet">
@@ -285,14 +177,12 @@
             <option value="Wysoki">Wysoki</option>
           </select>
         </div>
-        
         <div class="form-group">
           <label>Projekt</label>
           <select id="projektId">
             <option value="">Brak powiązania</option>
           </select>
         </div>
-        
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnSubmit">Dodaj reminder</button>
@@ -304,7 +194,7 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
-    let allReminders = []; // cache do edycji
+    let allReminders = [];
 
     window.onload = function() {
       checkAuth();
@@ -313,18 +203,12 @@
       loadReminders();
     };
 
-    // POPRAWKA #8: pageshow - odśwież przy cofaniu
     window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        window.location.reload();
-      }
+      if (event.persisted) window.location.reload();
     });
 
     function checkAuth() {
-      const token = localStorage.getItem('harmonogram_token');
-      if (!token) {
-        window.location.href = 'index.html';
-      }
+      if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html';
     }
 
     function loadUserInfo() {
@@ -338,28 +222,20 @@
 
     function loadProjects() {
       const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
-      
       window.handleProjectsResponse = function(result) {
         if (result.success && result.projekty) {
           const select = document.getElementById('projektId');
           while (select.options.length > 1) select.remove(1);
           result.projekty.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = p.nazwa;
-            select.appendChild(option);
+            select.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa }));
           });
         }
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
 
     function loadReminders() {
       const url = API_URL + '?action=getReminders&callback=handleRemindersResponse';
-      
       window.handleRemindersResponse = function(result) {
         if (result.success) {
           allReminders = result.reminders || [];
@@ -368,13 +244,22 @@
           document.getElementById('remindersList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
         }
       };
-      
       const script = document.createElement('script');
       script.src = url;
       script.onerror = function() {
         document.getElementById('remindersList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
       };
       document.body.appendChild(script);
+    }
+
+    function isOverdue(r) {
+      if (r.status === 'Wykonane') return false;
+      if (!r.dataOd) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const reminderDate = new Date(r.dataOd);
+      reminderDate.setHours(0, 0, 0, 0);
+      return reminderDate < today;
     }
 
     function displayReminders(reminders) {
@@ -385,46 +270,59 @@
         return;
       }
 
-      listDiv.innerHTML = reminders.map(r => `
-        <div class="reminder-item ${r.status === 'Wykonane' ? 'done' : ''}">
-          <div class="reminder-info">
-            <div class="reminder-date">
-              ⏰ ${r.dataOd}${r.godzina ? ' ' + r.godzina : ''}
-            </div>
-            <div class="reminder-title">${r.tytul}</div>
-            ${r.dlaKogo ? '<div class="reminder-desc">👤 Dla: ' + r.dlaKogo + '</div>' : ''}
-          </div>
-          <div class="reminder-actions">
-            <button class="btn-icon btn-edit" onclick="editReminder(${r.id})" title="Edytuj">✏️</button>
-            <button class="btn-icon btn-delete" onclick="deleteReminder(${r.id}, '${(r.tytul || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
-            ${r.status !== 'Wykonane' 
-              ? '<button class="btn-check" onclick="markDone(' + r.id + ')">✓ Wykonane</button>' 
-              : '<span style="color: #28a745; font-weight: 600;">✓ Wykonane</span>'}
-          </div>
-        </div>
-      `).join('');
+      // Sortuj: po terminie na górze, potem oczekujące, potem wykonane
+      const sorted = [...reminders].sort((a, b) => {
+        const aOver = isOverdue(a) ? 0 : 1;
+        const bOver = isOverdue(b) ? 0 : 1;
+        const aDone = a.status === 'Wykonane' ? 2 : 1;
+        const bDone = b.status === 'Wykonane' ? 2 : 1;
+        if (aOver !== bOver) return aOver - bOver;
+        if (aDone !== bDone) return aDone - bDone;
+        return 0;
+      });
+
+      listDiv.innerHTML = sorted.map(r => {
+        const isDone = r.status === 'Wykonane';
+        const overdue = isOverdue(r);
+        
+        let itemClass = 'reminder-item';
+        if (isDone) itemClass += ' done';
+        else if (overdue) itemClass += ' overdue';
+
+        let actionsHtml = '';
+        actionsHtml += '<button class="btn-icon btn-edit" onclick="editReminder(' + r.id + ')" title="Edytuj">✏️</button>';
+        actionsHtml += '<button class="btn-icon btn-delete" onclick="deleteReminder(' + r.id + ', \'' + (r.tytul || '').replace(/'/g, "\\'") + '\')" title="Usuń">🗑️</button>';
+        
+        if (isDone) {
+          actionsHtml += '<span class="done-label">✓ Wykonane</span>';
+        } else {
+          // Niebieski przycisk normalnie, czerwony gdy po terminie
+          actionsHtml += '<button class="btn-check' + (overdue ? ' overdue' : '') + '" onclick="markDone(' + r.id + ')">' + (overdue ? '⚠️ Wykonane' : '✓ Wykonane') + '</button>';
+        }
+
+        let dateHtml = '⏰ ' + r.dataOd + (r.godzina ? ' ' + r.godzina : '');
+        if (overdue) dateHtml += '<span class="overdue-badge">Po terminie!</span>';
+
+        return '<div class="' + itemClass + '">' +
+          '<div class="reminder-info">' +
+            '<div class="reminder-date">' + dateHtml + '</div>' +
+            '<div class="reminder-title">' + (r.tytul || '') + '</div>' +
+            (r.dlaKogo ? '<div class="reminder-desc">👤 Dla: ' + r.dlaKogo + '</div>' : '') +
+          '</div>' +
+          '<div class="reminder-actions">' + actionsHtml + '</div>' +
+        '</div>';
+      }).join('');
     }
 
     function markDone(id) {
-      const url = API_URL + 
-        '?action=markReminderDone' +
-        '&id=' + id +
-        '&callback=handleMarkDoneResponse';
-      
+      const url = API_URL + '?action=markReminderDone&id=' + id + '&callback=handleMarkDoneResponse';
       window.handleMarkDoneResponse = function(result) {
-        if (result.success) {
-          loadReminders();
-        } else {
-          alert('❌ Błąd: ' + result.message);
-        }
+        if (result.success) loadReminders();
+        else alert('❌ Błąd: ' + result.message);
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
 
-    // === DODAWANIE ===
     function openAddModal() {
       document.getElementById('editId').value = '';
       document.getElementById('modalTitle').textContent = 'Nowe przypomnienie';
@@ -433,22 +331,15 @@
       document.getElementById('modalAdd').classList.add('active');
     }
 
-    // === EDYCJA ===
     function editReminder(id) {
       const reminder = allReminders.find(r => r.id == id);
-      if (!reminder) { alert('Nie znaleziono przypomnienia'); return; }
-      
+      if (!reminder) { alert('Nie znaleziono'); return; }
       document.getElementById('editId').value = id;
       document.getElementById('modalTitle').textContent = 'Edytuj przypomnienie';
       document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
-      
-      // POPRAWKA #5: obsługa datetime-local
       let dtValue = '';
       if (reminder.dataOd) {
-        // Próbuj sformatować jako datetime-local (YYYY-MM-DDTHH:MM)
-        const d = reminder.dataOd;
-        const g = reminder.godzina || '08:00';
-        dtValue = d + 'T' + g;
+        dtValue = reminder.dataOd + 'T' + (reminder.godzina || '08:00');
       }
       document.getElementById('dataRemindera').value = dtValue;
       document.getElementById('tytul').value = reminder.tytul || '';
@@ -458,25 +349,16 @@
       document.getElementById('modalAdd').classList.add('active');
     }
 
-    // === USUWANIE ===
     function deleteReminder(id, tytul) {
-      if (!confirm('Czy na pewno usunąć przypomnienie "' + tytul + '"?')) return;
-      
+      if (!confirm('Usunąć przypomnienie "' + tytul + '"?')) return;
       const url = API_URL + '?action=usunReminder&id=' + id +
         '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
         '&callback=handleDeleteReminderResponse';
-      
       window.handleDeleteReminderResponse = function(result) {
-        if (result.success) {
-          loadReminders();
-        } else {
-          alert('❌ Błąd: ' + result.message);
-        }
+        if (result.success) loadReminders();
+        else alert('❌ Błąd: ' + result.message);
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
 
     function closeModal() {
@@ -487,23 +369,18 @@
 
     document.getElementById('formAddReminder').addEventListener('submit', function(e) {
       e.preventDefault();
-      
       const btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
-      
       const editId = document.getElementById('editId').value;
       const isEdit = editId !== '';
-      
-      // POPRAWKA #5: parsowanie datetime-local na datę + godzinę
-      const dtValue = document.getElementById('dataRemindera').value; // "2025-03-20T10:00"
-      let dataOnly = dtValue;
-      let godzina = '';
+
+      const dtValue = document.getElementById('dataRemindera').value;
+      let dataOnly = dtValue, godzina = '';
       if (dtValue && dtValue.includes('T')) {
         const parts = dtValue.split('T');
-        dataOnly = parts[0];
-        godzina = parts[1];
+        dataOnly = parts[0]; godzina = parts[1];
       }
-      
+
       const reminder = {
         dataRemindera: dataOnly,
         godzina: godzina,
@@ -512,40 +389,31 @@
         priorytet: document.getElementById('priorytet').value,
         projektId: document.getElementById('projektId').value || null
       };
-      
+
       let url;
       if (isEdit) {
         btnSubmit.textContent = 'Zapisywanie...';
         reminder.id = editId;
-        url = API_URL + 
-          '?action=edytujReminder' +
-          '&reminder=' + encodeURIComponent(JSON.stringify(reminder)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveReminderResponse';
+        url = API_URL + '?action=edytujReminder&reminder=' + encodeURIComponent(JSON.stringify(reminder)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleSaveReminderResponse';
       } else {
         btnSubmit.textContent = 'Dodawanie...';
-        url = API_URL + 
-          '?action=dodajReminder' +
-          '&reminder=' + encodeURIComponent(JSON.stringify(reminder)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveReminderResponse';
+        url = API_URL + '?action=dodajReminder&reminder=' + encodeURIComponent(JSON.stringify(reminder)) +
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleSaveReminderResponse';
       }
-      
+
       window.handleSaveReminderResponse = function(result) {
         if (result.success) {
-          alert(isEdit ? '✅ Reminder zaktualizowany!' : '✅ Reminder dodany pomyślnie!');
-          closeModal();
-          loadReminders();
+          alert(isEdit ? '✅ Reminder zaktualizowany!' : '✅ Reminder dodany!');
+          closeModal(); loadReminders();
         } else {
           alert('❌ Błąd: ' + result.message);
         }
         btnSubmit.disabled = false;
         btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj reminder';
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     });
 
     function logout() {
