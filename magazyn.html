@@ -7,218 +7,67 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
-    
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header-top {
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-top { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
     .header-left { display: flex; align-items: center; gap: 15px; }
-    .logo { font-size: 32px; }
-    .header-title { font-size: 24px; font-weight: 600; }
+    .logo { font-size: 32px; } .header-title { font-size: 24px; font-weight: 600; }
     .user-info { display: flex; align-items: center; gap: 20px; }
     .user-name { font-size: 14px; font-weight: 500; }
     .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
     .btn-logout:hover { background: rgba(255,255,255,0.3); }
-    
-    .nav-menu {
-      background: rgba(0,0,0,0.1);
-      padding: 0 40px;
-      display: flex;
-      gap: 30px;
-    }
-    .nav-item {
-      padding: 15px 0;
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
+    .nav-menu { background: rgba(0,0,0,0.1); padding: 0 40px; display: flex; gap: 30px; }
+    .nav-item { padding: 15px 0; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.3s; }
     .nav-item:hover { color: white; border-bottom-color: white; }
     .nav-item.active { color: white; border-bottom-color: white; }
-    
     .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .section-header h2 { font-size: 32px; color: #333; }
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
-    
-    .materials-table {
-      background: white;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
+    .materials-table { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     table { width: 100%; border-collapse: collapse; }
     thead { background: #f8f9fa; }
-    th {
-      padding: 20px;
-      text-align: left;
-      font-weight: 600;
-      color: #333;
-      font-size: 14px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-    td {
-      padding: 20px;
-      border-bottom: 1px solid #f0f0f0;
-      color: #666;
-      font-size: 14px;
-    }
+    th { padding: 20px; text-align: left; font-weight: 600; color: #333; font-size: 14px; border-bottom: 2px solid #e0e0e0; }
+    td { padding: 20px; border-bottom: 1px solid #f0f0f0; color: #666; font-size: 14px; }
     tr:hover { background: #f9f9f9; }
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-    }
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
     .status-dostepny { background: #d4edda; color: #155724; }
-    
-    /* Przyciski akcji */
-    .btn-icon {
-      width: 32px; height: 32px;
-      border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px;
-      display: inline-flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-      margin: 0 2px;
-    }
+    .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; margin: 0 2px; }
     .btn-edit { background: #fff3cd; color: #856404; }
     .btn-edit:hover { background: #ffc107; color: #333; }
     .btn-delete { background: #f8d7da; color: #721c24; }
     .btn-delete:hover { background: #dc3545; color: white; }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal.active { display: flex; }
-    .modal-content {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 700px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
+    .modal-content { background: white; padding: 40px; border-radius: 20px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .modal-header h3 { font-size: 24px; color: #333; }
-    .btn-close {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #999;
-    }
-    
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
     .form-group { margin-bottom: 20px; }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: 500;
-      font-size: 14px;
-    }
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    .kod-builder {
-      display: grid;
-      grid-template-columns: 1fr 100px 80px;
-      gap: 10px;
-    }
-    .kod-builder input {
-      text-align: center;
-      font-weight: 600;
-      font-family: monospace;
-      font-size: 16px;
-    }
-    .kod-preview {
-      padding: 15px;
-      background: #667eea;
-      color: white;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      margin: 10px 0;
-    }
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-    }
-    .btn-secondary {
-      flex: 1;
-      padding: 12px;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit {
-      flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    
+    .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+    .kod-builder { display: grid; grid-template-columns: 1fr 100px 80px; gap: 10px; }
+    .kod-builder input { text-align: center; font-weight: 600; font-family: monospace; font-size: 16px; }
+    .kod-preview { padding: 15px; background: #667eea; color: white; border-radius: 8px; font-family: monospace; font-size: 20px; font-weight: 700; text-align: center; margin: 10px 0; transition: background 0.3s; }
+    .kod-preview.error { background: #dc3545; }
+    .kod-preview.ok { background: #28a745; }
+    .kod-status { padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 5px 0; }
+    .kod-status.free { background: #d4edda; color: #155724; }
+    .kod-status.taken { background: #f8d7da; color: #721c24; }
+    .kod-status.suggest { background: #d1ecf1; color: #0c5460; }
+    .form-actions { display: flex; gap: 15px; margin-top: 30px; }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
     .hint { font-size: 12px; color: #999; margin-top: 4px; }
     .loading { text-align: center; padding: 40px; color: #667eea; }
     .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    /* Wyszukiwanie */
+    .search-bar { display: flex; gap: 15px; margin-bottom: 20px; }
+    .search-bar input { flex: 1; padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; }
+    .search-bar input:focus { outline: none; border-color: #667eea; }
   </style>
 </head>
 <body>
@@ -252,27 +101,28 @@
       <button class="btn-primary" onclick="openAddModal()">+ Dodaj materiał</button>
     </div>
 
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Szukaj po nazwie, kodzie KRES lub EAN..." oninput="filterMaterials()">
+    </div>
+
     <div class="materials-table">
       <div id="materialsList" class="loading">⏳ Ładowanie materiałów...</div>
     </div>
   </div>
 
-  <!-- MODAL DODAJ / EDYTUJ -->
   <div id="modalAdd" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modalTitle">Nowy materiał</h3>
         <button class="btn-close" onclick="closeModal()">&times;</button>
       </div>
-      
       <form id="formAddMaterial">
         <input type="hidden" id="editId" value="">
-        
         <div class="form-group">
           <label>Kod KRES</label>
           <div class="kod-builder">
-            <select id="grupaKres" onchange="updateKodPreview()">
-              <option value="">Wybierz...</option>
+            <select id="grupaKres" onchange="onGrupaChange()">
+              <option value="">Wybierz grupę...</option>
               <option value="10">10 - Kable i przewody</option>
               <option value="11">11 - Przewody instalacyjne</option>
               <option value="12">12 - Włączniki</option>
@@ -292,30 +142,26 @@
               <option value="80">80 - Ochrona ppoż</option>
               <option value="90">90 - Materiały eksploatacyjne</option>
             </select>
-            <!-- POPRAWKA #1: Pola indeks i wariant BEZ disabled - w pełni edytowalne -->
-            <input type="text" id="indeks" placeholder="001" maxlength="3" oninput="updateKodPreview()">
-            <input type="text" id="wariant" placeholder="10" maxlength="2" oninput="updateKodPreview()">
+            <input type="text" id="indeks" placeholder="001" maxlength="3" oninput="validateKodKres()">
+            <input type="text" id="wariant" placeholder="10" maxlength="2" oninput="validateKodKres()">
           </div>
           <div class="kod-preview" id="kodPreview">-- --- --</div>
-          <div class="hint">Przykład: 10 001 10 = Kabel PEN 3x2,5 | 13 117 33 = Gniazdo ELKO</div>
+          <div id="kodStatus"></div>
+          <div class="hint">Format: XX YYY ZZ | System podpowiada pierwszy wolny indeks w grupie</div>
         </div>
-        
         <div class="form-group">
           <label>Kod EAN (opcjonalnie)</label>
           <input type="text" id="kodEan" placeholder="5901234567890">
-          <div class="hint">Kod kreskowy hurtowni</div>
+          <div class="hint">Kod kreskowy z hurtowni</div>
         </div>
-        
         <div class="form-group">
           <label>Nazwa materiału *</label>
           <input type="text" id="nazwa" required placeholder="np. PEN 3x2,5 lub Gniazdo ELKO białe">
         </div>
-        
         <div class="form-group">
           <label>Ilość *</label>
           <input type="number" id="ilosc" required step="0.01" min="0">
         </div>
-        
         <div class="form-group">
           <label>Jednostka *</label>
           <select id="jednostka" required>
@@ -327,14 +173,12 @@
             <option value="opak">opak</option>
           </select>
         </div>
-        
         <div class="form-group">
           <label>Projekt</label>
           <select id="projektId">
-            <option value="">Brak powiązania</option>
+            <option value="">Brak powiązania (magazyn wspólny)</option>
           </select>
         </div>
-        
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnSubmit">Dodaj materiał</button>
@@ -346,172 +190,261 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
-    let allMaterialy = []; // cache do edycji
+    let allMaterialy = [];
+    let kodKresValid = true; // flaga walidacji
 
     window.onload = function() {
-      checkAuth();
-      loadUserInfo();
-      loadProjects();
-      loadMaterials();
+      checkAuth(); loadUserInfo(); loadProjects(); loadMaterials();
     };
+    window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
 
-    // POPRAWKA #8: pageshow - odśwież przy cofaniu
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    });
-
-    function checkAuth() {
-      const token = localStorage.getItem('harmonogram_token');
-      if (!token) window.location.href = 'index.html';
-    }
-
+    function checkAuth() { if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html'; }
     function loadUserInfo() {
-      const userStr = localStorage.getItem('harmonogram_user');
-      if (userStr) {
-        currentUser = JSON.parse(userStr);
-        document.getElementById('userName').textContent = currentUser.name;
-        document.getElementById('userRole').textContent = currentUser.role;
-      }
+      const u = localStorage.getItem('harmonogram_user');
+      if (u) { currentUser = JSON.parse(u); document.getElementById('userName').textContent = currentUser.name; document.getElementById('userRole').textContent = currentUser.role; }
     }
-
     function loadProjects() {
       const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
-      window.handleProjectsResponse = function(result) {
-        if (result.success && result.projekty) {
-          const select = document.getElementById('projektId');
-          while (select.options.length > 1) select.remove(1);
-          result.projekty.forEach(p => {
-            select.appendChild(Object.assign(document.createElement('option'), {value: p.id, textContent: p.nazwa}));
-          });
+      window.handleProjectsResponse = function(r) {
+        if (r.success && r.projekty) {
+          const sel = document.getElementById('projektId');
+          while (sel.options.length > 1) sel.remove(1);
+          r.projekty.forEach(p => sel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa })));
         }
       };
-      document.body.appendChild(Object.assign(document.createElement('script'), {src: url}));
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
-
     function loadMaterials() {
       const url = API_URL + '?action=getMaterialy&callback=handleMaterialsResponse';
-      window.handleMaterialsResponse = function(result) {
-        if (result.success) {
-          allMaterialy = result.materialy || [];
-          displayMaterials(allMaterialy);
-        }
-        else document.getElementById('materialsList').innerHTML = '<div class="empty-state">⚠️ ' + result.message + '</div>';
+      window.handleMaterialsResponse = function(r) {
+        if (r.success) { allMaterialy = r.materialy || []; displayMaterials(allMaterialy); }
+        else document.getElementById('materialsList').innerHTML = '<div class="empty-state">⚠️ ' + r.message + '</div>';
       };
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = () => document.getElementById('materialsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      document.body.appendChild(script);
+      const s = document.createElement('script'); s.src = url;
+      s.onerror = () => document.getElementById('materialsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
+      document.body.appendChild(s);
     }
 
     function displayMaterials(materialy) {
       const listDiv = document.getElementById('materialsList');
-      if (!materialy || materialy.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state">📦 Brak materiałów. Dodaj pierwszy!</div>';
+      if (!materialy || materialy.length === 0) { listDiv.innerHTML = '<div class="empty-state">📦 Brak materiałów. Dodaj pierwszy!</div>'; return; }
+      listDiv.innerHTML = '<table><thead><tr><th>Kod KRES</th><th>EAN</th><th>Nazwa</th><th>Ilość</th><th>Jedn.</th><th>Projekt</th><th>Status</th><th>Akcje</th></tr></thead><tbody>' +
+        materialy.map(m => '<tr>' +
+          '<td><strong>' + (m.kodKres||'-') + '</strong></td>' +
+          '<td>' + (m.kodEan||'-') + '</td>' +
+          '<td>' + (m.nazwa||'') + '</td>' +
+          '<td>' + (m.ilosc||0) + '</td>' +
+          '<td>' + (m.jednostka||'') + '</td>' +
+          '<td>' + (m.projektNazwa||'wspólny') + '</td>' +
+          '<td><span class="status-badge status-dostepny">' + (m.status||'Dostępny') + '</span></td>' +
+          '<td><button class="btn-icon btn-edit" onclick="editMaterial(' + m.id + ')" title="Edytuj">✏️</button>' +
+          '<button class="btn-icon btn-delete" onclick="deleteMaterial(' + m.id + ',\'' + (m.nazwa||'').replace(/'/g,"\\'") + '\')" title="Usuń">🗑️</button></td>' +
+        '</tr>').join('') + '</tbody></table>';
+    }
+
+    function filterMaterials() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      if (!q) { displayMaterials(allMaterialy); return; }
+      const filtered = allMaterialy.filter(m =>
+        (m.nazwa||'').toLowerCase().includes(q) ||
+        (m.kodKres||'').toLowerCase().includes(q) ||
+        (m.kodEan||'').toLowerCase().includes(q)
+      );
+      displayMaterials(filtered);
+    }
+
+    // ==================== WALIDACJA KODU KRES ====================
+
+    function getExistingCodesForGroup(grupa) {
+      // Pobierz wszystkie kody z danej grupy
+      return allMaterialy
+        .filter(m => m.kodKres && m.kodKres.startsWith(grupa + ' '))
+        .map(m => m.kodKres);
+    }
+
+    function getExistingIndicesForGroup(grupa) {
+      // Wyciągnij indeksy (YYY) z kodów w danej grupie
+      return allMaterialy
+        .filter(m => m.kodKres && m.kodKres.startsWith(grupa + ' '))
+        .map(m => {
+          const parts = m.kodKres.split(' ');
+          return parts[1] ? parseInt(parts[1]) : null;
+        })
+        .filter(n => n !== null);
+    }
+
+    function findFirstFreeIndex(grupa) {
+      const used = getExistingIndicesForGroup(grupa);
+      if (used.length === 0) return '001';
+      // Szukaj pierwszej wolnej od 001 w górę
+      for (let i = 1; i <= 999; i++) {
+        if (!used.includes(i)) return String(i).padStart(3, '0');
+      }
+      return '999';
+    }
+
+    function findFirstFreeVariant(grupa, indeks) {
+      const prefix = grupa + ' ' + indeks + ' ';
+      const usedVariants = allMaterialy
+        .filter(m => m.kodKres && m.kodKres.startsWith(prefix))
+        .map(m => {
+          const parts = m.kodKres.split(' ');
+          return parts[2] ? parseInt(parts[2]) : null;
+        })
+        .filter(n => n !== null);
+      
+      // Warianty idą po dziesiątkach: 10, 20, 30...
+      for (let v = 10; v <= 90; v += 10) {
+        if (!usedVariants.includes(v)) return String(v);
+      }
+      return '10';
+    }
+
+    function onGrupaChange() {
+      const grupa = document.getElementById('grupaKres').value;
+      if (!grupa) {
+        document.getElementById('indeks').value = '';
+        document.getElementById('wariant').value = '';
+        document.getElementById('kodStatus').innerHTML = '';
+        updateKodPreview();
         return;
       }
-      listDiv.innerHTML = `<table><thead><tr>
-        <th>Kod KRES</th><th>EAN</th><th>Nazwa</th><th>Ilość</th><th>Jedn.</th><th>Projekt</th><th>Status</th><th>Akcje</th>
-      </tr></thead><tbody>${materialy.map(m => `<tr>
-        <td><strong>${m.kodKres || '-'}</strong></td>
-        <td>${m.kodEan || '-'}</td>
-        <td>${m.nazwa}</td>
-        <td>${m.ilosc}</td>
-        <td>${m.jednostka}</td>
-        <td>${m.projektNazwa || '-'}</td>
-        <td><span class="status-badge status-dostepny">${m.status || 'Dostępny'}</span></td>
-        <td>
-          <button class="btn-icon btn-edit" onclick="editMaterial(${m.id})" title="Edytuj">✏️</button>
-          <button class="btn-icon btn-delete" onclick="deleteMaterial(${m.id}, '${(m.nazwa || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
-        </td>
-      </tr>`).join('')}</tbody></table>`;
+
+      // Podpowiedz pierwszy wolny indeks
+      const freeIndex = findFirstFreeIndex(grupa);
+      document.getElementById('indeks').value = freeIndex;
+
+      // Podpowiedz pierwszy wolny wariant
+      const freeVariant = findFirstFreeVariant(grupa, freeIndex);
+      document.getElementById('wariant').value = freeVariant;
+
+      const existingCount = getExistingCodesForGroup(grupa).length;
+      document.getElementById('kodStatus').innerHTML = 
+        '<div class="kod-status suggest">💡 Podpowiedź: pierwszy wolny indeks w grupie ' + grupa + ' to <strong>' + freeIndex + '</strong> (istniejących kodów: ' + existingCount + ')</div>';
+
+      validateKodKres();
+    }
+
+    function validateKodKres() {
+      const grupa = document.getElementById('grupaKres').value || '--';
+      const indeks = document.getElementById('indeks').value || '---';
+      const wariant = document.getElementById('wariant').value || '--';
+      const preview = document.getElementById('kodPreview');
+      const fullKod = grupa + ' ' + indeks.padStart(3, '0') + ' ' + wariant;
+      
+      preview.textContent = fullKod;
+
+      // Sprawdź czy kompletny kod
+      if (grupa === '--' || indeks === '---' || wariant === '--' || !grupa || !indeks || !wariant) {
+        preview.className = 'kod-preview';
+        kodKresValid = true; // Pusty kod jest OK (opcjonalny)
+        return;
+      }
+
+      // Sprawdź duplikat (ale nie swój własny przy edycji)
+      const editId = document.getElementById('editId').value;
+      const duplicate = allMaterialy.find(m => {
+        if (editId && m.id == editId) return false; // Pomijaj siebie przy edycji
+        return m.kodKres === fullKod;
+      });
+
+      if (duplicate) {
+        preview.className = 'kod-preview error';
+        document.getElementById('kodStatus').innerHTML = 
+          '<div class="kod-status taken">❌ Ten kod KRES już istnieje! Przypisany do: <strong>' + (duplicate.nazwa||'?') + '</strong></div>';
+        kodKresValid = false;
+      } else {
+        preview.className = 'kod-preview ok';
+        document.getElementById('kodStatus').innerHTML = 
+          '<div class="kod-status free">✅ Kod wolny — można użyć</div>';
+        kodKresValid = true;
+      }
     }
 
     function updateKodPreview() {
       const grupa = document.getElementById('grupaKres').value || '--';
       const indeks = document.getElementById('indeks').value || '---';
       const wariant = document.getElementById('wariant').value || '--';
-      document.getElementById('kodPreview').textContent = `${grupa} ${indeks} ${wariant}`;
+      document.getElementById('kodPreview').textContent = grupa + ' ' + indeks + ' ' + wariant;
+      document.getElementById('kodPreview').className = 'kod-preview';
     }
 
-    // === DODAWANIE ===
+    // ==================== CRUD ====================
+
     function openAddModal() {
       document.getElementById('editId').value = '';
       document.getElementById('modalTitle').textContent = 'Nowy materiał';
       document.getElementById('btnSubmit').textContent = 'Dodaj materiał';
       document.getElementById('formAddMaterial').reset();
+      document.getElementById('kodStatus').innerHTML = '';
       updateKodPreview();
+      kodKresValid = true;
       document.getElementById('modalAdd').classList.add('active');
     }
 
-    // === EDYCJA ===
     function editMaterial(id) {
       const mat = allMaterialy.find(m => m.id == id);
-      if (!mat) { alert('Nie znaleziono materiału'); return; }
-      
+      if (!mat) { alert('Nie znaleziono'); return; }
       document.getElementById('editId').value = id;
       document.getElementById('modalTitle').textContent = 'Edytuj materiał';
       document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
-      
-      // Parsuj kod KRES (np. "10 001 10") na grupy
       if (mat.kodKres) {
         const parts = mat.kodKres.split(' ');
         document.getElementById('grupaKres').value = parts[0] || '';
         document.getElementById('indeks').value = parts[1] || '';
         document.getElementById('wariant').value = parts[2] || '';
+      } else {
+        document.getElementById('grupaKres').value = '';
+        document.getElementById('indeks').value = '';
+        document.getElementById('wariant').value = '';
       }
-      
       document.getElementById('kodEan').value = mat.kodEan || '';
       document.getElementById('nazwa').value = mat.nazwa || '';
       document.getElementById('ilosc').value = mat.ilosc || '';
       document.getElementById('jednostka').value = mat.jednostka || '';
       document.getElementById('projektId').value = mat.projektId || '';
-      updateKodPreview();
+      validateKodKres();
       document.getElementById('modalAdd').classList.add('active');
     }
 
-    // === USUWANIE ===
     function deleteMaterial(id, nazwa) {
-      if (!confirm('Czy na pewno usunąć materiał "' + nazwa + '"?')) return;
-      
+      if (!confirm('Usunąć materiał "' + nazwa + '"?')) return;
       const url = API_URL + '?action=usunMaterial&id=' + id +
-        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-        '&callback=handleDeleteMaterialResponse';
-      
-      window.handleDeleteMaterialResponse = function(result) {
-        if (result.success) {
-          loadMaterials();
-        } else {
-          alert('❌ Błąd: ' + result.message);
-        }
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleDeleteMaterialResponse';
+      window.handleDeleteMaterialResponse = function(r) {
+        if (r.success) loadMaterials(); else alert('❌ ' + r.message);
       };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     }
 
     function closeModal() {
       document.getElementById('modalAdd').classList.remove('active');
       document.getElementById('formAddMaterial').reset();
       document.getElementById('editId').value = '';
+      document.getElementById('kodStatus').innerHTML = '';
       updateKodPreview();
+      kodKresValid = true;
     }
 
     document.getElementById('formAddMaterial').addEventListener('submit', function(e) {
       e.preventDefault();
+
+      // Walidacja kodu KRES
+      if (!kodKresValid) {
+        alert('❌ Kod KRES jest już zajęty! Zmień indeks lub wariant.');
+        return;
+      }
+
       const btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
-      
       const editId = document.getElementById('editId').value;
       const isEdit = editId !== '';
-      
+
       const grupa = document.getElementById('grupaKres').value;
       const indeks = document.getElementById('indeks').value.padStart(3, '0');
       const wariant = document.getElementById('wariant').value;
-      const kodKres = grupa && indeks && wariant ? `${grupa} ${indeks} ${wariant}` : '';
-      
+      const kodKres = grupa && indeks && wariant ? grupa + ' ' + indeks + ' ' + wariant : '';
+
       const material = {
         kodKres: kodKres,
         kodEan: document.getElementById('kodEan').value,
@@ -520,37 +453,33 @@
         jednostka: document.getElementById('jednostka').value,
         projektId: document.getElementById('projektId').value || null
       };
-      
+
       let url;
       if (isEdit) {
         btnSubmit.textContent = 'Zapisywanie...';
         material.id = editId;
         url = API_URL + '?action=edytujMaterial&material=' + encodeURIComponent(JSON.stringify(material)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveMaterialResponse';
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleSaveMaterialResponse';
       } else {
         btnSubmit.textContent = 'Dodawanie...';
         url = API_URL + '?action=dodajMaterial&material=' + encodeURIComponent(JSON.stringify(material)) +
-          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
-          '&callback=handleSaveMaterialResponse';
+          '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleSaveMaterialResponse';
       }
-      
-      window.handleSaveMaterialResponse = function(result) {
-        alert(result.success 
-          ? (isEdit ? '✅ Materiał zaktualizowany!' : '✅ Materiał dodany!') 
-          : '❌ Błąd: ' + result.message);
-        if (result.success) { closeModal(); loadMaterials(); }
+
+      window.handleSaveMaterialResponse = function(r) {
+        if (r.success) {
+          alert(isEdit ? '✅ Materiał zaktualizowany!' : '✅ Materiał dodany!');
+          closeModal(); loadMaterials();
+        } else {
+          alert('❌ ' + r.message);
+        }
         btnSubmit.disabled = false;
         btnSubmit.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj materiał';
       };
-      
-      document.body.appendChild(Object.assign(document.createElement('script'), {src: url}));
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
     });
 
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    }
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
   </script>
 </body>
 </html>
