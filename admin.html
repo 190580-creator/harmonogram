@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARMONOGRAM - Administracja</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-top { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { font-size: 32px; } .header-title { font-size: 24px; font-weight: 600; }
+    .user-info { display: flex; align-items: center; gap: 20px; }
+    .user-name { font-size: 14px; font-weight: 500; }
+    .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .nav-menu { background: rgba(0,0,0,0.1); padding: 0 40px; display: flex; gap: 30px; }
+    .nav-item { padding: 15px 0; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.3s; }
+    .nav-item:hover { color: white; border-bottom-color: white; }
+    .nav-item.active { color: white; border-bottom-color: white; }
+    .container { max-width: 1400px; margin: 30px auto; padding: 0 40px; }
+
+    /* Ostrzeżenie o braku uprawnień */
+    .access-denied { text-align: center; padding: 80px 20px; }
+    .access-denied h2 { color: #dc3545; margin-bottom: 15px; }
+    .access-denied p { color: #666; }
+
+    /* Info licencja */
+    .license-box {
+      background: white; border-radius: 15px; padding: 25px 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+      border-left: 5px solid #28a745;
+    }
+    .license-info h3 { font-size: 18px; color: #333; margin-bottom: 8px; }
+    .license-detail { font-size: 13px; color: #666; margin: 3px 0; }
+    .license-detail b { color: #333; }
+    .license-status { text-align: center; }
+    .license-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+    .badge-active { background: #d4edda; color: #155724; }
+    .badge-expired { background: #f8d7da; color: #721c24; }
+
+    /* Sekcja użytkownicy */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-header h3 { font-size: 24px; color: #333; }
+    .section-header .info { font-size: 14px; color: #666; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+
+    /* Karty użytkowników */
+    .users-list { display: grid; gap: 15px; }
+    .user-card {
+      padding: 20px 25px; background: white; border: 2px solid #e9ecef;
+      border-radius: 12px; display: flex; align-items: center; gap: 20px;
+      transition: all 0.2s;
+    }
+    .user-card:hover { border-color: #667eea; box-shadow: 0 3px 15px rgba(0,0,0,0.08); }
+    .user-card.inactive { opacity: 0.5; border-color: #6c757d; }
+    .user-avatar {
+      width: 55px; height: 55px; border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-avatar.dyrektor { background: linear-gradient(135deg, #ffc107, #ff9800); }
+    .user-avatar.admin { background: linear-gradient(135deg, #dc3545, #c82333); }
+    .user-avatar.inactive { background: #6c757d; }
+    .u-info { flex: 1; }
+    .u-name { font-size: 16px; font-weight: 600; color: #333; }
+    .u-email { font-size: 13px; color: #666; margin-top: 2px; }
+    .u-meta { font-size: 12px; color: #999; margin-top: 4px; }
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 11px; font-weight: 600; margin-right: 8px; }
+    .role-kierownik { background: #d1ecf1; color: #0c5460; }
+    .role-dyrektor { background: #fff3cd; color: #856404; }
+    .role-administrator { background: #f8d7da; color: #721c24; }
+    .status-active { color: #28a745; font-weight: 600; font-size: 12px; }
+    .status-inactive { color: #6c757d; font-weight: 600; font-size: 12px; }
+    .u-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+    .btn-sm { padding: 7px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-edit-sm { background: #fff3cd; color: #856404; }
+    .btn-edit-sm:hover { background: #ffc107; color: #333; }
+    .btn-reset { background: #d1ecf1; color: #0c5460; }
+    .btn-reset:hover { background: #17a2b8; color: white; }
+    .btn-toggle { background: #e2e3e5; color: #383d41; }
+    .btn-toggle:hover { background: #6c757d; color: white; }
+    .btn-del-sm { background: #f8d7da; color: #721c24; }
+    .btn-del-sm:hover { background: #dc3545; color: white; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; padding: 35px; border-radius: 20px; max-width: 550px; width: 95%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef; }
+    .modal-header h3 { font-size: 22px; color: #333; }
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 11px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-actions { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .hint { font-size: 12px; color: #999; margin-top: 4px; }
+    .alert { padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
+    .alert-warning { background: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+    .alert-info { background: #d1ecf1; border: 1px solid #17a2b8; color: #0c5460; }
+    .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 40px; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="logo">⚙️</div>
+        <div class="header-title">Administracja</div>
+      </div>
+      <div class="user-info">
+        <div>
+          <div class="user-name" id="userName">Ładowanie...</div>
+          <div class="user-role" id="userRole"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Wyloguj</button>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a href="dashboard.html" class="nav-item">Dashboard</a>
+      <a href="projekty.html" class="nav-item">Projekty</a>
+      <a href="harmonogram.html" class="nav-item">Harmonogram</a>
+      <a href="kalendarz.html" class="nav-item">Kalendarz</a>
+      <a href="reminder.html" class="nav-item">Reminder</a>
+      <a href="magazyn.html" class="nav-item">Magazyn</a>
+      <a href="admin.html" class="nav-item active">Admin</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Brak uprawnień -->
+    <div id="accessDenied" style="display:none" class="access-denied">
+      <h2>🔒 Brak uprawnień</h2>
+      <p>Panel administracyjny dostępny tylko dla Administratorów i Dyrektorów.</p>
+    </div>
+
+    <div id="adminContent" style="display:none">
+      <!-- Licencja -->
+      <div class="license-box">
+        <div class="license-info">
+          <h3>🔐 Licencja HARMONOGRAM</h3>
+          <div class="license-detail"><b>Klucz:</b> KRES-HAR-2026-A7C2-5424-VYH4</div>
+          <div class="license-detail"><b>Licencjobiorca:</b> Seweryn Baran / RN-Elektro</div>
+          <div class="license-detail"><b>Ważna do:</b> 17.03.2027</div>
+          <div class="license-detail"><b>Stanowiska:</b> <span id="licStanowiska">-</span> / 7</div>
+        </div>
+        <div class="license-status">
+          <div class="license-badge badge-active">✅ Aktywna</div>
+        </div>
+      </div>
+
+      <!-- Użytkownicy -->
+      <div class="section-header">
+        <div>
+          <h3>👥 Użytkownicy</h3>
+          <div class="info">Zarządzanie kontami użytkowników systemu</div>
+        </div>
+        <button class="btn-primary" onclick="openAddUserModal()">+ Dodaj użytkownika</button>
+      </div>
+
+      <div id="usersList" class="loading">⏳ Ładowanie użytkowników...</div>
+    </div>
+  </div>
+
+  <!-- MODAL: DODAJ / EDYTUJ UŻYTKOWNIKA -->
+  <div id="modalUser" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="userModalTitle">Nowy użytkownik</h3>
+        <button class="btn-close" onclick="closeM('modalUser')">&times;</button>
+      </div>
+      <form id="formUser">
+        <input type="hidden" id="userEditId" value="">
+        <div class="form-group">
+          <label>Imię i nazwisko *</label>
+          <input type="text" id="userImie" required placeholder="np. Jan Kowalski">
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="userEmail" required placeholder="np. jan.kowalski@rn-elektro.pl">
+          <div class="hint">Email służy do logowania</div>
+        </div>
+        <div id="passwordSection">
+          <div class="form-group">
+            <label>Hasło *</label>
+            <input type="password" id="userHaslo" placeholder="Hasło tymczasowe">
+            <div class="hint">Użytkownik zostanie poproszony o zmianę przy pierwszym logowaniu</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="userTelefon" placeholder="+48 123 456 789">
+        </div>
+        <div class="form-group">
+          <label>Rola *</label>
+          <select id="userRola" required>
+            <option value="Kierownik">Kierownik budowy</option>
+            <option value="Dyrektor">Dyrektor</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeM('modalUser')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnUserSubmit">Dodaj użytkownika</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RESET HASŁA -->
+  <div id="modalReset" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔑 Reset hasła</h3>
+        <button class="btn-close" onclick="closeM('modalReset')">&times;</button>
+      </div>
+      <div id="resetInfo" class="alert alert-info"></div>
+      <form id="formReset">
+        <input type="hidden" id="resetEmail" value="">
+        <div class="form-group">
+          <label>Nowe hasło tymczasowe *</label>
+          <input type="text" id="resetNewPassword" required value="TempPass2026!" placeholder="Nowe hasło">
+          <div class="hint">Użytkownik będzie musiał zmienić hasło przy następnym logowaniu</div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeM('modalReset')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnResetSubmit">🔑 Resetuj hasło</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let user = null, allUsers = [];
+
+    window.onload = function() {
+      checkAuth(); loadUser();
+      // Sprawdź uprawnienia
+      if (user && (user.role === 'Administrator' || user.role === 'Dyrektor')) {
+        document.getElementById('adminContent').style.display = 'block';
+        loadUsers();
+      } else {
+        document.getElementById('accessDenied').style.display = 'block';
+      }
+    };
+    window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
+
+    function checkAuth() { if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html'; }
+    function loadUser() {
+      const u = localStorage.getItem('harmonogram_user');
+      if (u) { user = JSON.parse(u); document.getElementById('userName').textContent = user.name; document.getElementById('userRole').textContent = user.role; }
+    }
+
+    // === ŁADOWANIE UŻYTKOWNIKÓW ===
+    function loadUsers() {
+      jp('getUsers', { user: JSON.stringify(user) }, function(r) {
+        if (r.success) {
+          allUsers = r.users || [];
+          displayUsers(allUsers);
+          // Aktualizuj liczbę stanowisk
+          const active = allUsers.filter(function(u) { return u.status === 'Aktywny'; });
+          document.getElementById('licStanowiska').textContent = active.length;
+        } else {
+          document.getElementById('usersList').innerHTML = '<div class="empty-state">⚠️ ' + r.message + '</div>';
+        }
+      });
+    }
+
+    function displayUsers(users) {
+      const div = document.getElementById('usersList');
+      if (!users || users.length === 0) {
+        div.innerHTML = '<div class="empty-state">Brak użytkowników</div>';
+        return;
+      }
+
+      let html = '<div class="users-list">';
+      users.forEach(function(u) {
+        const isActive = u.status === 'Aktywny';
+        const initials = getInitials(u.imie);
+        let avatarClass = 'user-avatar';
+        if (!isActive) avatarClass += ' inactive';
+        else if (u.rola === 'Dyrektor') avatarClass += ' dyrektor';
+        else if (u.rola === 'Administrator') avatarClass += ' admin';
+
+        let roleClass = 'role-kierownik';
+        if (u.rola === 'Dyrektor') roleClass = 'role-dyrektor';
+        if (u.rola === 'Administrator') roleClass = 'role-administrator';
+
+        html += '<div class="user-card ' + (isActive ? '' : 'inactive') + '">';
+        html += '<div class="' + avatarClass + '">' + initials + '</div>';
+        html += '<div class="u-info">';
+        html += '<div class="u-name">' + esc(u.imie) + '</div>';
+        html += '<div class="u-email">' + esc(u.email) + '</div>';
+        html += '<div class="u-meta">';
+        html += '<span class="role-badge ' + roleClass + '">' + esc(u.rola) + '</span>';
+        html += '<span class="' + (isActive ? 'status-active' : 'status-inactive') + '">' + (isActive ? '✅ Aktywny' : '⚫ Nieaktywny') + '</span>';
+        if (u.telefon) html += ' | 📱 ' + esc(u.telefon);
+        if (u.ostatnieLogowanie) html += ' | Ostatnio: ' + esc(u.ostatnieLogowanie);
+        html += '</div></div>';
+        html += '<div class="u-actions">';
+        html += '<button class="btn-sm btn-edit-sm" onclick="editUser(' + u.id + ')">✏️ Edytuj</button>';
+        html += '<button class="btn-sm btn-reset" onclick="openResetModal(' + u.id + ')">🔑 Reset</button>';
+        html += '<button class="btn-sm btn-toggle" onclick="toggleUserStatus(' + u.id + ')">' + (isActive ? '⏸ Dezaktywuj' : '▶ Aktywuj') + '</button>';
+        html += '<button class="btn-sm btn-del-sm" onclick="deleteUser(' + u.id + ')">🗑️</button>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+      div.innerHTML = html;
+    }
+
+    // === DODAWANIE UŻYTKOWNIKA ===
+    function openAddUserModal() {
+      // Sprawdź limit stanowisk
+      const active = allUsers.filter(function(u) { return u.status === 'Aktywny'; });
+      if (active.length >= 7) {
+        alert('⚠️ Osiągnięto limit 7 aktywnych stanowisk licencji.\nDezaktywuj innego użytkownika lub rozszerz licencję.');
+        return;
+      }
+      document.getElementById('userEditId').value = '';
+      document.getElementById('userModalTitle').textContent = 'Nowy użytkownik';
+      document.getElementById('btnUserSubmit').textContent = 'Dodaj użytkownika';
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('userHaslo').required = true;
+      document.getElementById('formUser').reset();
+      document.getElementById('modalUser').classList.add('active');
+    }
+
+    // === EDYCJA UŻYTKOWNIKA ===
+    function editUser(id) {
+      const u = allUsers.find(function(x) { return x.id == id; });
+      if (!u) return;
+      document.getElementById('userEditId').value = id;
+      document.getElementById('userModalTitle').textContent = 'Edytuj użytkownika';
+      document.getElementById('btnUserSubmit').textContent = 'Zapisz zmiany';
+      document.getElementById('passwordSection').style.display = 'none';
+      document.getElementById('userHaslo').required = false;
+      document.getElementById('userImie').value = u.imie || '';
+      document.getElementById('userEmail').value = u.email || '';
+      document.getElementById('userTelefon').value = u.telefon || '';
+      document.getElementById('userRola').value = u.rola || 'Kierownik';
+      document.getElementById('modalUser').classList.add('active');
+    }
+
+    // === FORM SUBMIT ===
+    document.getElementById('formUser').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnUserSubmit');
+      btn.disabled = true;
+      var eid = document.getElementById('userEditId').value;
+      var isEdit = eid !== '';
+
+      var data = {
+        imie: document.getElementById('userImie').value,
+        email: document.getElementById('userEmail').value,
+        telefon: document.getElementById('userTelefon').value,
+        rola: document.getElementById('userRola').value
+      };
+      if (!isEdit) {
+        data.haslo = document.getElementById('userHaslo').value;
+      }
+      if (isEdit) data.id = eid;
+
+      var action = isEdit ? 'editUser' : 'addUser';
+      btn.textContent = isEdit ? 'Zapisywanie...' : 'Dodawanie...';
+
+      jp(action, { userData: JSON.stringify(data), user: JSON.stringify(user) }, function(r) {
+        if (r.success) {
+          closeM('modalUser'); loadUsers();
+          if (!isEdit) alert('✅ Użytkownik dodany!\nEmail: ' + data.email + '\nHasło tymczasowe: ' + data.haslo);
+        } else { alert('❌ ' + r.message); }
+        btn.disabled = false;
+        btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj użytkownika';
+      });
+    });
+
+    // === RESET HASŁA ===
+    function openResetModal(id) {
+      var u = allUsers.find(function(x) { return x.id == id; });
+      if (!u) return;
+      document.getElementById('resetEmail').value = u.email;
+      document.getElementById('resetInfo').innerHTML = 'Reset hasła dla: <b>' + esc(u.imie) + '</b> (' + esc(u.email) + ')';
+      document.getElementById('resetNewPassword').value = 'TempPass2026!';
+      document.getElementById('modalReset').classList.add('active');
+    }
+
+    document.getElementById('formReset').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnResetSubmit');
+      btn.disabled = true; btn.textContent = 'Resetowanie...';
+      var data = {
+        email: document.getElementById('resetEmail').value,
+        newPassword: document.getElementById('resetNewPassword').value
+      };
+      jp('resetUserPassword', { resetData: JSON.stringify(data), user: JSON.stringify(user) }, function(r) {
+        if (r.success) {
+          closeM('modalReset');
+          alert('✅ Hasło zresetowane!\nNowe hasło: ' + data.newPassword + '\nUżytkownik będzie musiał je zmienić przy logowaniu.');
+        } else { alert('❌ ' + r.message); }
+        btn.disabled = false; btn.textContent = '🔑 Resetuj hasło';
+      });
+    });
+
+    // === TOGGLE STATUS ===
+    function toggleUserStatus(id) {
+      var u = allUsers.find(function(x) { return x.id == id; });
+      if (!u) return;
+      var newStatus = u.status === 'Aktywny' ? 'Nieaktywny' : 'Aktywny';
+
+      // Sprawdź limit przy aktywacji
+      if (newStatus === 'Aktywny') {
+        var active = allUsers.filter(function(x) { return x.status === 'Aktywny'; });
+        if (active.length >= 7) { alert('⚠️ Limit 7 aktywnych stanowisk osiągnięty!'); return; }
+      }
+
+      if (!confirm((newStatus === 'Nieaktywny' ? 'Dezaktywować' : 'Aktywować') + ' konto "' + u.imie + '"?')) return;
+
+      jp('toggleUserStatus', { userId: id, newStatus: newStatus, user: JSON.stringify(user) }, function(r) {
+        if (r.success) loadUsers(); else alert('❌ ' + r.message);
+      });
+    }
+
+    // === USUWANIE ===
+    function deleteUser(id) {
+      var u = allUsers.find(function(x) { return x.id == id; });
+      if (!u) return;
+      var input = prompt('⚠️ USUWANIE UŻYTKOWNIKA\n\nAby potwierdzić, wpisz email:\n"' + u.email + '"');
+      if (input === null) return;
+      if (input.trim() !== u.email.trim()) { alert('❌ Email nie pasuje.'); return; }
+
+      jp('deleteUser', { userId: id, user: JSON.stringify(user) }, function(r) {
+        if (r.success) loadUsers(); else alert('❌ ' + r.message);
+      });
+    }
+
+    // === HELPERS ===
+    function getInitials(name) {
+      if (!name) return '?';
+      var parts = name.split(' ');
+      return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0,2).toUpperCase();
+    }
+    function closeM(id) { document.getElementById(id).classList.remove('active'); }
+    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+    function jp(action, params, cb) {
+      var cbN = 'cb_' + action + '_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+      var url = API + '?action=' + action + '&callback=' + cbN;
+      for (var k in params) url += '&' + k + '=' + encodeURIComponent(params[k]);
+      window[cbN] = function(r) { cb(r); delete window[cbN]; };
+      var s = document.createElement('script'); s.src = url;
+      s.onerror = function() { cb({ success: false, message: 'Błąd połączenia' }); };
+      document.body.appendChild(s);
+    }
+    function logout() { localStorage.removeItem('harmonogram_token'); localStorage.removeItem('harmonogram_user'); window.location.href = 'index.html'; }
+  </script>
+</body>
+</html>
