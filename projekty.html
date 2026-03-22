@@ -429,7 +429,9 @@
 
     // === USUWANIE ===
     function deleteProject(id, nazwa) {
-      if (!confirm('Czy na pewno usunąć projekt "' + nazwa + '"?\n\nUWAGA: Zostaną też usunięte wszystkie powiązane zadania!')) return;
+      const input = prompt('⚠️ USUWANIE PROJEKTU\n\nZostaną usunięte WSZYSTKIE powiązane zadania, etapy i dane!\n\nAby potwierdzić, wpisz nazwę projektu:\n"' + nazwa + '"');
+      if (input === null) return;
+      if (input.trim() !== nazwa.trim()) { alert('❌ Nazwa nie pasuje. Projekt nie został usunięty.'); return; }
       
       const url = API_URL + '?action=usunProjekt&id=' + id +
         '&user=' + encodeURIComponent(JSON.stringify(currentUser)) +
