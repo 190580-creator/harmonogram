@@ -7,89 +7,87 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
-    
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header-top {
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-top { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
     .header-left { display: flex; align-items: center; gap: 15px; }
-    .logo { font-size: 32px; }
-    .header-title { font-size: 24px; font-weight: 600; }
+    .logo { font-size: 32px; } .header-title { font-size: 24px; font-weight: 600; }
     .user-info { display: flex; align-items: center; gap: 20px; }
     .user-name { font-size: 14px; font-weight: 500; }
     .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
     .btn-logout:hover { background: rgba(255,255,255,0.3); }
-    
-    .nav-menu {
-      background: rgba(0,0,0,0.1);
-      padding: 0 40px;
-      display: flex;
-      gap: 30px;
-    }
-    .nav-item {
-      padding: 15px 0;
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
+    .nav-menu { background: rgba(0,0,0,0.1); padding: 0 40px; display: flex; gap: 30px; }
+    .nav-item { padding: 15px 0; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.3s; }
     .nav-item:hover { color: white; border-bottom-color: white; }
     .nav-item.active { color: white; border-bottom-color: white; }
-    
-    .container { max-width: 1400px; margin: 40px auto; padding: 0 40px; }
-    .welcome-box { background: white; padding: 40px; border-radius: 15px; margin-bottom: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .welcome-box h2 { color: #333; font-size: 28px; margin-bottom: 10px; }
-    .welcome-box p { color: #666; font-size: 16px; }
-    
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-    .stat-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
-    .stat-icon { font-size: 48px; margin-bottom: 15px; }
-    .stat-number { font-size: 36px; font-weight: 700; color: #667eea; margin-bottom: 5px; }
-    .stat-label { color: #666; font-size: 14px; }
-    
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+
+    .container { max-width: 1400px; margin: 30px auto; padding: 0 40px; }
+
+    /* Statystyki */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
+    .stat-icon { font-size: 36px; margin-bottom: 10px; }
+    .stat-number { font-size: 32px; font-weight: 700; color: #667eea; margin-bottom: 3px; }
+    .stat-label { color: #666; font-size: 13px; }
+
+    /* Nagłówek sekcji */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .section-header h3 { font-size: 24px; color: #333; }
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
-    
-    .projects-container { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .project-item {
-      padding: 20px;
-      border-bottom: 1px solid #f0f0f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+
+    /* Karty projektów */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+    .project-card {
+      padding: 25px;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    .project-item:hover { background: #f9f9f9; }
-    .project-item:last-child { border-bottom: none; }
-    .project-info { flex: 1; }
-    .project-name { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 8px; }
-    .project-details { display: flex; gap: 20px; font-size: 13px; color: #666; }
-    .project-status { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #d4edda; color: #155724; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    .project-card.status-green { border-color: #28a745; background: linear-gradient(to bottom, #fff, #f0fff4); }
+    .project-card.status-yellow { border-color: #ffc107; background: linear-gradient(to bottom, #fff, #fffbf0); }
+    .project-card.status-red { border-color: #dc3545; background: linear-gradient(to bottom, #fff, #fff5f5); }
+    .project-card.status-gray { border-color: #6c757d; background: linear-gradient(to bottom, #fff, #f8f9fa); opacity: 0.7; }
+
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .card-title { font-size: 18px; font-weight: 700; color: #333; }
+    .card-status-dot { font-size: 24px; }
+    .card-meta { font-size: 13px; color: #666; margin-bottom: 15px; }
+    .card-meta span { margin-right: 15px; }
+    .card-timeline { padding: 10px 12px; background: rgba(0,0,0,0.04); border-radius: 8px; margin-bottom: 15px; font-size: 13px; color: #555; }
+
+    /* Progress bary */
+    .progress-section { margin-bottom: 10px; }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; color: #666; font-weight: 600; }
+    .progress-bar { height: 26px; background: #e9ecef; border-radius: 13px; overflow: hidden; position: relative; }
+    .progress-fill { height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; border-radius: 13px; transition: width 0.8s ease; min-width: 0; }
+    .fill-tasks { background: linear-gradient(to right, #667eea, #764ba2); }
+    .fill-time { background: linear-gradient(to right, #17a2b8, #138496); }
+    .fill-green { background: linear-gradient(to right, #28a745, #1e7e34); }
+
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; }
+    .card-verdict { font-weight: 700; }
+    .verdict-ok { color: #28a745; }
+    .verdict-warning { color: #ffc107; }
+    .verdict-critical { color: #dc3545; }
+    .card-link { color: #667eea; font-weight: 600; text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+
     .loading { text-align: center; padding: 40px; color: #667eea; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+
+    @media (max-width: 900px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 15px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -118,134 +116,213 @@
   </div>
 
   <div class="container">
-    <div class="welcome-box">
-      <h2>Witaj w systemie HARMONOGRAM! 🎉</h2>
-      <p>System zarządzania projektami działa poprawnie.</p>
-    </div>
-
+    <!-- Statystyki -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon">📊</div>
-        <div class="stat-number" id="statProjekty">0</div>
+        <div class="stat-number" id="statProjekty">-</div>
         <div class="stat-label">Aktywnych projektów</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">✅</div>
-        <div class="stat-number" id="statZadania">0</div>
-        <div class="stat-label">Zadań w toku</div>
+        <div class="stat-number" id="statZadania">-</div>
+        <div class="stat-label">Zadań łącznie</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-number">7</div>
-        <div class="stat-label">Stanowisk (licencja)</div>
+        <div class="stat-icon">⏰</div>
+        <div class="stat-number" id="statReminders">-</div>
+        <div class="stat-label">Aktywnych reminderów</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📅</div>
-        <div class="stat-number" id="statDeadline">0</div>
-        <div class="stat-label">Nadchodzących terminów</div>
+        <div class="stat-icon">📦</div>
+        <div class="stat-number" id="statMaterialy">-</div>
+        <div class="stat-label">Materiałów w magazynie</div>
       </div>
     </div>
 
+    <!-- Projekty -->
     <div class="section-header">
-      <h3>Twoje projekty</h3>
-      <button class="btn-primary" onclick="goToProjects()">+ Nowy projekt</button>
+      <h3>Projekty</h3>
+      <button class="btn-primary" onclick="window.location.href='projekty.html'">+ Nowy projekt</button>
     </div>
 
-    <div class="projects-container">
-      <div id="projectsList" class="loading">⏳ Ładowanie projektów...</div>
-    </div>
+    <div id="projectsList" class="loading">⏳ Ładowanie projektów...</div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
-    let currentUser = null;
+    const API = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let user = null, projekty = [], zadaniaAll = [], etapyAll = [];
 
     window.onload = function() {
-      checkAuth();
-      loadUserInfo();
-      loadProjects();
+      checkAuth(); loadUser(); loadAll();
     };
+    window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
 
-    // POPRAWKA #8: pageshow - odśwież przy cofaniu
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    });
-
-    function checkAuth() {
-      const token = localStorage.getItem('harmonogram_token');
-      if (!token) {
-        window.location.href = 'index.html';
-      }
+    function checkAuth() { if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html'; }
+    function loadUser() {
+      const u = localStorage.getItem('harmonogram_user');
+      if (u) { user = JSON.parse(u); document.getElementById('userName').textContent = user.name; document.getElementById('userRole').textContent = user.role; }
     }
 
-    function loadUserInfo() {
-      const userStr = localStorage.getItem('harmonogram_user');
-      if (userStr) {
-        currentUser = JSON.parse(userStr);
-        document.getElementById('userName').textContent = currentUser.name;
-        document.getElementById('userRole').textContent = currentUser.role;
-      }
+    // === ŁADOWANIE DANYCH ===
+    let loaded = 0;
+    function loadAll() {
+      loaded = 0;
+      // Projekty
+      jp('getProjekty', { user: JSON.stringify(user) }, function(r) {
+        projekty = r.success ? (r.projekty || []) : [];
+        loaded++; checkReady();
+        // Ładuj zadania i etapy dla każdego projektu
+        zadaniaAll = []; etapyAll = [];
+        if (projekty.length === 0) { loaded += 2; checkReady(); return; }
+        let pDone = 0, pTotal = projekty.length * 2;
+        projekty.forEach(function(p) {
+          jp('getZadaniaHarmonogram', { projektId: p.id }, function(r2) {
+            if (r2.success && r2.zadania) r2.zadania.forEach(function(z) { z._projektId = p.id; zadaniaAll.push(z); });
+            pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
+          });
+          jp('getEtapy', { projektId: p.id }, function(r3) {
+            if (r3.success && r3.etapy) r3.etapy.forEach(function(e) { e._projektId = p.id; etapyAll.push(e); });
+            pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
+          });
+        });
+      });
+      // Reminders
+      jp('getReminders', {}, function(r) {
+        const active = r.success ? (r.reminders || []).filter(function(rem) { return rem.status !== 'Wykonane'; }) : [];
+        document.getElementById('statReminders').textContent = active.length;
+        loaded++; checkReady();
+      });
+      // Materiały
+      jp('getMaterialy', {}, function(r) {
+        const mat = r.success ? (r.materialy || []) : [];
+        document.getElementById('statMaterialy').textContent = mat.length;
+        loaded++; checkReady();
+      });
     }
 
-    function loadProjects() {
-      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleProjectsResponse';
-      
-      window.handleProjectsResponse = function(result) {
-        if (result.success) {
-          displayProjects(result.projekty);
-          updateStats(result.projekty);
-        } else {
-          document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ Błąd: ' + result.message + '</div>';
-        }
-      };
-      
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = function() {
-        document.getElementById('projectsList').innerHTML = '<div class="empty-state">❌ Błąd połączenia</div>';
-      };
-      document.body.appendChild(script);
+    function checkReady() {
+      // Potrzebujemy: projekty(1) + zadania+etapy(2) + reminders(1) + materialy(1) = 5
+      if (loaded >= 5) renderDashboard();
     }
 
-    function displayProjects(projekty) {
-      const listDiv = document.getElementById('projectsList');
+    // === RENDER ===
+    function renderDashboard() {
+      // Statystyki
+      document.getElementById('statProjekty').textContent = projekty.length;
+      document.getElementById('statZadania').textContent = zadaniaAll.length;
 
-      if (!projekty || projekty.length === 0) {
-        listDiv.innerHTML = '<div class="empty-state">📋 Brak projektów. Dodaj pierwszy projekt!</div>';
+      // Karty projektów
+      const container = document.getElementById('projectsList');
+      if (projekty.length === 0) {
+        container.innerHTML = '<div class="empty-state">📋 Brak projektów. <a href="projekty.html" style="color:#667eea">Dodaj pierwszy projekt!</a></div>';
         return;
       }
 
-      listDiv.innerHTML = projekty.map(p => `
-        <div class="project-item" onclick="openProject(${p.id})">
-          <div class="project-info">
-            <div class="project-name">${p.nazwa}</div>
-            <div class="project-details">
-              <span>👤 ${p.kierownik}</span>
-              <span>📅 ${p.dataRozpoczecia} - ${p.dataZakonczenia}</span>
-              <span>💰 ${p.budzet} PLN</span>
-            </div>
-          </div>
-          <span class="project-status">${p.status}</span>
-        </div>
-      `).join('');
+      let html = '<div class="projects-grid">';
+      projekty.forEach(function(p) {
+        const pZadania = zadaniaAll.filter(function(z) { return z._projektId == p.id; });
+        const pEtapy = etapyAll.filter(function(e) { return e._projektId == p.id; });
+
+        // Postęp zadań
+        const avgPostep = pZadania.length > 0
+          ? Math.round(pZadania.reduce(function(s,z) { return s + (z.postep||0); }, 0) / pZadania.length) : 0;
+
+        // Postęp czasowy
+        let timePercent = 0, daysElapsed = 0, daysTotal = 0;
+        if (p.dataRozpoczecia && p.dataZakonczenia) {
+          const start = new Date(p.dataRozpoczecia);
+          const end = new Date(p.dataZakonczenia);
+          const now = new Date();
+          daysTotal = Math.max(1, Math.round((end - start) / (1000*60*60*24)));
+          daysElapsed = Math.max(0, Math.round((now - start) / (1000*60*60*24)));
+          timePercent = Math.min(100, Math.round((daysElapsed / daysTotal) * 100));
+        }
+
+        // Godziny
+        const godzPlan = pZadania.reduce(function(s,z) { return s + (parseFloat(z.godzinyPlan)||0); }, 0);
+        const godzWyk = pZadania.reduce(function(s,z) { return s + (parseFloat(z.godzinyWyk)||0); }, 0);
+
+        // Określ status kolorystyczny
+        // Zielony: postęp zadań >= postęp czasu (lub blisko)
+        // Żółty: postęp zadań < postęp czasu o max 20pp
+        // Czerwony: postęp zadań < postęp czasu o >20pp lub zakończony termin z postępem < 100%
+        let statusColor = 'green';
+        let statusDot = '🟢';
+        let verdict = 'Zgodnie z planem';
+        let verdictClass = 'verdict-ok';
+
+        if (p.status === 'Zakończony' || avgPostep >= 100) {
+          statusColor = 'gray';
+          statusDot = '✅';
+          verdict = 'Zakończony';
+          verdictClass = 'verdict-ok';
+        } else if (timePercent > 0 && avgPostep < timePercent - 20) {
+          statusColor = 'red';
+          statusDot = '🔴';
+          const delay = timePercent - avgPostep;
+          verdict = 'OPÓŹNIENIE: ~' + delay + '% za harmonogramem';
+          verdictClass = 'verdict-critical';
+        } else if (timePercent > 0 && avgPostep < timePercent - 5) {
+          statusColor = 'yellow';
+          statusDot = '🟡';
+          verdict = 'Lekkie opóźnienie';
+          verdictClass = 'verdict-warning';
+        }
+
+        html += '<div class="project-card status-' + statusColor + '" onclick="window.location.href=\'harmonogram.html?id=' + p.id + '\'">';
+        html += '<div class="card-header">';
+        html += '<div class="card-title">' + statusDot + ' ' + esc(p.nazwa) + '</div>';
+        html += '</div>';
+        html += '<div class="card-meta">';
+        html += '<span>👤 ' + esc(p.kierownik || '-') + '</span>';
+        html += '<span>📋 ' + pZadania.length + ' zadań / ' + pEtapy.length + ' etapów</span>';
+        html += '</div>';
+        html += '<div class="card-timeline">📅 ' + (p.dataRozpoczecia||'-') + ' → ' + (p.dataZakonczenia||'-') + ' (' + daysTotal + ' dni, minęło ' + daysElapsed + ')</div>';
+
+        // Progress bar - postęp zadań
+        html += '<div class="progress-section">';
+        html += '<div class="progress-label"><span>Postęp zadań</span><span>' + avgPostep + '%</span></div>';
+        html += '<div class="progress-bar"><div class="progress-fill fill-tasks" style="width:' + Math.max(avgPostep, avgPostep > 0 ? 8 : 0) + '%">' + (avgPostep > 10 ? avgPostep + '%' : '') + '</div></div>';
+        html += '</div>';
+
+        // Progress bar - postęp czasowy
+        html += '<div class="progress-section">';
+        html += '<div class="progress-label"><span>Postęp czasowy</span><span>' + timePercent + '% (' + daysElapsed + '/' + daysTotal + ' dni)</span></div>';
+        html += '<div class="progress-bar"><div class="progress-fill fill-time" style="width:' + Math.max(timePercent, timePercent > 0 ? 8 : 0) + '%">' + (timePercent > 10 ? timePercent + '%' : '') + '</div></div>';
+        html += '</div>';
+
+        // Godziny
+        if (godzPlan > 0) {
+          const godzPercent = Math.min(100, Math.round((godzWyk / godzPlan) * 100));
+          html += '<div class="progress-section">';
+          html += '<div class="progress-label"><span>Godziny</span><span>' + godzWyk + ' / ' + godzPlan + 'h</span></div>';
+          html += '<div class="progress-bar"><div class="progress-fill fill-green" style="width:' + Math.max(godzPercent, godzPercent > 0 ? 8 : 0) + '%">' + (godzPercent > 10 ? godzPercent + '%' : '') + '</div></div>';
+          html += '</div>';
+        }
+
+        // Werdykt
+        html += '<div class="card-footer">';
+        html += '<span class="card-verdict ' + verdictClass + '">' + verdict + '</span>';
+        html += '<a href="harmonogram.html?id=' + p.id + '" class="card-link" onclick="event.stopPropagation()">Otwórz harmonogram →</a>';
+        html += '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      container.innerHTML = html;
     }
 
-    function updateStats(projekty) {
-      document.getElementById('statProjekty').textContent = projekty.length;
-      document.getElementById('statZadania').textContent = projekty.length * 3;
-      document.getElementById('statDeadline').textContent = Math.min(projekty.length, 5);
+    // === HELPERS ===
+    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+    function jp(action, params, cb) {
+      var cbN = 'cb_' + action + '_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+      var url = API + '?action=' + action + '&callback=' + cbN;
+      for (var k in params) url += '&' + k + '=' + encodeURIComponent(params[k]);
+      window[cbN] = function(r) { cb(r); delete window[cbN]; };
+      var s = document.createElement('script'); s.src = url;
+      s.onerror = function() { cb({ success: false, message: 'Błąd połączenia' }); };
+      document.body.appendChild(s);
     }
-
-    function openProject(id) {
-      window.location.href = 'projekt.html?id=' + id;
-    }
-
-    function goToProjects() {
-      window.location.href = 'projekty.html';
-    }
-
     function logout() {
       localStorage.removeItem('harmonogram_token');
       localStorage.removeItem('harmonogram_user');
