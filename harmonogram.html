@@ -1254,6 +1254,8 @@
     }
 
     function escH(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+
+    function logout() {
       localStorage.removeItem('harmonogram_token');
       localStorage.removeItem('harmonogram_user');
       window.location.href = 'index.html';
