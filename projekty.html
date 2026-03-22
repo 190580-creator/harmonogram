@@ -375,7 +375,9 @@
         return;
       }
 
-      listDiv.innerHTML = projekty.map(p => `
+      listDiv.innerHTML = projekty.map(p => {
+        const safeNazwa = (p.nazwa || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
+        return `
         <div class="project-item">
           <div class="project-info" onclick="openProject(${p.id})">
             <div class="project-name">${p.nazwa}</div>
@@ -388,11 +390,11 @@
           </div>
           <div class="project-actions">
             <button class="btn-icon btn-edit" onclick="editProject(${p.id})" title="Edytuj">✏️</button>
-            <button class="btn-icon btn-delete" onclick="deleteProject(${p.id}, '${(p.nazwa || '').replace(/'/g, "\\'")}')" title="Usuń">🗑️</button>
+            <button class="btn-icon btn-delete" onclick="deleteProject(${p.id})" data-nazwa="${safeNazwa}" title="Usuń">🗑️</button>
             <span class="project-status ${getStatusClass(p.status)}">${p.status || 'Aktywny'}</span>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     function openProject(id) {
@@ -428,7 +430,10 @@
     }
 
     // === USUWANIE ===
-    function deleteProject(id, nazwa) {
+    function deleteProject(id) {
+      const projekt = allProjekty.find(p => p.id == id);
+      const nazwa = projekt ? projekt.nazwa : 'ten projekt';
+      
       const input = prompt('⚠️ USUWANIE PROJEKTU\n\nZostaną usunięte WSZYSTKIE powiązane zadania, etapy i dane!\n\nAby potwierdzić, wpisz nazwę projektu:\n"' + nazwa + '"');
       if (input === null) return;
       if (input.trim() !== nazwa.trim()) { alert('❌ Nazwa nie pasuje. Projekt nie został usunięty.'); return; }
