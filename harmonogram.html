@@ -991,7 +991,9 @@
     }
 
     function deleteEtap(id, nazwa) {
-      if (!confirm('Usunąć etap "' + nazwa + '"?\nUWAGA: Zostaną też usunięte wszystkie zadania w tym etapie!')) return;
+      const input = prompt('⚠️ USUWANIE ETAPU\n\nZostaną też usunięte wszystkie zadania w tym etapie!\n\nAby potwierdzić, wpisz nazwę etapu:\n"' + nazwa + '"');
+      if (input === null) return; // Anulowano
+      if (input.trim() !== nazwa.trim()) { alert('❌ Nazwa nie pasuje. Etap nie został usunięty.'); return; }
       jsonpCall('usunEtap', { id: id }, function(r) {
         if (r.success) loadHarmonogram(); else alert('❌ ' + r.message);
       });
