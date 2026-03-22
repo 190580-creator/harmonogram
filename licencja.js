@@ -8,7 +8,7 @@
 
 (function() {
   const LICENSE_SERVER = 'https://script.google.com/macros/s/AKfycbx5m2PXW8CJN7gEhxh9V3jNcWjckqqBxfpxTnhOq4sxeEIIvwguLvOdDvKYrZncF5aK7w/exec';
-  const LICENSE_KEY = 'FAKE-KEY-TEST';
+  const LICENSE_KEY = 'KRES-HAR-2026-A7C2-5424-VYH4';
   const CHECK_INTERVAL = 3600000; // Sprawdzaj co godzinę (ms)
   const CACHE_KEY = 'harmonogram_license';
   const CACHE_TTL = 3600000; // Cache na 1 godzinę
