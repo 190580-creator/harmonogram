@@ -52,13 +52,42 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .error { background: #fee; color: #c33; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; display: none; }
     .footer { margin-top: 30px; color: #999; font-size: 12px; }
+
+    /* Ekran zmiany hasła */
+    .change-password-box {
+      display: none;
+    }
+    .change-password-box.active {
+      display: block;
+    }
+    .alert-warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-size: 14px;
+      text-align: left;
+    }
+    .alert-warning strong { display: block; margin-bottom: 5px; }
+    .password-rules {
+      font-size: 12px;
+      color: #666;
+      text-align: left;
+      margin-top: 8px;
+      padding-left: 5px;
+    }
+    .password-rules div { margin: 3px 0; }
+    .rule-ok { color: #28a745; }
+    .rule-fail { color: #dc3545; }
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
+  <script src="licencja.js"></script>
   <div class="login-container">
     <div class="logo">📅</div>
     <h1>HARMONOGRAM</h1>
@@ -66,39 +95,72 @@
     
     <div id="error" class="error"></div>
     
-    <form id="loginForm">
-      <div class="input-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="twoj.email@firma.pl" required value="test@test.pl">
+    <!-- FORMULARZ LOGOWANIA -->
+    <div id="loginBox">
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="twoj.email@firma.pl" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="password">Hasło</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-login" id="btnLogin">Zaloguj się</button>
+      </form>
+    </div>
+
+    <!-- FORMULARZ ZMIANY HASŁA (po pierwszym logowaniu) -->
+    <div id="changePasswordBox" class="change-password-box">
+      <div class="alert-warning">
+        <strong>🔑 Wymagana zmiana hasła</strong>
+        To Twoje pierwsze logowanie. Ustaw nowe hasło aby kontynuować.
       </div>
       
-      <div class="input-group">
-        <label for="password">Hasło</label>
-        <input type="password" id="password" placeholder="••••••••" required value="test123">
-      </div>
-      
-      <button type="submit" class="btn-login" id="btnLogin">Zaloguj się</button>
-    </form>
+      <form id="changePasswordForm">
+        <div class="input-group">
+          <label for="newPassword">Nowe hasło</label>
+          <input type="password" id="newPassword" placeholder="Minimum 6 znaków" required oninput="checkPasswordRules()">
+          <div class="password-rules" id="passwordRules">
+            <div id="ruleLength" class="rule-fail">✗ Minimum 6 znaków</div>
+            <div id="ruleMatch" class="rule-fail">✗ Hasła się zgadzają</div>
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label for="confirmPassword">Powtórz nowe hasło</label>
+          <input type="password" id="confirmPassword" placeholder="Powtórz hasło" required oninput="checkPasswordRules()">
+        </div>
+        
+        <button type="submit" class="btn-login" id="btnChangePassword" disabled>🔑 Zmień hasło i zaloguj</button>
+      </form>
+    </div>
     
-    <div class="footer">© 2025 Seweryn Baran | RN-Elektro</div>
+    <div class="footer">© 2025 Seweryn Baran | KRES System</div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    let pendingUser = null; // Tymczasowe dane użytkownika czekającego na zmianę hasła
+    let pendingToken = null;
+
+    // === LOGOWANIE ===
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const btnLogin = document.getElementById('btnLogin');
-      const errorDiv = document.getElementById('error');
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      var btnLogin = document.getElementById('btnLogin');
+      var errorDiv = document.getElementById('error');
       
       errorDiv.style.display = 'none';
       btnLogin.disabled = true;
       btnLogin.textContent = 'Logowanie...';
       
-      const loginUrl = API_URL + 
+      var loginUrl = API_URL + 
         '?action=login' +
         '&email=' + encodeURIComponent(email) +
         '&password=' + encodeURIComponent(password) +
@@ -106,18 +168,32 @@
       
       window.handleLoginResponse = function(result) {
         if (result.success) {
-          localStorage.setItem('harmonogram_token', result.token);
-          localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
-          window.location.href = 'dashboard.html';
+          // Sprawdź czy wymaga zmiany hasła
+          if (result.user.wymagajZmianyHasla) {
+            // Pokaż ekran zmiany hasła
+            pendingUser = result.user;
+            pendingToken = result.token;
+            pendingUser._email = email; // Zachowaj email do zmiany hasła
+            pendingUser._oldPassword = password; // Zachowaj stare hasło
+            
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('changePasswordBox').classList.add('active');
+            document.getElementById('error').style.display = 'none';
+          } else {
+            // Normalne logowanie
+            localStorage.setItem('harmonogram_token', result.token);
+            localStorage.setItem('harmonogram_user', JSON.stringify(result.user));
+            window.location.href = 'dashboard.html';
+          }
         } else {
           errorDiv.textContent = result.message || 'Nieprawidłowy email lub hasło';
           errorDiv.style.display = 'block';
-          btnLogin.disabled = false;
-          btnLogin.textContent = 'Zaloguj się';
         }
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'Zaloguj się';
       };
       
-      const script = document.createElement('script');
+      var script = document.createElement('script');
       script.src = loginUrl;
       script.onerror = function() {
         errorDiv.textContent = 'Błąd połączenia z serwerem';
@@ -125,7 +201,91 @@
         btnLogin.disabled = false;
         btnLogin.textContent = 'Zaloguj się';
       };
+      document.body.appendChild(script);
+    });
+
+    // === WALIDACJA NOWEGO HASŁA ===
+    function checkPasswordRules() {
+      var newPass = document.getElementById('newPassword').value;
+      var confirmPass = document.getElementById('confirmPassword').value;
+      var btn = document.getElementById('btnChangePassword');
       
+      var lengthOk = newPass.length >= 6;
+      var matchOk = newPass === confirmPass && newPass.length > 0;
+      
+      document.getElementById('ruleLength').className = lengthOk ? 'rule-ok' : 'rule-fail';
+      document.getElementById('ruleLength').textContent = (lengthOk ? '✓' : '✗') + ' Minimum 6 znaków';
+      
+      document.getElementById('ruleMatch').className = matchOk ? 'rule-ok' : 'rule-fail';
+      document.getElementById('ruleMatch').textContent = (matchOk ? '✓' : '✗') + ' Hasła się zgadzają';
+      
+      btn.disabled = !(lengthOk && matchOk);
+    }
+
+    // === ZMIANA HASŁA ===
+    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var newPassword = document.getElementById('newPassword').value;
+      var confirmPassword = document.getElementById('confirmPassword').value;
+      var btn = document.getElementById('btnChangePassword');
+      var errorDiv = document.getElementById('error');
+      
+      if (newPassword !== confirmPassword) {
+        errorDiv.textContent = 'Hasła się nie zgadzają!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      if (newPassword.length < 6) {
+        errorDiv.textContent = 'Hasło musi mieć minimum 6 znaków!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      // Sprawdź czy nowe hasło nie jest takie samo jak stare
+      if (newPassword === pendingUser._oldPassword) {
+        errorDiv.textContent = 'Nowe hasło musi być inne niż obecne!';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Zmieniam hasło...';
+      errorDiv.style.display = 'none';
+      
+      var changeUrl = API_URL + 
+        '?action=changePassword' +
+        '&email=' + encodeURIComponent(pendingUser._email) +
+        '&oldPassword=' + encodeURIComponent(pendingUser._oldPassword) +
+        '&newPassword=' + encodeURIComponent(newPassword) +
+        '&callback=handleChangePasswordResponse';
+      
+      window.handleChangePasswordResponse = function(result) {
+        if (result.success) {
+          // Hasło zmienione — zaloguj
+          pendingUser.wymagajZmianyHasla = false;
+          localStorage.setItem('harmonogram_token', pendingToken);
+          localStorage.setItem('harmonogram_user', JSON.stringify(pendingUser));
+          
+          alert('✅ Hasło zostało zmienione!\nOd teraz loguj się nowym hasłem.');
+          window.location.href = 'dashboard.html';
+        } else {
+          errorDiv.textContent = result.message || 'Błąd zmiany hasła';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = '🔑 Zmień hasło i zaloguj';
+        }
+      };
+      
+      var script = document.createElement('script');
+      script.src = changeUrl;
+      script.onerror = function() {
+        errorDiv.textContent = 'Błąd połączenia z serwerem';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '🔑 Zmień hasło i zaloguj';
+      };
       document.body.appendChild(script);
     });
   </script>
