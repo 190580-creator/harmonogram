@@ -255,28 +255,47 @@
 
     // ==================== WALIDACJA KODU KRES ====================
 
+    // === NORMALIZACJA KODÓW KRES ===
+    // Obsługuje oba formaty: "15 205 45" (ze spacjami) i "1520545" (bez spacji)
+    // Normalizuje do postaci bez spacji do porównań, wyświetla ze spacjami
+
+    function normalizeKod(kod) {
+      // Usuń wszystkie spacje → czysta liczba np. "1520545"
+      if (!kod) return '';
+      return String(kod).replace(/\s+/g, '');
+    }
+
+    function parseKodParts(kod) {
+      // Parsuj kod (z lub bez spacji) na {grupa, indeks, wariant}
+      if (!kod) return null;
+      const clean = normalizeKod(kod);
+      if (clean.length < 5) return null; // Minimum XX YYY = 5 cyfr
+      
+      // Format: XX (2 cyfry) + YYY (3 cyfry) + ZZ (2 cyfry, opcjonalnie)
+      const grupa = clean.substring(0, 2);
+      const indeks = clean.substring(2, 5);
+      const wariant = clean.length >= 7 ? clean.substring(5, 7) : '';
+      return { grupa: grupa, indeks: indeks, wariant: wariant };
+    }
+
     function getExistingCodesForGroup(grupa) {
-      // Pobierz wszystkie kody z danej grupy
-      return allMaterialy
-        .filter(m => m.kodKres && m.kodKres.startsWith(grupa + ' '))
-        .map(m => m.kodKres);
+      return allMaterialy.filter(m => {
+        const p = parseKodParts(m.kodKres);
+        return p && p.grupa === grupa;
+      }).map(m => normalizeKod(m.kodKres));
     }
 
     function getExistingIndicesForGroup(grupa) {
-      // Wyciągnij indeksy (YYY) z kodów w danej grupie
       return allMaterialy
-        .filter(m => m.kodKres && m.kodKres.startsWith(grupa + ' '))
-        .map(m => {
-          const parts = m.kodKres.split(' ');
-          return parts[1] ? parseInt(parts[1]) : null;
-        })
-        .filter(n => n !== null);
+        .map(m => parseKodParts(m.kodKres))
+        .filter(p => p && p.grupa === grupa)
+        .map(p => parseInt(p.indeks))
+        .filter(n => !isNaN(n));
     }
 
     function findFirstFreeIndex(grupa) {
       const used = getExistingIndicesForGroup(grupa);
       if (used.length === 0) return '001';
-      // Szukaj pierwszej wolnej od 001 w górę
       for (let i = 1; i <= 999; i++) {
         if (!used.includes(i)) return String(i).padStart(3, '0');
       }
@@ -284,16 +303,13 @@
     }
 
     function findFirstFreeVariant(grupa, indeks) {
-      const prefix = grupa + ' ' + indeks + ' ';
+      const targetPrefix = grupa + indeks.padStart(3, '0'); // np. "15205"
       const usedVariants = allMaterialy
-        .filter(m => m.kodKres && m.kodKres.startsWith(prefix))
-        .map(m => {
-          const parts = m.kodKres.split(' ');
-          return parts[2] ? parseInt(parts[2]) : null;
-        })
-        .filter(n => n !== null);
+        .map(m => parseKodParts(m.kodKres))
+        .filter(p => p && (p.grupa + p.indeks) === targetPrefix && p.wariant)
+        .map(p => parseInt(p.wariant))
+        .filter(n => !isNaN(n));
       
-      // Warianty idą po dziesiątkach: 10, 20, 30...
       for (let v = 10; v <= 90; v += 10) {
         if (!usedVariants.includes(v)) return String(v);
       }
@@ -310,17 +326,15 @@
         return;
       }
 
-      // Podpowiedz pierwszy wolny indeks
       const freeIndex = findFirstFreeIndex(grupa);
       document.getElementById('indeks').value = freeIndex;
 
-      // Podpowiedz pierwszy wolny wariant
       const freeVariant = findFirstFreeVariant(grupa, freeIndex);
       document.getElementById('wariant').value = freeVariant;
 
       const existingCount = getExistingCodesForGroup(grupa).length;
       document.getElementById('kodStatus').innerHTML = 
-        '<div class="kod-status suggest">💡 Podpowiedź: pierwszy wolny indeks w grupie ' + grupa + ' to <strong>' + freeIndex + '</strong> (istniejących kodów: ' + existingCount + ')</div>';
+        '<div class="kod-status suggest">💡 Pierwszy wolny indeks w grupie ' + grupa + ': <strong>' + freeIndex + '</strong> (istniejących: ' + existingCount + ')</div>';
 
       validateKodKres();
     }
@@ -330,28 +344,28 @@
       const indeks = document.getElementById('indeks').value || '---';
       const wariant = document.getElementById('wariant').value || '--';
       const preview = document.getElementById('kodPreview');
-      const fullKod = grupa + ' ' + indeks.padStart(3, '0') + ' ' + wariant;
+      const fullKodDisplay = grupa + ' ' + indeks.padStart(3, '0') + ' ' + wariant;
+      const fullKodNorm = normalizeKod(fullKodDisplay); // np. "1520545"
       
-      preview.textContent = fullKod;
+      preview.textContent = fullKodDisplay;
 
-      // Sprawdź czy kompletny kod
       if (grupa === '--' || indeks === '---' || wariant === '--' || !grupa || !indeks || !wariant) {
         preview.className = 'kod-preview';
-        kodKresValid = true; // Pusty kod jest OK (opcjonalny)
+        kodKresValid = true;
         return;
       }
 
-      // Sprawdź duplikat (ale nie swój własny przy edycji)
+      // Sprawdź duplikat — porównuj znormalizowane kody (bez spacji)
       const editId = document.getElementById('editId').value;
       const duplicate = allMaterialy.find(m => {
-        if (editId && m.id == editId) return false; // Pomijaj siebie przy edycji
-        return m.kodKres === fullKod;
+        if (editId && m.id == editId) return false;
+        return normalizeKod(m.kodKres) === fullKodNorm;
       });
 
       if (duplicate) {
         preview.className = 'kod-preview error';
         document.getElementById('kodStatus').innerHTML = 
-          '<div class="kod-status taken">❌ Ten kod KRES już istnieje! Przypisany do: <strong>' + (duplicate.nazwa||'?') + '</strong></div>';
+          '<div class="kod-status taken">❌ Kod KRES zajęty! Przypisany do: <strong>' + (duplicate.nazwa||'?') + '</strong> (kod: ' + (duplicate.kodKres||'') + ')</div>';
         kodKresValid = false;
       } else {
         preview.className = 'kod-preview ok';
@@ -389,10 +403,18 @@
       document.getElementById('modalTitle').textContent = 'Edytuj materiał';
       document.getElementById('btnSubmit').textContent = 'Zapisz zmiany';
       if (mat.kodKres) {
-        const parts = mat.kodKres.split(' ');
-        document.getElementById('grupaKres').value = parts[0] || '';
-        document.getElementById('indeks').value = parts[1] || '';
-        document.getElementById('wariant').value = parts[2] || '';
+        const parsed = parseKodParts(mat.kodKres);
+        if (parsed) {
+          document.getElementById('grupaKres').value = parsed.grupa || '';
+          document.getElementById('indeks').value = parsed.indeks || '';
+          document.getElementById('wariant').value = parsed.wariant || '';
+        } else {
+          // Fallback: próbuj split po spacji (stary format ze spacjami)
+          const parts = mat.kodKres.split(' ');
+          document.getElementById('grupaKres').value = parts[0] || '';
+          document.getElementById('indeks').value = parts[1] || '';
+          document.getElementById('wariant').value = parts[2] || '';
+        }
       } else {
         document.getElementById('grupaKres').value = '';
         document.getElementById('indeks').value = '';
