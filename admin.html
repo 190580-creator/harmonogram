@@ -112,7 +112,6 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
   <div class="header">
     <div class="header-top">
       <div class="header-left">
@@ -270,7 +269,7 @@
           allUsers = r.users || [];
           displayUsers(allUsers);
           // Aktualizuj liczbę stanowisk
-          const active = allUsers.filter(function(u) { return u.status === 'Aktywny'; });
+          const active = allUsers.filter(function(u) { return u.status === 'Aktywny' && u.rola !== 'Administrator'; });
           document.getElementById('licStanowiska').textContent = active.length;
         } else {
           document.getElementById('usersList').innerHTML = '<div class="empty-state">⚠️ ' + r.message + '</div>';
@@ -323,7 +322,7 @@
     // === DODAWANIE UŻYTKOWNIKA ===
     function openAddUserModal() {
       // Sprawdź limit stanowisk
-      const active = allUsers.filter(function(u) { return u.status === 'Aktywny'; });
+      const active = allUsers.filter(function(u) { return u.status === 'Aktywny' && u.rola !== 'Administrator'; });
       if (active.length >= 7) {
         alert('⚠️ Osiągnięto limit 7 aktywnych stanowisk licencji.\nDezaktywuj innego użytkownika lub rozszerz licencję.');
         return;
@@ -451,7 +450,7 @@
       return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0,2).toUpperCase();
     }
     function closeM(id) { document.getElementById(id).classList.remove('active'); }
-    function esc(s) { s = String(s || ''); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
     function jp(action, params, cb) {
       var cbN = 'cb_' + action + '_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
       var url = API + '?action=' + action + '&callback=' + cbN;
