@@ -481,6 +481,7 @@
           <div class="view-tab active" onclick="showView('table', this)">📊 Tabela</div>
           <div class="view-tab" onclick="showView('gantt', this)">📈 Gantt</div>
         </div>
+        <button class="btn btn-success" onclick="exportToWord()">📄 Export WORD</button>
         <button class="btn btn-primary" onclick="openAddEtapModal()">+ Etap</button>
         <button class="btn btn-primary" onclick="openAddZadanieModal()">+ Zadanie</button>
       </div>
@@ -637,6 +638,10 @@
       </form>
     </div>
   </div>
+
+  <!-- Biblioteka do generowania DOCX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
@@ -1142,6 +1147,161 @@
     function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
     function escJ(s) { return s ? s.replace(/\\/g,'\\\\').replace(/'/g,"\\'") : ''; }
     function truncStr(s, n) { return s && s.length > n ? s.substring(0,n) + '…' : (s||''); }
+
+    // ==================== EXPORT WORD ====================
+    function exportToWord() {
+      if (!currentProjektId || allEtapy.length === 0) {
+        alert('Brak danych do eksportu. Dodaj etapy i zadania.');
+        return;
+      }
+
+      const proj = allProjekty.find(p => p.id == currentProjektId);
+      if (!proj) return;
+
+      const { Document, Packer, Paragraph, Table, TableRow, TableCell, 
+              TextRun, HeadingLevel, AlignmentType, WidthType, 
+              BorderStyle, ShadingType, convertInchesToTwip } = docx;
+
+      // Oblicz statystyki
+      const avgPostep = allZadaniaHarm.length > 0 
+        ? Math.round(allZadaniaHarm.reduce((s,z) => s + (z.postep||0), 0) / allZadaniaHarm.length) : 0;
+      const totalGodzPlan = allZadaniaHarm.reduce((s,z) => s + (parseFloat(z.godzinyPlan)||0), 0);
+      const totalGodzWyk = allZadaniaHarm.reduce((s,z) => s + (parseFloat(z.godzinyWyk)||0), 0);
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+      // Sortuj etapy
+      const sortedEtapy = [...allEtapy].sort((a,b) => a.numer - b.numer);
+
+      // === NAGŁÓWEK ===
+      const children = [];
+
+      children.push(new Paragraph({
+        children: [new TextRun({ text: 'HARMONOGRAM ROBÓT ELEKTRYCZNYCH', bold: true, size: 32, font: 'Calibri' })],
+        alignment: AlignmentType.CENTER, spacing: { after: 100 }
+      }));
+      children.push(new Paragraph({
+        children: [new TextRun({ text: proj.nazwa, bold: true, size: 28, font: 'Calibri', color: '4472C4' })],
+        alignment: AlignmentType.CENTER, spacing: { after: 200 }
+      }));
+
+      // Info o projekcie
+      children.push(new Paragraph({ children: [
+        new TextRun({ text: 'Kierownik: ', bold: true, size: 22, font: 'Calibri' }),
+        new TextRun({ text: proj.kierownik || '-', size: 22, font: 'Calibri' }),
+        new TextRun({ text: '     Okres: ', bold: true, size: 22, font: 'Calibri' }),
+        new TextRun({ text: (proj.dataRozpoczecia||'') + ' — ' + (proj.dataZakonczenia||''), size: 22, font: 'Calibri' }),
+      ], spacing: { after: 50 } }));
+      children.push(new Paragraph({ children: [
+        new TextRun({ text: 'Data wydruku: ', bold: true, size: 22, font: 'Calibri' }),
+        new TextRun({ text: dateStr, size: 22, font: 'Calibri' }),
+        new TextRun({ text: '     Postęp ogólny: ', bold: true, size: 22, font: 'Calibri' }),
+        new TextRun({ text: avgPostep + '%', size: 22, font: 'Calibri', bold: true, color: avgPostep >= 80 ? '00B050' : avgPostep >= 40 ? 'FFC000' : 'FF0000' }),
+        new TextRun({ text: '     Godziny: ', bold: true, size: 22, font: 'Calibri' }),
+        new TextRun({ text: totalGodzWyk + ' / ' + totalGodzPlan + 'h', size: 22, font: 'Calibri' }),
+      ], spacing: { after: 300 } }));
+
+      // === TABELA HARMONOGRAMU ===
+      const headerColor = '4472C4';
+      const headerShading = { type: ShadingType.SOLID, color: headerColor };
+      const headerFont = { bold: true, size: 18, font: 'Calibri', color: 'FFFFFF' };
+      const cellFont = { size: 18, font: 'Calibri' };
+      const cellFontBold = { size: 18, font: 'Calibri', bold: true };
+      const noBorders = {
+        top: { style: BorderStyle.SINGLE, size: 1, color: 'D9D9D9' },
+        bottom: { style: BorderStyle.SINGLE, size: 1, color: 'D9D9D9' },
+        left: { style: BorderStyle.SINGLE, size: 1, color: 'D9D9D9' },
+        right: { style: BorderStyle.SINGLE, size: 1, color: 'D9D9D9' },
+      };
+
+      // Header row
+      const headerRow = new TableRow({
+        children: ['Nr', 'Opis zadania', 'Odpow.', 'Data od', 'Data do', 'Godz.', 'Postęp', 'Uwagi'].map(h =>
+          new TableCell({
+            children: [new Paragraph({ children: [new TextRun({ ...headerFont, text: h })], alignment: AlignmentType.CENTER })],
+            shading: headerShading, borders: noBorders,
+          })
+        ),
+        tableHeader: true
+      });
+
+      const tableRows = [headerRow];
+
+      sortedEtapy.forEach(etap => {
+        const zadaniaEtapu = allZadaniaHarm.filter(z => z.etapId == etap.id).sort((a,b) => (a.podpunkt||0) - (b.podpunkt||0));
+        const etapPostep = zadaniaEtapu.length > 0 
+          ? Math.round(zadaniaEtapu.reduce((s,z) => s + (z.postep||0), 0) / zadaniaEtapu.length) : 0;
+        const etapGodzPlan = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyPlan)||0), 0);
+        const etapGodzWyk = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyWyk)||0), 0);
+
+        // Wiersz etapu (szary bg)
+        const etapShading = { type: ShadingType.SOLID, color: 'E8E8E8' };
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFontBold, text: etap.numer + '.' })] })], shading: etapShading, borders: noBorders }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFontBold, text: etap.nazwa })] })], shading: etapShading, borders: noBorders, columnSpan: 3 }),
+            new TableCell({ children: [new Paragraph({ children: [] })], shading: etapShading, borders: noBorders }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: etapGodzWyk + '/' + etapGodzPlan + 'h' })], alignment: AlignmentType.CENTER })], shading: etapShading, borders: noBorders }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFontBold, text: etapPostep + '%', color: etapPostep >= 100 ? '00B050' : etapPostep > 0 ? '4472C4' : '808080' })], alignment: AlignmentType.CENTER })], shading: etapShading, borders: noBorders }),
+            new TableCell({ children: [new Paragraph({ children: [] })], shading: etapShading, borders: noBorders }),
+          ]
+        }));
+
+        // Wiersze zadań
+        zadaniaEtapu.forEach(z => {
+          const postepColor = z.postep >= 100 ? '00B050' : z.postep > 0 ? '4472C4' : '808080';
+          const uwagiRun = z.uwagi 
+            ? [new TextRun({ ...cellFont, text: z.uwagi, color: 'FF0000', italics: true })]
+            : [new TextRun({ ...cellFont, text: '-', color: '808080' })];
+
+          tableRows.push(new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: etap.numer + '.' + z.podpunkt })] })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: z.opis || '' })] })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: z.odpowiedzialny || '-' })] })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: z.dataOd || '-' })] })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: z.dataDo || '-' })] })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFont, text: (z.godzinyWyk||0) + '/' + (z.godzinyPlan||0) + 'h' })], alignment: AlignmentType.CENTER })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ ...cellFontBold, text: (z.postep||0) + '%', color: postepColor })], alignment: AlignmentType.CENTER })], borders: noBorders }),
+              new TableCell({ children: [new Paragraph({ children: uwagiRun })], borders: noBorders }),
+            ]
+          }));
+        });
+      });
+
+      const table = new Table({
+        rows: tableRows,
+        width: { size: 100, type: WidthType.PERCENTAGE }
+      });
+
+      children.push(table);
+
+      // Stopka
+      children.push(new Paragraph({ children: [], spacing: { before: 300 } }));
+      children.push(new Paragraph({
+        children: [new TextRun({ text: '— Wygenerowano z systemu HARMONOGRAM (KRES) —', size: 18, font: 'Calibri', color: '808080', italics: true })],
+        alignment: AlignmentType.CENTER
+      }));
+
+      // Generuj dokument
+      const doc = new Document({
+        sections: [{
+          properties: {
+            page: { margin: { top: convertInchesToTwip(0.6), bottom: convertInchesToTwip(0.6), left: convertInchesToTwip(0.6), right: convertInchesToTwip(0.6) } }
+          },
+          children: children
+        }]
+      });
+
+      // Pobierz plik
+      Packer.toBlob(doc).then(blob => {
+        const fileName = 'Harmonogram_' + (proj.nazwa||'projekt').replace(/[^a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]/g, '_') + '_' + dateStr.replace(/\./g, '-') + '.docx';
+        saveAs(blob, fileName);
+      }).catch(err => {
+        alert('❌ Błąd generowania DOCX: ' + err.message);
+        console.error(err);
+      });
+    }
 
     function logout() {
       localStorage.removeItem('harmonogram_token');
