@@ -7,271 +7,114 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
-    
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header-top {
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-top { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
     .header-left { display: flex; align-items: center; gap: 15px; }
-    .logo { font-size: 32px; }
-    .header-title { font-size: 24px; font-weight: 600; }
+    .logo { font-size: 32px; } .header-title { font-size: 24px; font-weight: 600; }
     .user-info { display: flex; align-items: center; gap: 20px; }
     .user-name { font-size: 14px; font-weight: 500; }
     .user-role { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
     .btn-logout { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
     .btn-logout:hover { background: rgba(255,255,255,0.3); }
-    
-    .nav-menu {
-      background: rgba(0,0,0,0.1);
-      padding: 0 40px;
-      display: flex;
-      gap: 30px;
-    }
-    .nav-item {
-      padding: 15px 0;
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-    }
+    .nav-menu { background: rgba(0,0,0,0.1); padding: 0 40px; display: flex; gap: 30px; }
+    .nav-item { padding: 15px 0; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.3s; }
     .nav-item:hover { color: white; border-bottom-color: white; }
     .nav-item.active { color: white; border-bottom-color: white; }
-    
     .container { max-width: 1400px; margin: 30px auto; padding: 0 40px; }
-    
-    .calendar-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
+
+    /* Kontrolki */
+    .calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
     .calendar-controls h2 { font-size: 28px; color: #333; }
     .calendar-nav { display: flex; align-items: center; gap: 15px; }
-    .btn-nav {
-      background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    .btn-nav { background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 8px 16px; font-size: 18px; cursor: pointer; transition: all 0.2s; }
     .btn-nav:hover { border-color: #667eea; background: #f0f0ff; }
-    .month-label {
-      font-size: 22px;
-      font-weight: 600;
-      color: #333;
-      min-width: 200px;
-      text-align: center;
-    }
-    .btn-today {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; border: none;
-      padding: 8px 20px; border-radius: 8px;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-    }
-    .btn-today:hover { transform: translateY(-1px); }
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; border: none;
-      padding: 12px 24px; border-radius: 10px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-      transition: transform 0.2s;
-    }
+    .month-label { font-size: 22px; font-weight: 600; color: #333; min-width: 200px; text-align: center; }
+    .btn-today { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
-    
-    .calendar {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      border: 2px solid #e9ecef;
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-    .calendar-day-header {
-      text-align: center;
-      font-weight: 600;
-      padding: 12px 5px;
-      color: #6c757d;
-      font-size: 14px;
-    }
-    .calendar-day {
-      min-height: 110px;
-      padding: 8px;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .calendar-day:hover {
-      background: #f0f0ff;
-      border-color: #667eea;
-      box-shadow: 0 2px 8px rgba(102,126,234,0.15);
-    }
-    .calendar-day.empty {
-      opacity: 0.3; cursor: default; min-height: 50px;
-    }
-    .calendar-day.empty:hover {
-      background: transparent; border-color: #e9ecef; box-shadow: none;
-    }
-    .calendar-day.today {
-      border: 2px solid #667eea;
-      background: #f0f0ff;
-    }
-    .calendar-day.today .calendar-day-number {
-      background: #667eea; color: white;
-      border-radius: 50%;
-      width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .calendar-day.has-notes { background: #fffbf0; border-color: #ffc107; }
-    .calendar-day.has-reminders { background: #f0f7ff; border-color: #17a2b8; }
-    .calendar-day.has-both {
-      background: linear-gradient(135deg, #fffbf0 50%, #f0f7ff 50%);
-      border-color: #667eea;
-    }
-    .calendar-day-number {
-      font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #333;
-    }
-    .calendar-task {
-      padding: 3px 6px; margin: 2px 0;
-      border-radius: 4px; font-size: 10px;
-      white-space: nowrap; overflow: hidden;
-      text-overflow: ellipsis; line-height: 1.3;
-    }
-    .calendar-task.note { background: #fff3cd; color: #856404; }
-    .calendar-task.reminder { background: #d1ecf1; color: #0c5460; }
-    .calendar-task.reminder-done { background: #d4edda; color: #155724; }
-    .day-count {
-      position: absolute; bottom: 4px; right: 6px;
-      font-size: 10px; color: #999;
-    }
-    
-    .modal {
-      display: none; position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center; justify-content: center;
-    }
+
+    /* Filtr + legenda */
+    .filter-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; background: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+    .filter-bar label { font-weight: 600; color: #333; font-size: 14px; }
+    .filter-bar select { padding: 8px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .filter-bar select:focus { outline: none; border-color: #667eea; }
+    .legend { display: flex; gap: 15px; margin-left: auto; font-size: 11px; color: #666; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 14px; height: 10px; border-radius: 3px; }
+
+    /* Kalendarz */
+    .calendar { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 2px solid #e9ecef; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .calendar-day-header { text-align: center; font-weight: 600; padding: 12px 5px; color: #6c757d; font-size: 14px; }
+    .calendar-day { min-height: 110px; padding: 8px; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+    .calendar-day:hover { background: #f0f0ff; border-color: #667eea; box-shadow: 0 2px 8px rgba(102,126,234,0.15); }
+    .calendar-day.empty { opacity: 0.3; cursor: default; min-height: 50px; }
+    .calendar-day.empty:hover { background: transparent; border-color: #e9ecef; box-shadow: none; }
+    .calendar-day.today { border: 2px solid #667eea; background: #f0f0ff; }
+    .calendar-day.today .calendar-day-number { background: #667eea; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .calendar-day-number { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #333; }
+    .cal-tag { padding: 2px 5px; margin: 1px 0; border-radius: 3px; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; display: block; }
+    .tag-note { background: #fff3cd; color: #856404; }
+    .tag-reminder { background: #d1ecf1; color: #0c5460; }
+    .tag-reminder-done { background: #d4edda; color: #155724; text-decoration: line-through; }
+    .tag-zadanie { background: #e8daef; color: #6c3483; }
+    .tag-zadanie-done { background: #abebc6; color: #1e8449; }
+    .tag-zadanie-wip { background: #d6eaf8; color: #1a5276; }
+    .day-more { position: absolute; bottom: 3px; right: 5px; font-size: 9px; color: #999; font-weight: 600; }
+
+    /* Modal dnia */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal.active { display: flex; }
-    .modal-content {
-      background: white; padding: 30px;
-      border-radius: 20px;
-      max-width: 650px; width: 95%;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 25px; padding-bottom: 15px;
-      border-bottom: 2px solid #e9ecef;
-    }
+    .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef; }
     .modal-header h3 { font-size: 22px; color: #333; }
-    .btn-close {
-      background: none; border: none;
-      font-size: 28px; cursor: pointer; color: #999;
-    }
+    .btn-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
     .btn-close:hover { color: #333; }
-    
-    .day-section-title {
-      font-size: 14px; font-weight: 600; color: #667eea;
-      margin: 15px 0 8px 0;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .entry-item {
-      padding: 12px 15px; border-radius: 10px;
-      margin-bottom: 8px; display: flex;
-      justify-content: space-between; align-items: center;
-    }
+    .section-title { font-size: 13px; font-weight: 600; color: #667eea; margin: 18px 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .entry { padding: 10px 14px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .entry-note { background: #fffbf0; border-left: 4px solid #ffc107; }
-    .entry-reminder { background: #f0f7ff; border-left: 4px solid #17a2b8; }
-    .entry-reminder.done { background: #f0fff4; border-left-color: #28a745; opacity: 0.7; }
-    .entry-info { flex: 1; }
-    .entry-title { font-weight: 600; color: #333; font-size: 15px; }
-    .entry-detail { font-size: 12px; color: #666; margin-top: 3px; }
-    .entry-actions { display: flex; gap: 6px; margin-left: 10px; }
-    .btn-icon {
-      width: 32px; height: 32px;
-      border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
+    .entry-rem { background: #f0f7ff; border-left: 4px solid #17a2b8; }
+    .entry-rem.done { background: #f0fff4; border-left-color: #28a745; opacity: 0.7; }
+    .entry-zad { background: #f5eef8; border-left: 4px solid #8e44ad; }
+    .entry-zad.done { background: #eafaf1; border-left-color: #27ae60; }
+    .entry-zad.wip { background: #ebf5fb; border-left-color: #2980b9; }
+    .e-info { flex: 1; }
+    .e-title { font-weight: 600; color: #333; font-size: 14px; }
+    .e-detail { font-size: 12px; color: #666; margin-top: 2px; }
+    .e-actions { display: flex; gap: 5px; margin-left: 10px; }
+    .btn-icon { width: 30px; height: 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .btn-edit { background: #fff3cd; color: #856404; }
     .btn-edit:hover { background: #ffc107; color: #333; }
-    .btn-delete { background: #f8d7da; color: #721c24; }
-    .btn-delete:hover { background: #dc3545; color: white; }
+    .btn-del { background: #f8d7da; color: #721c24; }
+    .btn-del:hover { background: #dc3545; color: white; }
     .btn-done { background: #d4edda; color: #155724; }
     .btn-done:hover { background: #28a745; color: white; }
-    
-    .empty-day { text-align: center; padding: 30px; color: #999; font-size: 14px; }
-    .day-actions {
-      display: flex; gap: 10px; margin-top: 15px;
-      padding-top: 15px; border-top: 1px solid #e9ecef;
-    }
-    .btn-add-day {
-      flex: 1; padding: 10px;
-      border: 2px dashed #e0e0e0; border-radius: 8px;
-      background: white; cursor: pointer;
-      font-size: 14px; font-weight: 500; color: #666;
-      transition: all 0.2s;
-    }
+    .empty-day { text-align: center; padding: 25px; color: #999; }
+    .day-btns { display: flex; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #e9ecef; }
+    .btn-add-day { flex: 1; padding: 10px; border: 2px dashed #e0e0e0; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; font-weight: 500; color: #666; transition: all 0.2s; }
     .btn-add-day:hover { border-color: #667eea; color: #667eea; background: #f0f0ff; }
-    
-    .form-group { margin-bottom: 20px; }
-    .form-group label {
-      display: block; margin-bottom: 8px;
-      color: #333; font-weight: 500; font-size: 14px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%; padding: 12px;
-      border: 2px solid #e0e0e0; border-radius: 8px;
-      font-size: 14px; font-family: inherit;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none; border-color: #667eea;
-    }
+    /* Progress mini */
+    .mini-progress { display: inline-block; width: 40px; height: 6px; background: #e9ecef; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+    .mini-progress-fill { height: 100%; border-radius: 3px; }
+
+    /* Modal notatki */
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
     .form-actions { display: flex; gap: 15px; margin-top: 25px; }
-    .btn-secondary {
-      flex: 1; padding: 12px; background: #e0e0e0; color: #333;
-      border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
-    }
-    .btn-submit {
-      flex: 1; padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white; border: none; border-radius: 8px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-    }
+    .btn-secondary { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
     .loading { text-align: center; padding: 40px; color: #667eea; }
-
     @media (max-width: 900px) {
       .calendar-day { min-height: 70px; padding: 5px; }
-      .calendar-task { font-size: 9px; }
-      .calendar-day-number { font-size: 12px; }
+      .cal-tag { font-size: 8px; }
       .container { padding: 0 15px; }
-      .header-top { padding: 15px 20px; }
-      .nav-menu { padding: 0 20px; gap: 15px; }
+      .header-top, .nav-menu { padding-left: 20px; padding-right: 20px; }
+      .nav-menu { gap: 15px; }
+      .filter-bar { flex-direction: column; align-items: flex-start; }
+      .legend { margin-left: 0; }
     }
   </style>
 </head>
@@ -311,9 +154,24 @@
       </div>
       <button class="btn-primary" onclick="openAddNoteModal()">+ Dodaj notatkę</button>
     </div>
+
+    <div class="filter-bar">
+      <label>Projekt:</label>
+      <select id="filterProject" onchange="renderCalendar()">
+        <option value="all">Wszystkie projekty</option>
+      </select>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#fff3cd"></div> Notatki</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#d1ecf1"></div> Remindery</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e8daef"></div> Zadania (plan)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#d6eaf8"></div> Zadania (w toku)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#abebc6"></div> Zadania (gotowe)</div>
+      </div>
+    </div>
+
     <div class="calendar">
       <div class="calendar-grid" id="calendarGrid">
-        <div class="loading" style="grid-column: 1/-1;">⏳ Ładowanie kalendarza...</div>
+        <div class="loading" style="grid-column:1/-1">⏳ Ładowanie...</div>
       </div>
     </div>
   </div>
@@ -322,13 +180,13 @@
   <div id="modalDay" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="dayModalTitle">📅 Dzień</h3>
-        <button class="btn-close" onclick="closeDayModal()">&times;</button>
+        <h3 id="dayTitle">📅 Dzień</h3>
+        <button class="btn-close" onclick="closeM('modalDay')">&times;</button>
       </div>
       <div id="dayEntries"></div>
-      <div class="day-actions">
+      <div class="day-btns">
         <button class="btn-add-day" onclick="addNoteForDay()">📝 + Notatka</button>
-        <button class="btn-add-day" onclick="addReminderForDay()">⏰ + Reminder</button>
+        <button class="btn-add-day" onclick="closeM('modalDay');window.location.href='reminder.html'">⏰ + Reminder</button>
       </div>
     </div>
   </div>
@@ -337,295 +195,333 @@
   <div id="modalNote" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="noteModalTitle">Nowa notatka</h3>
-        <button class="btn-close" onclick="closeNoteModal()">&times;</button>
+        <h3 id="noteTitle">Nowa notatka</h3>
+        <button class="btn-close" onclick="closeM('modalNote')">&times;</button>
       </div>
       <form id="formNote">
         <input type="hidden" id="noteEditId" value="">
-        <div class="form-group">
-          <label>Data *</label>
-          <input type="date" id="noteData" required>
-        </div>
-        <div class="form-group">
-          <label>Tytuł *</label>
-          <input type="text" id="noteTytul" required placeholder="np. Spotkanie z klientem">
-        </div>
-        <div class="form-group">
-          <label>Treść</label>
-          <textarea id="noteTresc" rows="4" placeholder="Szczegóły notatki..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Projekt</label>
-          <select id="noteProjektId">
-            <option value="">Brak powiązania</option>
-          </select>
-        </div>
+        <div class="form-group"><label>Data *</label><input type="date" id="noteData" required></div>
+        <div class="form-group"><label>Tytuł *</label><input type="text" id="noteTytul" required placeholder="np. Spotkanie z klientem"></div>
+        <div class="form-group"><label>Treść</label><textarea id="noteTresc" rows="4" placeholder="Szczegóły..."></textarea></div>
+        <div class="form-group"><label>Projekt</label><select id="noteProjektId"><option value="">Brak powiązania</option></select></div>
         <div class="form-actions">
-          <button type="button" class="btn-secondary" onclick="closeNoteModal()">Anuluj</button>
-          <button type="submit" class="btn-submit" id="btnNoteSubmit">Dodaj notatkę</button>
+          <button type="button" class="btn-secondary" onclick="closeM('modalNote')">Anuluj</button>
+          <button type="submit" class="btn-submit" id="btnNote">Dodaj notatkę</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
-    let currentUser = null;
-    let allNotatki = [];
-    let allReminders = [];
-    let currentYear, currentMonth;
-    let selectedDate = null;
-
-    const MONTH_NAMES = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
-    const DAY_NAMES = ['PN','WT','ŚR','CZ','PT','SO','ND'];
+    const API = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
+    let user = null, notatki = [], reminders = [], zadania = [], projekty = [], etapy = [];
+    let curYear, curMonth, selDate = null;
+    const MN = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const DN = ['PN','WT','ŚR','CZ','PT','SO','ND'];
 
     window.onload = function() {
-      checkAuth();
-      loadUserInfo();
-      loadProjects();
-      const today = new Date();
-      currentYear = today.getFullYear();
-      currentMonth = today.getMonth();
+      checkAuth(); loadUser(); 
+      const t = new Date(); curYear = t.getFullYear(); curMonth = t.getMonth();
       loadAllData();
     };
-
     window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
 
-    function checkAuth() {
-      if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html';
-    }
-    function loadUserInfo() {
+    function checkAuth() { if (!localStorage.getItem('harmonogram_token')) window.location.href = 'index.html'; }
+    function loadUser() {
       const u = localStorage.getItem('harmonogram_user');
-      if (u) {
-        currentUser = JSON.parse(u);
-        document.getElementById('userName').textContent = currentUser.name;
-        document.getElementById('userRole').textContent = currentUser.role;
-      }
-    }
-    function loadProjects() {
-      const url = API_URL + '?action=getProjekty&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbProjects';
-      window.cbProjects = function(r) {
-        if (r.success && r.projekty) {
-          const sel = document.getElementById('noteProjektId');
-          while (sel.options.length > 1) sel.remove(1);
-          r.projekty.forEach(p => sel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa })));
-        }
-      };
-      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+      if (u) { user = JSON.parse(u); document.getElementById('userName').textContent = user.name; document.getElementById('userRole').textContent = user.role; }
     }
 
-    // ==================== LOAD DATA ====================
-    let dataLoaded = 0;
-    function loadAllData() {
-      dataLoaded = 0;
-      loadNotes();
-      loadReminders();
-    }
-    function onDataReady() {
-      dataLoaded++;
-      if (dataLoaded >= 2) renderCalendar();
-    }
+    // === LOAD ALL DATA ===
+    let loaded = 0, totalLoads = 4;
+    function loadAllData() { loaded = 0; loadNotes(); loadReminders(); loadProjects(); }
+    function onReady() { loaded++; if (loaded >= totalLoads) renderCalendar(); }
+
     function loadNotes() {
-      window.cbNotes = function(r) { allNotatki = r.success ? (r.notatki || []) : []; onDataReady(); };
-      const s = document.createElement('script');
-      s.src = API_URL + '?action=getNotatki&callback=cbNotes';
-      s.onerror = function() { allNotatki = []; onDataReady(); };
-      document.body.appendChild(s);
+      jp('getNotatki', {}, function(r) { notatki = r.success ? (r.notatki||[]) : []; onReady(); });
     }
     function loadReminders() {
-      window.cbReminders = function(r) { allReminders = r.success ? (r.reminders || []) : []; onDataReady(); };
-      const s = document.createElement('script');
-      s.src = API_URL + '?action=getReminders&callback=cbReminders';
-      s.onerror = function() { allReminders = []; onDataReady(); };
-      document.body.appendChild(s);
+      jp('getReminders', {}, function(r) { reminders = r.success ? (r.reminders||[]) : []; onReady(); });
+    }
+    function loadProjects() {
+      jp('getProjekty', { user: JSON.stringify(user) }, function(r) {
+        projekty = r.success ? (r.projekty||[]) : [];
+        // Fill filter + note project select
+        const fSel = document.getElementById('filterProject');
+        const nSel = document.getElementById('noteProjektId');
+        while (fSel.options.length > 1) fSel.remove(1);
+        while (nSel.options.length > 1) nSel.remove(1);
+        projekty.forEach(function(p) {
+          fSel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa }));
+          nSel.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa }));
+        });
+        // Load zadania for all projects
+        loadAllZadania();
+      });
+    }
+    function loadAllZadania() {
+      if (projekty.length === 0) { zadania = []; etapy = []; onReady(); onReady(); return; }
+      // Load etapy + zadania for each project, merge
+      zadania = []; etapy = [];
+      let pLoaded = 0, pTotal = projekty.length * 2;
+      projekty.forEach(function(p) {
+        jp('getEtapy', { projektId: p.id }, function(r) {
+          if (r.success && r.etapy) r.etapy.forEach(function(e) { e._projektNazwa = p.nazwa; etapy.push(e); });
+          pLoaded++; if (pLoaded >= pTotal) { onReady(); onReady(); }
+        });
+        jp('getZadaniaHarmonogram', { projektId: p.id }, function(r) {
+          if (r.success && r.zadania) r.zadania.forEach(function(z) { z._projektNazwa = p.nazwa; z._projektId = p.id; zadania.push(z); });
+          pLoaded++; if (pLoaded >= pTotal) { onReady(); onReady(); }
+        });
+      });
     }
 
-    // ==================== RENDER CALENDAR ====================
+    // === RENDER CALENDAR ===
     function renderCalendar() {
-      document.getElementById('monthLabel').textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+      document.getElementById('monthLabel').textContent = MN[curMonth] + ' ' + curYear;
       const grid = document.getElementById('calendarGrid');
+      const filterProjId = document.getElementById('filterProject').value;
       let html = '';
+      DN.forEach(function(d) { html += '<div class="calendar-day-header">' + d + '</div>'; });
 
-      DAY_NAMES.forEach(d => { html += '<div class="calendar-day-header">' + d + '</div>'; });
-
-      let startDay = new Date(currentYear, currentMonth, 1).getDay() - 1;
+      let startDay = new Date(curYear, curMonth, 1).getDay() - 1;
       if (startDay < 0) startDay = 6;
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
       const today = new Date();
-      const todayStr = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
+      const todayStr = fd(today.getFullYear(), today.getMonth(), today.getDate());
 
-      const notesMap = {}, remMap = {};
-      allNotatki.forEach(n => { const k = n.data; if (!notesMap[k]) notesMap[k] = []; notesMap[k].push(n); });
-      allReminders.forEach(r => { const k = r.dataOd; if (!remMap[k]) remMap[k] = []; remMap[k].push(r); });
+      // Build maps
+      const nMap = {}, rMap = {}, zMap = {};
+      notatki.forEach(function(n) { if (filterProjId !== 'all' && n.projektId && n.projektId != filterProjId) return; var k=n.data; if(!nMap[k])nMap[k]=[]; nMap[k].push(n); });
+      reminders.forEach(function(r) { var k=r.dataOd; if(!rMap[k])rMap[k]=[]; rMap[k].push(r); });
+      
+      // Zadania - rozciągają się od dataOd do dataDo
+      zadania.forEach(function(z) {
+        if (filterProjId !== 'all' && z._projektId != filterProjId) return;
+        if (!z.dataOd) return;
+        var start = new Date(z.dataOd);
+        var end = z.dataDo ? new Date(z.dataDo) : start;
+        // Only add to days in current month view
+        var mStart = new Date(curYear, curMonth, 1);
+        var mEnd = new Date(curYear, curMonth, daysInMonth);
+        var from = start < mStart ? mStart : start;
+        var to = end > mEnd ? mEnd : end;
+        for (var d = new Date(from); d <= to; d.setDate(d.getDate()+1)) {
+          var k = fd(d.getFullYear(), d.getMonth(), d.getDate());
+          if (!zMap[k]) zMap[k] = [];
+          // Add only once per task (show on first day and last day, or if day matches)
+          var isFirst = k === fd(start.getFullYear(), start.getMonth(), start.getDate());
+          var isLast = k === fd(end.getFullYear(), end.getMonth(), end.getDate());
+          zMap[k].push({ z: z, isFirst: isFirst, isLast: isLast });
+        }
+      });
 
-      for (let i = 0; i < startDay; i++) html += '<div class="calendar-day empty"></div>';
+      for (var i = 0; i < startDay; i++) html += '<div class="calendar-day empty"></div>';
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const ds = fmtDate(currentYear, currentMonth, day);
-        const dn = notesMap[ds] || [], dr = remMap[ds] || [];
-        const hn = dn.length > 0, hr = dr.length > 0;
-        let cls = 'calendar-day';
-        if (ds === todayStr) cls += ' today';
-        if (hn && hr) cls += ' has-both';
-        else if (hn) cls += ' has-notes';
-        else if (hr) cls += ' has-reminders';
+      for (var day = 1; day <= daysInMonth; day++) {
+        var ds = fd(curYear, curMonth, day);
+        var dn = nMap[ds] || [], dr = rMap[ds] || [], dz = zMap[ds] || [];
+        var isToday = ds === todayStr;
+        var cls = 'calendar-day' + (isToday ? ' today' : '');
 
         html += '<div class="' + cls + '" onclick="openDay(\'' + ds + '\')">';
         html += '<div class="calendar-day-number">' + day + '</div>';
 
-        let shown = 0;
-        dn.forEach(n => { if (shown < 3) { html += '<div class="calendar-task note" title="' + esc(n.tytul) + '">📝 ' + esc(trunc(n.tytul, 18)) + '</div>'; shown++; }});
-        dr.forEach(r => { if (shown < 3) { const c = r.status === 'Wykonane' ? 'reminder-done' : 'reminder'; const ic = r.status === 'Wykonane' ? '✅' : '⏰'; html += '<div class="calendar-task ' + c + '" title="' + esc(r.tytul) + '">' + ic + ' ' + esc(trunc(r.tytul, 18)) + '</div>'; shown++; }});
-        const tot = dn.length + dr.length;
-        if (tot > 3) html += '<div class="day-count">+' + (tot - 3) + ' więcej</div>';
+        var shown = 0, maxShow = 3, total = dn.length + dr.length + dz.length;
+
+        // Zadania harmonogramu (priorytet widoczności)
+        dz.forEach(function(item) {
+          if (shown >= maxShow) return;
+          var z = item.z;
+          var tagCls = 'tag-zadanie';
+          var icon = '🔧';
+          if (z.status === 'Zakonczone' || z.postep >= 100) { tagCls = 'tag-zadanie-done'; icon = '✅'; }
+          else if (z.status === 'W_realizacji' || z.postep > 0) { tagCls = 'tag-zadanie-wip'; icon = '⚡'; }
+          var etap = etapy.find(function(e) { return e.id == z.etapId; });
+          var nr = etap ? etap.numer + '.' + z.podpunkt : z.podpunkt;
+          html += '<div class="cal-tag ' + tagCls + '" title="' + esc(z.opis) + '">' + icon + ' ' + nr + ' ' + esc(trunc(z.opis, 14)) + '</div>';
+          shown++;
+        });
+
+        // Notatki
+        dn.forEach(function(n) {
+          if (shown >= maxShow) return;
+          html += '<div class="cal-tag tag-note" title="' + esc(n.tytul) + '">📝 ' + esc(trunc(n.tytul, 16)) + '</div>';
+          shown++;
+        });
+
+        // Remindery
+        dr.forEach(function(r) {
+          if (shown >= maxShow) return;
+          var isDone = r.status === 'Wykonane';
+          html += '<div class="cal-tag ' + (isDone ? 'tag-reminder-done' : 'tag-reminder') + '" title="' + esc(r.tytul) + '">' + (isDone ? '✅' : '⏰') + ' ' + esc(trunc(r.tytul, 16)) + '</div>';
+          shown++;
+        });
+
+        if (total > maxShow) html += '<div class="day-more">+' + (total - maxShow) + ' więcej</div>';
         html += '</div>';
       }
+
       grid.innerHTML = html;
     }
 
-    // ==================== NAV ====================
-    function changeMonth(d) {
-      currentMonth += d;
-      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-      renderCalendar();
-    }
-    function goToday() {
-      const t = new Date();
-      currentYear = t.getFullYear(); currentMonth = t.getMonth();
-      renderCalendar();
-    }
+    // === NAV ===
+    function changeMonth(d) { curMonth += d; if (curMonth > 11) { curMonth = 0; curYear++; } if (curMonth < 0) { curMonth = 11; curYear--; } renderCalendar(); }
+    function goToday() { var t = new Date(); curYear = t.getFullYear(); curMonth = t.getMonth(); renderCalendar(); }
 
-    // ==================== DAY MODAL ====================
+    // === DAY MODAL ===
     function openDay(ds) {
-      selectedDate = ds;
-      const p = ds.split('-');
-      document.getElementById('dayModalTitle').textContent = '📅 ' + parseInt(p[2]) + ' ' + MONTH_NAMES[parseInt(p[1])-1] + ' ' + p[0];
-      const dn = allNotatki.filter(n => n.data === ds);
-      const dr = allReminders.filter(r => r.dataOd === ds);
-      let html = '';
-      if (!dn.length && !dr.length) html = '<div class="empty-day">Brak wpisów na ten dzień. Dodaj notatkę lub reminder!</div>';
+      selDate = ds;
+      var p = ds.split('-');
+      document.getElementById('dayTitle').textContent = '📅 ' + parseInt(p[2]) + ' ' + MN[parseInt(p[1])-1] + ' ' + p[0];
+      var filterProjId = document.getElementById('filterProject').value;
 
+      var dn = notatki.filter(function(n) { if (filterProjId !== 'all' && n.projektId && n.projektId != filterProjId) return false; return n.data === ds; });
+      var dr = reminders.filter(function(r) { return r.dataOd === ds; });
+      
+      // Zadania aktywne w tym dniu
+      var dz = zadania.filter(function(z) {
+        if (filterProjId !== 'all' && z._projektId != filterProjId) return false;
+        if (!z.dataOd) return false;
+        return ds >= z.dataOd && ds <= (z.dataDo || z.dataOd);
+      });
+
+      var html = '';
+      if (!dn.length && !dr.length && !dz.length) html = '<div class="empty-day">Brak wpisów na ten dzień</div>';
+
+      // Zadania harmonogramu
+      if (dz.length) {
+        html += '<div class="section-title">🔧 Zadania harmonogramu (' + dz.length + ')</div>';
+        dz.forEach(function(z) {
+          var etap = etapy.find(function(e) { return e.id == z.etapId; });
+          var nr = etap ? etap.numer + '.' + z.podpunkt : z.podpunkt;
+          var isDone = z.status === 'Zakonczone' || z.postep >= 100;
+          var isWip = z.status === 'W_realizacji' || z.postep > 0;
+          var cls = isDone ? 'entry-zad done' : (isWip ? 'entry-zad wip' : 'entry-zad');
+          html += '<div class="entry ' + cls + '">';
+          html += '<div class="e-info">';
+          html += '<div class="e-title">' + nr + ' ' + esc(z.opis) + '</div>';
+          html += '<div class="e-detail">';
+          if (z.odpowiedzialny) html += '👤 ' + esc(z.odpowiedzialny) + ' | ';
+          html += '📅 ' + z.dataOd + ' → ' + (z.dataDo||'') + ' | ';
+          html += '⏱ ' + (z.godzinyWyk||0) + '/' + (z.godzinyPlan||0) + 'h | ';
+          html += 'Postęp: ' + (z.postep||0) + '%';
+          html += '<span class="mini-progress"><span class="mini-progress-fill" style="width:' + (z.postep||0) + '%;background:' + (isDone?'#27ae60':isWip?'#2980b9':'#bdc3c7') + '"></span></span>';
+          html += '</div>';
+          if (z.uwagi) html += '<div class="e-detail" style="color:#c0392b">⚠️ ' + esc(z.uwagi) + '</div>';
+          html += '</div>';
+          html += '<div class="e-actions"><a href="harmonogram.html?id=' + z._projektId + '" class="btn-icon btn-edit" title="Otwórz harmonogram">📋</a></div>';
+          html += '</div>';
+        });
+      }
+
+      // Notatki
       if (dn.length) {
-        html += '<div class="day-section-title">📝 Notatki (' + dn.length + ')</div>';
-        dn.forEach(n => {
-          html += '<div class="entry-item entry-note"><div class="entry-info"><div class="entry-title">' + esc(n.tytul) + '</div>';
-          if (n.tresc) html += '<div class="entry-detail">' + esc(n.tresc) + '</div>';
-          if (n.projektNazwa) html += '<div class="entry-detail">📁 ' + esc(n.projektNazwa) + '</div>';
-          html += '</div><div class="entry-actions">';
-          html += '<button class="btn-icon btn-edit" onclick="editNoteDay(' + n.id + ')" title="Edytuj">✏️</button>';
-          html += '<button class="btn-icon btn-delete" onclick="delNoteDay(' + n.id + ',\'' + escJ(n.tytul) + '\')" title="Usuń">🗑️</button>';
+        html += '<div class="section-title">📝 Notatki (' + dn.length + ')</div>';
+        dn.forEach(function(n) {
+          html += '<div class="entry entry-note"><div class="e-info"><div class="e-title">' + esc(n.tytul) + '</div>';
+          if (n.tresc) html += '<div class="e-detail">' + esc(n.tresc) + '</div>';
+          if (n.projektNazwa) html += '<div class="e-detail">📁 ' + esc(n.projektNazwa) + '</div>';
+          html += '</div><div class="e-actions">';
+          html += '<button class="btn-icon btn-edit" onclick="editNote(' + n.id + ')">✏️</button>';
+          html += '<button class="btn-icon btn-del" onclick="delNote(' + n.id + ',\'' + escJ(n.tytul) + '\')">🗑️</button>';
           html += '</div></div>';
         });
       }
+
+      // Remindery
       if (dr.length) {
-        html += '<div class="day-section-title">⏰ Przypomnienia (' + dr.length + ')</div>';
-        dr.forEach(r => {
-          const done = r.status === 'Wykonane';
-          html += '<div class="entry-item entry-reminder ' + (done?'done':'') + '"><div class="entry-info"><div class="entry-title">' + (done?'✅ ':'') + esc(r.tytul) + '</div>';
-          if (r.godzina) html += '<div class="entry-detail">🕐 ' + r.godzina + '</div>';
-          if (r.dlaKogo) html += '<div class="entry-detail">👤 ' + esc(r.dlaKogo) + '</div>';
-          html += '</div><div class="entry-actions">';
-          if (!done) html += '<button class="btn-icon btn-done" onclick="markDoneDay(' + r.id + ')" title="Wykonane">✓</button>';
-          html += '<button class="btn-icon btn-delete" onclick="delRemDay(' + r.id + ',\'' + escJ(r.tytul) + '\')" title="Usuń">🗑️</button>';
+        html += '<div class="section-title">⏰ Przypomnienia (' + dr.length + ')</div>';
+        dr.forEach(function(r) {
+          var done = r.status === 'Wykonane';
+          html += '<div class="entry entry-rem ' + (done?'done':'') + '"><div class="e-info"><div class="e-title">' + (done?'✅ ':'') + esc(r.tytul) + '</div>';
+          if (r.godzina) html += '<div class="e-detail">🕐 ' + r.godzina + '</div>';
+          if (r.dlaKogo) html += '<div class="e-detail">👤 ' + esc(r.dlaKogo) + '</div>';
+          html += '</div><div class="e-actions">';
+          if (!done) html += '<button class="btn-icon btn-done" onclick="markDone(' + r.id + ')">✓</button>';
+          html += '<button class="btn-icon btn-del" onclick="delRem(' + r.id + ',\'' + escJ(r.tytul) + '\')">🗑️</button>';
           html += '</div></div>';
         });
       }
+
       document.getElementById('dayEntries').innerHTML = html;
       document.getElementById('modalDay').classList.add('active');
     }
-    function closeDayModal() { document.getElementById('modalDay').classList.remove('active'); }
 
-    // ==================== DAY ACTIONS ====================
+    // === DAY ACTIONS ===
     function addNoteForDay() {
-      closeDayModal();
+      closeM('modalDay');
       document.getElementById('noteEditId').value = '';
-      document.getElementById('noteModalTitle').textContent = 'Nowa notatka';
-      document.getElementById('btnNoteSubmit').textContent = 'Dodaj notatkę';
+      document.getElementById('noteTitle').textContent = 'Nowa notatka';
+      document.getElementById('btnNote').textContent = 'Dodaj notatkę';
       document.getElementById('formNote').reset();
-      document.getElementById('noteData').value = selectedDate;
+      document.getElementById('noteData').value = selDate;
       document.getElementById('modalNote').classList.add('active');
     }
-    function addReminderForDay() {
-      closeDayModal();
-      window.location.href = 'reminder.html';
-    }
-    function editNoteDay(id) {
-      closeDayModal();
-      const n = allNotatki.find(x => x.id == id);
+    function editNote(id) {
+      closeM('modalDay');
+      var n = notatki.find(function(x) { return x.id == id; });
       if (!n) return;
       document.getElementById('noteEditId').value = id;
-      document.getElementById('noteModalTitle').textContent = 'Edytuj notatkę';
-      document.getElementById('btnNoteSubmit').textContent = 'Zapisz zmiany';
-      document.getElementById('noteData').value = n.data || '';
-      document.getElementById('noteTytul').value = n.tytul || '';
-      document.getElementById('noteTresc').value = n.tresc || '';
-      document.getElementById('noteProjektId').value = n.projektId || '';
+      document.getElementById('noteTitle').textContent = 'Edytuj notatkę';
+      document.getElementById('btnNote').textContent = 'Zapisz zmiany';
+      document.getElementById('noteData').value = n.data||'';
+      document.getElementById('noteTytul').value = n.tytul||'';
+      document.getElementById('noteTresc').value = n.tresc||'';
+      document.getElementById('noteProjektId').value = n.projektId||'';
       document.getElementById('modalNote').classList.add('active');
     }
-    function delNoteDay(id, t) {
+    function delNote(id, t) {
       if (!confirm('Usunąć notatkę "' + t + '"?')) return;
-      window.cbDel = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
-      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=usunNotatke&id=' + id + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbDel' }));
+      jp('usunNotatke', { id: id, user: JSON.stringify(user) }, function(r) { if (r.success) { closeM('modalDay'); loadAllData(); } else alert('❌ '+r.message); });
     }
-    function markDoneDay(id) {
-      window.cbMark = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
-      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=markReminderDone&id=' + id + '&callback=cbMark' }));
+    function markDone(id) {
+      jp('markReminderDone', { id: id }, function(r) { if (r.success) { closeM('modalDay'); loadAllData(); } else alert('❌ '+r.message); });
     }
-    function delRemDay(id, t) {
+    function delRem(id, t) {
       if (!confirm('Usunąć reminder "' + t + '"?')) return;
-      window.cbDelR = function(r) { if (r.success) { closeDayModal(); loadAllData(); } else alert('❌ ' + r.message); };
-      document.body.appendChild(Object.assign(document.createElement('script'), { src: API_URL + '?action=usunReminder&id=' + id + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbDelR' }));
+      jp('usunReminder', { id: id, user: JSON.stringify(user) }, function(r) { if (r.success) { closeM('modalDay'); loadAllData(); } else alert('❌ '+r.message); });
     }
 
-    // ==================== NOTE MODAL ====================
+    // === NOTE FORM ===
     function openAddNoteModal() {
       document.getElementById('noteEditId').value = '';
-      document.getElementById('noteModalTitle').textContent = 'Nowa notatka';
-      document.getElementById('btnNoteSubmit').textContent = 'Dodaj notatkę';
+      document.getElementById('noteTitle').textContent = 'Nowa notatka';
+      document.getElementById('btnNote').textContent = 'Dodaj notatkę';
       document.getElementById('formNote').reset();
       document.getElementById('modalNote').classList.add('active');
     }
-    function closeNoteModal() {
-      document.getElementById('modalNote').classList.remove('active');
-      document.getElementById('formNote').reset();
-      document.getElementById('noteEditId').value = '';
-    }
-
     document.getElementById('formNote').addEventListener('submit', function(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnNoteSubmit');
+      var btn = document.getElementById('btnNote');
       btn.disabled = true;
-      const eid = document.getElementById('noteEditId').value;
-      const isEdit = eid !== '';
-      const notatka = {
-        data: document.getElementById('noteData').value,
-        tytul: document.getElementById('noteTytul').value,
-        tresc: document.getElementById('noteTresc').value,
-        projektId: document.getElementById('noteProjektId').value || null
-      };
-      let url;
-      if (isEdit) {
-        btn.textContent = 'Zapisywanie...';
-        notatka.id = eid;
-        url = API_URL + '?action=edytujNotatke&notatka=' + encodeURIComponent(JSON.stringify(notatka)) + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbSaveNote';
-      } else {
-        btn.textContent = 'Dodawanie...';
-        url = API_URL + '?action=dodajNotatke&notatka=' + encodeURIComponent(JSON.stringify(notatka)) + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=cbSaveNote';
-      }
-      window.cbSaveNote = function(r) {
-        if (r.success) { closeNoteModal(); loadAllData(); } else alert('❌ ' + r.message);
-        btn.disabled = false;
-        btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj notatkę';
-      };
-      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+      var eid = document.getElementById('noteEditId').value;
+      var isEdit = eid !== '';
+      var data = { data: document.getElementById('noteData').value, tytul: document.getElementById('noteTytul').value, tresc: document.getElementById('noteTresc').value, projektId: document.getElementById('noteProjektId').value || null };
+      if (isEdit) data.id = eid;
+      var action = isEdit ? 'edytujNotatke' : 'dodajNotatke';
+      btn.textContent = isEdit ? 'Zapisywanie...' : 'Dodawanie...';
+      jp(action, { notatka: JSON.stringify(data), user: JSON.stringify(user) }, function(r) {
+        if (r.success) { closeM('modalNote'); loadAllData(); } else alert('❌ '+r.message);
+        btn.disabled = false; btn.textContent = isEdit ? 'Zapisz zmiany' : 'Dodaj notatkę';
+      });
     });
 
-    // ==================== HELPERS ====================
-    function fmtDate(y, m, d) { return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0'); }
-    function trunc(s, n) { return s && s.length > n ? s.substring(0,n) + '…' : (s||''); }
-    function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
-    function escJ(s) { return s ? s.replace(/\\/g,'\\\\').replace(/'/g,"\\'") : ''; }
+    // === HELPERS ===
+    function closeM(id) { document.getElementById(id).classList.remove('active'); }
+    function fd(y,m,d) { return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+    function trunc(s,n) { return s&&s.length>n ? s.substring(0,n)+'…' : (s||''); }
+    function esc(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
+    function escJ(s) { return s?s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"):''; }
+    function jp(action, params, cb) {
+      var cbN = 'cb_'+action+'_'+Date.now();
+      var url = API+'?action='+action+'&callback='+cbN;
+      for (var k in params) url += '&'+k+'='+encodeURIComponent(params[k]);
+      window[cbN] = function(r) { cb(r); delete window[cbN]; };
+      var s = document.createElement('script'); s.src = url;
+      s.onerror = function() { cb({ success: false, message: 'Błąd połączenia' }); };
+      document.body.appendChild(s);
+    }
     function logout() { localStorage.removeItem('harmonogram_token'); localStorage.removeItem('harmonogram_user'); window.location.href = 'index.html'; }
   </script>
 </body>
