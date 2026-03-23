@@ -190,6 +190,8 @@
     .zadanie-row td:first-child { padding-left: 40px; }
     .zadanie-row.zadanie-done { opacity: 0.5; background: #f5f5f5 !important; }
     .zadanie-row.zadanie-done:hover { opacity: 0.7; }
+    .etap-row.etap-done { opacity: 0.5; background: #ebebeb !important; }
+    .etap-row.etap-done:hover { opacity: 0.7; }
     
     /* Progress bar w tabeli */
     .progress-bar-sm {
@@ -819,8 +821,17 @@
 
       let html = '';
       
-      // Sortuj etapy po numerze
-      const sortedEtapy = [...allEtapy].sort((a,b) => a.numer - b.numer);
+      // Sortuj etapy: 100% na dół, reszta po numerze
+      const sortedEtapy = [...allEtapy].sort((a,b) => {
+        const aZadania = allZadaniaHarm.filter(z => z.etapId == a.id);
+        const bZadania = allZadaniaHarm.filter(z => z.etapId == b.id);
+        const aAvg = aZadania.length > 0 ? Math.round(aZadania.reduce((s,z) => s + (Number(z.postep)||0), 0) / aZadania.length) : 0;
+        const bAvg = bZadania.length > 0 ? Math.round(bZadania.reduce((s,z) => s + (Number(z.postep)||0), 0) / bZadania.length) : 0;
+        const aDone = aAvg >= 100 ? 1 : 0;
+        const bDone = bAvg >= 100 ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        return a.numer - b.numer;
+      });
       
       sortedEtapy.forEach(etap => {
         // Wiersz etapu
@@ -830,8 +841,9 @@
           : 0;
         const totalGodz = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyPlan)||0), 0);
         const totalGodzWyk = zadaniaEtapu.reduce((s,z) => s + (parseFloat(z.godzinyWyk)||0), 0);
+        const etapDone = avgPostep >= 100;
         
-        html += '<tr class="etap-row">';
+        html += '<tr class="etap-row' + (etapDone ? ' etap-done' : '') + '">';
         html += '<td class="etap-toggle">' + etap.numer + '.</td>';
         html += '<td colspan="4"><strong>' + esc(etap.nazwa) + '</strong></td>';
         html += '<td class="hours-cell"><span class="hours-done">' + totalGodzWyk + '</span> / <span class="hours-planned">' + totalGodz + 'h</span></td>';
