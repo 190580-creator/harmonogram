@@ -136,6 +136,7 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
+      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -362,24 +363,29 @@
         if (loaded >= total) renderNotifications(notifications);
       }
 
-      // Remindery — dla zalogowanego użytkownika lub bez adresata
+      // Remindery — aktywne na dziś lub przeterminowane
       jp('getReminders', {}, function(r) {
         if (r.success && r.reminders) {
           var today = new Date(); today.setHours(0,0,0,0);
           r.reminders.forEach(function(rem) {
             if (rem.status === 'Wykonane') return;
-            var forMe = !rem.dlaKogo || rem.dlaKogo === userName;
+            // Pokaż remindery: dla mnie, bez adresata, lub gdzie ja jestem dodającym
+            var forMe = !rem.dlaKogo || rem.dlaKogo === userName || rem.dodal === userName;
             if (!forMe) return;
-            var remDate = new Date(rem.dataOd); remDate.setHours(0,0,0,0);
-            var isOverdue = remDate < today;
-            var isToday = remDate.getTime() === today.getTime();
-            if (isOverdue || isToday) {
+            var remDate = rem.dataOd ? new Date(rem.dataOd) : null;
+            if (remDate) remDate.setHours(0,0,0,0);
+            var isOverdue = remDate && remDate < today;
+            var isToday = remDate && remDate.getTime() === today.getTime();
+            var isFuture3 = remDate && remDate <= new Date(today.getTime() + 3*24*60*60*1000);
+            if (isOverdue || isToday || isFuture3) {
               notifications.push({
-                icon: isOverdue ? '🔴' : '⏰',
+                type: 'reminder',
+                id: rem.id,
+                icon: isOverdue ? '🔴' : isToday ? '⏰' : '📌',
                 text: rem.tytul,
-                sub: (isOverdue ? 'Po terminie! ' : 'Dziś ') + (rem.dataOd||'') + (rem.godzina ? ' ' + rem.godzina : ''),
+                sub: (isOverdue ? 'Po terminie! ' : isToday ? 'Dziś ' : 'Za kilka dni ') + (rem.dataOd||'') + (rem.godzina ? ' ' + rem.godzina : '') + (rem.dlaKogo ? ' | Dla: ' + rem.dlaKogo : ''),
                 link: 'reminder.html',
-                priority: isOverdue ? 0 : 1
+                priority: isOverdue ? 0 : isToday ? 1 : 2
               });
             }
           });
@@ -396,11 +402,13 @@
               var nDate = new Date(n.data);
               if (nDate >= weekAgo) {
                 notifications.push({
+                  type: 'notatka',
+                  id: n.id,
                   icon: '📝',
                   text: n.tytul,
                   sub: 'Notatka na ' + (n.data||'') + (n.projektNazwa ? ' | ' + n.projektNazwa : ''),
                   link: 'kalendarz.html',
-                  priority: 2
+                  priority: 3
                 });
               }
             }
@@ -424,15 +432,50 @@
         return;
       }
       list.innerHTML = notifications.map(function(n) {
-        return '<div class="notif-item" onclick="window.location.href=\'' + n.link + '\'">' +
-          '<span class="ni-icon">' + n.icon + '</span>' +
-          '<span class="ni-text">' + esc(n.text) + '</span>' +
-          '<div class="ni-sub">' + esc(n.sub) + '</div>' +
+        return '<div class="notif-item">' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<span class="ni-icon">' + n.icon + '</span>' +
+            '<div style="flex:1">' +
+              '<div class="ni-text">' + esc(n.text) + '</div>' +
+              '<div class="ni-sub">' + esc(n.sub) + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:5px">' +
+              '<button onclick="event.stopPropagation(); window.location.href=\'' + n.link + '\'" style="padding:4px 8px;border:1px solid #ddd;border-radius:5px;background:white;cursor:pointer;font-size:11px" title="Otwórz">📂</button>' +
+              '<button onclick="event.stopPropagation(); dismissNotif(this, \'' + n.type + '\',' + n.id + ')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Zatwierdź">✓</button>' +
+            '</div>' +
+          '</div>' +
         '</div>';
       }).join('');
     }
 
-    // Ładuj powiadomienia od razu przy starcie (badge)
+    function dismissNotif(btn, type, id) {
+      var item = btn.closest('.notif-item');
+      if (type === 'reminder') {
+        // Oznacz reminder jako wykonane
+        jp('markReminderDone', { id: id }, function(r) {
+          if (r.success) {
+            item.style.opacity = '0.3';
+            item.style.textDecoration = 'line-through';
+            setTimeout(function() { item.remove(); updateBadgeCount(); }, 500);
+          }
+        });
+      } else {
+        // Notatka — po prostu ukryj (brak statusu w notatkach)
+        item.style.opacity = '0.3';
+        setTimeout(function() { item.remove(); updateBadgeCount(); }, 300);
+      }
+    }
+
+    function updateBadgeCount() {
+      var items = document.querySelectorAll('#notifList .notif-item');
+      var badge = document.getElementById('bellBadge');
+      badge.textContent = items.length;
+      badge.className = 'bell-badge' + (items.length === 0 ? ' hidden' : '');
+      if (items.length === 0) {
+        document.getElementById('notifList').innerHTML = '<div class="notif-empty">✅ Brak nowych powiadomień</div>';
+      }
+    }
+
     function initBell() {
       if (user) loadNotifications();
     }
