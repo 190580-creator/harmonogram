@@ -370,7 +370,6 @@
           var today = new Date(); today.setHours(0,0,0,0);
           r.reminders.forEach(function(rem) {
             if (rem.status === 'Wykonane') return;
-            if (dismissed['rem_' + rem.id]) return; // Już odrzucony
             var forMe = !rem.dlaKogo || rem.dlaKogo === userName || rem.dodal === userName;
             if (!forMe) return;
             var remDate = rem.dataOd ? new Date(rem.dataOd) : null;
@@ -379,9 +378,12 @@
             var isToday = remDate && remDate.getTime() === today.getTime();
             var isFuture3 = remDate && remDate <= new Date(today.getTime() + 3*24*60*60*1000);
             if (isOverdue || isToday || isFuture3) {
+              var dismissKey = 'rem_' + rem.id + '_' + (rem.dataOd||'') + '_' + (rem.tytul||'').substring(0,20);
+              if (dismissed[dismissKey]) return;
               notifications.push({
                 type: 'reminder',
                 id: rem.id,
+                dismissKey: dismissKey,
                 icon: isOverdue ? '🔴' : isToday ? '⏰' : '📌',
                 text: rem.tytul,
                 sub: (isOverdue ? 'Po terminie! ' : isToday ? 'Dziś ' : 'Za kilka dni ') + (rem.dataOd||'') + (rem.godzina ? ' ' + rem.godzina : '') + (rem.dlaKogo ? ' | Dla: ' + rem.dlaKogo : ''),
@@ -399,13 +401,15 @@
         if (r.success && r.notatki) {
           var weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
           r.notatki.forEach(function(n) {
-            if (dismissed['note_' + n.id]) return; // Już odrzucona
             if (n.adresat && n.adresat === userName) {
               var nDate = new Date(n.data);
               if (nDate >= weekAgo) {
+                var dismissKey = 'note_' + n.id + '_' + (n.data||'') + '_' + (n.tytul||'').substring(0,20);
+                if (dismissed[dismissKey]) return;
                 notifications.push({
                   type: 'notatka',
                   id: n.id,
+                  dismissKey: dismissKey,
                   icon: '📝',
                   text: n.tytul,
                   sub: 'Notatka na ' + (n.data||'') + (n.projektNazwa ? ' | ' + n.projektNazwa : ''),
@@ -453,7 +457,6 @@
         return;
       }
       list.innerHTML = notifications.map(function(n) {
-        var dismissKey = (n.type === 'reminder' ? 'rem_' : 'note_') + n.id;
         return '<div class="notif-item">' +
           '<div style="display:flex;align-items:center;gap:10px">' +
             '<span class="ni-icon">' + n.icon + '</span>' +
@@ -463,7 +466,7 @@
             '</div>' +
             '<div style="display:flex;gap:5px">' +
               '<button onclick="event.stopPropagation(); window.location.href=\'' + n.link + '\'" style="padding:4px 8px;border:1px solid #ddd;border-radius:5px;background:white;cursor:pointer;font-size:11px" title="Otwórz">📂</button>' +
-              '<button onclick="event.stopPropagation(); dismissNotif(this, \'' + dismissKey + '\')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Odczytane">✓</button>' +
+              '<button onclick="event.stopPropagation(); dismissNotif(this, \'' + n.dismissKey + '\')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Przeczytane">✓</button>' +
             '</div>' +
           '</div>' +
         '</div>';
