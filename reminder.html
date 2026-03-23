@@ -115,7 +115,6 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
   <div class="header">
     <div class="header-top">
       <div class="header-left">
@@ -137,7 +136,6 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item active">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -185,6 +183,13 @@
             <option value="">Brak powiązania</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>Dla kogo (adresat) *</label>
+          <select id="dlaKogoSelect" required>
+            <option value="">-- Wybierz osobę --</option>
+          </select>
+          <div class="hint">Osoba zobaczy to przypomnienie w swoich powiadomieniach</div>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnSubmit">Dodaj reminder</button>
@@ -197,12 +202,14 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
     let allReminders = [];
+    let allUsers = [];
 
     window.onload = function() {
       checkAuth();
       loadUserInfo();
       loadProjects();
       loadReminders();
+      loadUsers();
     };
 
     window.addEventListener('pageshow', function(event) {
@@ -230,6 +237,23 @@
           while (select.options.length > 1) select.remove(1);
           result.projekty.forEach(p => {
             select.appendChild(Object.assign(document.createElement('option'), { value: p.id, textContent: p.nazwa }));
+          });
+        }
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+    }
+
+    function loadUsers() {
+      const url = API_URL + '?action=getUsers&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleUsersResp';
+      window.handleUsersResp = function(r) {
+        if (r.success) {
+          allUsers = r.users || [];
+          var sel = document.getElementById('dlaKogoSelect');
+          while (sel.options.length > 1) sel.remove(1);
+          allUsers.forEach(function(u) {
+            if (u.status === 'Aktywny') {
+              sel.appendChild(Object.assign(document.createElement('option'), { value: u.imie, textContent: u.imie + ' (' + u.rola + ')' }));
+            }
           });
         }
       };
@@ -348,6 +372,7 @@
       document.getElementById('opis').value = reminder.opis || '';
       document.getElementById('priorytet').value = reminder.priorytet || 'Średni';
       document.getElementById('projektId').value = reminder.projektId || '';
+      document.getElementById('dlaKogoSelect').value = reminder.dlaKogo || '';
       document.getElementById('modalAdd').classList.add('active');
     }
 
@@ -389,7 +414,8 @@
         tytul: document.getElementById('tytul').value,
         opis: document.getElementById('opis').value,
         priorytet: document.getElementById('priorytet').value,
-        projektId: document.getElementById('projektId').value || null
+        projektId: document.getElementById('projektId').value || null,
+        dlaKogo: document.getElementById('dlaKogoSelect').value || ''
       };
 
       let url;
