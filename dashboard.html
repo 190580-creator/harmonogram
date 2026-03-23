@@ -357,6 +357,7 @@
       var notifications = [];
       var userName = user ? user.name : '';
       var loaded = 0, total = 2;
+      var dismissed = getDismissedNotifs();
 
       function checkDone() {
         loaded++;
@@ -369,7 +370,7 @@
           var today = new Date(); today.setHours(0,0,0,0);
           r.reminders.forEach(function(rem) {
             if (rem.status === 'Wykonane') return;
-            // Pokaż remindery: dla mnie, bez adresata, lub gdzie ja jestem dodającym
+            if (dismissed['rem_' + rem.id]) return; // Już odrzucony
             var forMe = !rem.dlaKogo || rem.dlaKogo === userName || rem.dodal === userName;
             if (!forMe) return;
             var remDate = rem.dataOd ? new Date(rem.dataOd) : null;
@@ -398,6 +399,7 @@
         if (r.success && r.notatki) {
           var weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
           r.notatki.forEach(function(n) {
+            if (dismissed['note_' + n.id]) return; // Już odrzucona
             if (n.adresat && n.adresat === userName) {
               var nDate = new Date(n.data);
               if (nDate >= weekAgo) {
@@ -418,13 +420,32 @@
       });
     }
 
+    // Dismissed notifications - localStorage (czyści się co 24h)
+    function getDismissedNotifs() {
+      try {
+        var data = JSON.parse(localStorage.getItem('harmonogram_dismissed') || '{}');
+        var now = Date.now();
+        // Czyść stare (>24h)
+        for (var k in data) { if (now - data[k] > 86400000) delete data[k]; }
+        localStorage.setItem('harmonogram_dismissed', JSON.stringify(data));
+        return data;
+      } catch(e) { return {}; }
+    }
+    function addDismissed(key) {
+      try {
+        var data = getDismissedNotifs();
+        data[key] = Date.now();
+        localStorage.setItem('harmonogram_dismissed', JSON.stringify(data));
+      } catch(e) {}
+    }
+
     function renderNotifications(notifications) {
       notifications.sort(function(a,b) { return a.priority - b.priority; });
       var badge = document.getElementById('bellBadge');
       var count = notifications.length;
       badge.textContent = count;
       badge.className = 'bell-badge' + (count === 0 ? ' hidden' : '');
-      document.getElementById('notifCount').textContent = count + ' nowych';
+      document.getElementById('notifCount').textContent = count > 0 ? count + ' nowych' : '';
 
       var list = document.getElementById('notifList');
       if (count === 0) {
@@ -432,6 +453,7 @@
         return;
       }
       list.innerHTML = notifications.map(function(n) {
+        var dismissKey = (n.type === 'reminder' ? 'rem_' : 'note_') + n.id;
         return '<div class="notif-item">' +
           '<div style="display:flex;align-items:center;gap:10px">' +
             '<span class="ni-icon">' + n.icon + '</span>' +
@@ -441,29 +463,18 @@
             '</div>' +
             '<div style="display:flex;gap:5px">' +
               '<button onclick="event.stopPropagation(); window.location.href=\'' + n.link + '\'" style="padding:4px 8px;border:1px solid #ddd;border-radius:5px;background:white;cursor:pointer;font-size:11px" title="Otwórz">📂</button>' +
-              '<button onclick="event.stopPropagation(); dismissNotif(this, \'' + n.type + '\',' + n.id + ')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Zatwierdź">✓</button>' +
+              '<button onclick="event.stopPropagation(); dismissNotif(this, \'' + dismissKey + '\')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Odczytane">✓</button>' +
             '</div>' +
           '</div>' +
         '</div>';
       }).join('');
     }
 
-    function dismissNotif(btn, type, id) {
+    function dismissNotif(btn, dismissKey) {
+      addDismissed(dismissKey);
       var item = btn.closest('.notif-item');
-      if (type === 'reminder') {
-        // Oznacz reminder jako wykonane
-        jp('markReminderDone', { id: id }, function(r) {
-          if (r.success) {
-            item.style.opacity = '0.3';
-            item.style.textDecoration = 'line-through';
-            setTimeout(function() { item.remove(); updateBadgeCount(); }, 500);
-          }
-        });
-      } else {
-        // Notatka — po prostu ukryj (brak statusu w notatkach)
-        item.style.opacity = '0.3';
-        setTimeout(function() { item.remove(); updateBadgeCount(); }, 300);
-      }
+      item.style.opacity = '0.3';
+      setTimeout(function() { item.remove(); updateBadgeCount(); }, 300);
     }
 
     function updateBadgeCount() {
