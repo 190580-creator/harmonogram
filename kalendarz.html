@@ -119,7 +119,6 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
   <div class="header">
     <div class="header-top">
       <div class="header-left">
@@ -141,7 +140,6 @@
       <a href="kalendarz.html" class="nav-item active">Kalendarz</a>
       <a href="reminder.html" class="nav-item">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -206,6 +204,7 @@
         <div class="form-group"><label>Tytuł *</label><input type="text" id="noteTytul" required placeholder="np. Spotkanie z klientem"></div>
         <div class="form-group"><label>Treść</label><textarea id="noteTresc" rows="4" placeholder="Szczegóły..."></textarea></div>
         <div class="form-group"><label>Projekt</label><select id="noteProjektId"><option value="">Brak powiązania</option></select></div>
+        <div class="form-group"><label>Adresat notatki</label><select id="noteAdresat"><option value="">-- Dla wszystkich --</option></select><div style="font-size:11px;color:#999;margin-top:3px">Osoba zobaczy tę notatkę w swoich powiadomieniach</div></div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeM('modalNote')">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnNote">Dodaj notatkę</button>
@@ -216,7 +215,7 @@
 
   <script>
     const API = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
-    let user = null, notatki = [], reminders = [], zadania = [], projekty = [], etapy = [];
+    let user = null, notatki = [], reminders = [], zadania = [], projekty = [], etapy = [], allUsers = [];
     let curYear, curMonth, selDate = null;
     const MN = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
     const DN = ['PN','WT','ŚR','CZ','PT','SO','ND'];
@@ -236,7 +235,7 @@
 
     // === LOAD ALL DATA ===
     let loaded = 0, totalLoads = 4;
-    function loadAllData() { loaded = 0; loadNotes(); loadReminders(); loadProjects(); }
+    function loadAllData() { loaded = 0; loadNotes(); loadReminders(); loadProjects(); loadUsersKal(); }
     function onReady() { loaded++; if (loaded >= totalLoads) renderCalendar(); }
 
     function loadNotes() {
@@ -259,6 +258,20 @@
         });
         // Load zadania for all projects
         loadAllZadania();
+      });
+    }
+    function loadUsersKal() {
+      jp('getUsers', { user: JSON.stringify(user) }, function(r) {
+        if (r.success) {
+          allUsers = r.users || [];
+          var sel = document.getElementById('noteAdresat');
+          while (sel.options.length > 1) sel.remove(1);
+          allUsers.forEach(function(u) {
+            if (u.status === 'Aktywny') {
+              sel.appendChild(Object.assign(document.createElement('option'), { value: u.imie, textContent: u.imie + ' (' + u.rola + ')' }));
+            }
+          });
+        }
       });
     }
     function loadAllZadania() {
@@ -471,6 +484,7 @@
       document.getElementById('noteTytul').value = n.tytul||'';
       document.getElementById('noteTresc').value = n.tresc||'';
       document.getElementById('noteProjektId').value = n.projektId||'';
+      document.getElementById('noteAdresat').value = n.adresat||'';
       document.getElementById('modalNote').classList.add('active');
     }
     function delNote(id, t) {
@@ -499,7 +513,7 @@
       btn.disabled = true;
       var eid = document.getElementById('noteEditId').value;
       var isEdit = eid !== '';
-      var data = { data: document.getElementById('noteData').value, tytul: document.getElementById('noteTytul').value, tresc: document.getElementById('noteTresc').value, projektId: document.getElementById('noteProjektId').value || null };
+      var data = { data: document.getElementById('noteData').value, tytul: document.getElementById('noteTytul').value, tresc: document.getElementById('noteTresc').value, projektId: document.getElementById('noteProjektId').value || null, adresat: document.getElementById('noteAdresat').value || '' };
       if (isEdit) data.id = eid;
       var action = isEdit ? 'edytujNotatke' : 'dodajNotatke';
       btn.textContent = isEdit ? 'Zapisywanie...' : 'Dodawanie...';
