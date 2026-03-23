@@ -846,13 +846,16 @@
         
         // Zadania etapu (sortuj: aktywne po podpunkcie, 100% na dół)
         const sorted = [...zadaniaEtapu].sort((a,b) => {
-          const aDone = (parseInt(a.postep)||0) >= 100 ? 1 : 0;
-          const bDone = (parseInt(b.postep)||0) >= 100 ? 1 : 0;
+          const aP = parseFloat(a.postep)||0;
+          const bP = parseFloat(b.postep)||0;
+          const aDone = (aP >= 100 || aP === 1) ? 1 : 0;
+          const bDone = (bP >= 100 || bP === 1) ? 1 : 0;
           if (aDone !== bDone) return aDone - bDone; // 100% na dół
           return (parseInt(a.podpunkt)||0) - (parseInt(b.podpunkt)||0);
         });
         sorted.forEach(z => {
-          const isDone = (parseInt(z.postep)||0) >= 100;
+          const zP = parseFloat(z.postep)||0;
+          const isDone = (zP >= 100 || zP === 1);
           const statusBadge = getStatusBadge(z);
           html += '<tr class="zadanie-row' + (isDone ? ' zadanie-done' : '') + '">';
           html += '<td>' + etap.numer + '.' + z.podpunkt + '</td>';
