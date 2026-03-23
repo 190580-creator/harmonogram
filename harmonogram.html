@@ -188,6 +188,8 @@
     
     /* Wiersz zadania */
     .zadanie-row td:first-child { padding-left: 40px; }
+    .zadanie-row.zadanie-done { opacity: 0.5; background: #f5f5f5 !important; }
+    .zadanie-row.zadanie-done:hover { opacity: 0.7; }
     
     /* Progress bar w tabeli */
     .progress-bar-sm {
@@ -417,7 +419,6 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script> 
   <div class="header">
     <div class="header-top">
       <div class="header-left">
@@ -439,7 +440,6 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -581,7 +581,13 @@
         </div>
         <div class="form-group">
           <label>Odpowiedzialni</label>
-          <input type="text" id="zadanieOdpowiedzialny" placeholder="np. Arek i Krzysztof">
+          <select id="zadanieOdpowiedzialny">
+            <option value="">-- Wybierz osobę --</option>
+          </select>
+          <div id="customOdpBox" style="display:none; margin-top:8px;">
+            <input type="text" id="customOdpowiedzialny" placeholder="Imię i nazwisko nowej osoby">
+          </div>
+          <div class="hint"><a href="#" onclick="toggleCustomOdp(); return false;" id="toggleOdpLink">+ Dodaj osobę spoza listy</a></div>
         </div>
         <div class="form-row-3">
           <div class="form-group">
@@ -649,11 +655,13 @@
     let allEtapy = [];
     let allZadaniaHarm = [];
     let currentView = 'table';
+    let allUsers = []; // lista użytkowników do selecta Odpowiedzialny
 
     window.onload = function() {
       checkAuth();
       loadUserInfo();
       loadProjects();
+      loadUsers();
     };
     window.addEventListener('pageshow', function(e) { if (e.persisted) window.location.reload(); });
 
@@ -667,6 +675,66 @@
         document.getElementById('userName').textContent = currentUser.name;
         document.getElementById('userRole').textContent = currentUser.role;
       }
+    }
+
+    // ==================== UŻYTKOWNICY (dla selecta Odpowiedzialny) ====================
+    function loadUsers() {
+      jsonpCall('getUsers', { }, function(r) {
+        allUsers = r.success ? (r.users || []) : [];
+        populateOdpowiedzialnySelect();
+      });
+    }
+
+    function populateOdpowiedzialnySelect() {
+      var sel = document.getElementById('zadanieOdpowiedzialny');
+      while (sel.options.length > 1) sel.remove(1);
+      allUsers.forEach(function(u) {
+        if (u.status === 'Aktywny') {
+          sel.appendChild(Object.assign(document.createElement('option'), { value: u.imie, textContent: u.imie + ' (' + u.rola + ')' }));
+        }
+      });
+      // Opcja "Dodaj nowego" na dole
+      sel.appendChild(Object.assign(document.createElement('option'), { value: '__custom__', textContent: '➕ Dodaj osobę spoza listy...' }));
+      sel.addEventListener('change', function() {
+        if (sel.value === '__custom__') {
+          document.getElementById('customOdpBox').style.display = 'block';
+          document.getElementById('customOdpowiedzialny').focus();
+        } else {
+          document.getElementById('customOdpBox').style.display = 'none';
+        }
+      });
+    }
+
+    function toggleCustomOdp() {
+      var box = document.getElementById('customOdpBox');
+      var sel = document.getElementById('zadanieOdpowiedzialny');
+      if (box.style.display === 'none') {
+        box.style.display = 'block';
+        sel.value = '__custom__';
+        document.getElementById('customOdpowiedzialny').focus();
+      } else {
+        box.style.display = 'none';
+        sel.value = '';
+      }
+    }
+
+    function getOdpowiedzialnyValue() {
+      var sel = document.getElementById('zadanieOdpowiedzialny');
+      if (sel.value === '__custom__') {
+        return document.getElementById('customOdpowiedzialny').value || '';
+      }
+      return sel.value || '';
+    }
+
+    // Punkt 4: Auto-numer podpunktu
+    function getNextPodpunkt(etapId) {
+      var etapZadania = allZadaniaHarm.filter(function(z) { return z.etapId == etapId; });
+      if (etapZadania.length === 0) return 1;
+      var maxPodpunkt = etapZadania.reduce(function(max, z) {
+        var num = parseInt(z.podpunkt) || 0;
+        return num > max ? num : max;
+      }, 0);
+      return maxPodpunkt + 1;
     }
 
     // ==================== PROJEKTY ====================
@@ -776,11 +844,17 @@
         html += '</td>';
         html += '</tr>';
         
-        // Zadania etapu (sortuj po podpunkcie)
-        const sorted = [...zadaniaEtapu].sort((a,b) => (a.podpunkt||0) - (b.podpunkt||0));
+        // Zadania etapu (sortuj: aktywne po podpunkcie, 100% na dół)
+        const sorted = [...zadaniaEtapu].sort((a,b) => {
+          const aDone = (a.postep||0) >= 100 ? 1 : 0;
+          const bDone = (b.postep||0) >= 100 ? 1 : 0;
+          if (aDone !== bDone) return aDone - bDone; // 100% na dół
+          return (a.podpunkt||0) - (b.podpunkt||0);
+        });
         sorted.forEach(z => {
+          const isDone = (z.postep||0) >= 100;
           const statusBadge = getStatusBadge(z);
-          html += '<tr class="zadanie-row">';
+          html += '<tr class="zadanie-row' + (isDone ? ' zadanie-done' : '') + '">';
           html += '<td>' + etap.numer + '.' + z.podpunkt + '</td>';
           html += '<td><strong>' + esc(z.opis) + '</strong></td>';
           html += '<td>' + esc(z.odpowiedzialny || '-') + '</td>';
@@ -1031,6 +1105,19 @@
       document.getElementById('zadanieModalTitle').textContent = 'Nowe zadanie';
       document.getElementById('btnZadanieSubmit').textContent = 'Dodaj zadanie';
       document.getElementById('formZadanie').reset();
+      document.getElementById('customOdpBox').style.display = 'none';
+      // Auto-numer: nasłuchuj zmianę etapu
+      var etapSel = document.getElementById('zadanieEtapId');
+      etapSel.onchange = function() {
+        if (etapSel.value) {
+          document.getElementById('zadaniePodpunkt').value = getNextPodpunkt(etapSel.value);
+        }
+      };
+      // Jeśli jest jeden etap, wybierz go i podpowiedz numer
+      if (allEtapy.length === 1) {
+        etapSel.value = allEtapy[0].id;
+        document.getElementById('zadaniePodpunkt').value = getNextPodpunkt(allEtapy[0].id);
+      }
       document.getElementById('modalZadanie').classList.add('active');
     }
 
@@ -1043,7 +1130,19 @@
       document.getElementById('zadanieEtapId').value = z.etapId || '';
       document.getElementById('zadaniePodpunkt').value = z.podpunkt || '';
       document.getElementById('zadanieOpis').value = z.opis || '';
-      document.getElementById('zadanieOdpowiedzialny').value = z.odpowiedzialny || '';
+      // Ustaw odpowiedzialnego - sprawdź czy jest w liście
+      var sel = document.getElementById('zadanieOdpowiedzialny');
+      var found = false;
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === (z.odpowiedzialny||'')) { sel.selectedIndex = i; found = true; break; }
+      }
+      if (!found && z.odpowiedzialny) {
+        sel.value = '__custom__';
+        document.getElementById('customOdpBox').style.display = 'block';
+        document.getElementById('customOdpowiedzialny').value = z.odpowiedzialny;
+      } else {
+        document.getElementById('customOdpBox').style.display = 'none';
+      }
       document.getElementById('zadanieDataOd').value = z.dataOd || '';
       document.getElementById('zadanieDataDo').value = z.dataDo || '';
       document.getElementById('zadanieGodziny').value = z.godzinyPlan || '';
@@ -1069,7 +1168,7 @@
         etapId: document.getElementById('zadanieEtapId').value,
         podpunkt: document.getElementById('zadaniePodpunkt').value,
         opis: document.getElementById('zadanieOpis').value,
-        odpowiedzialny: document.getElementById('zadanieOdpowiedzialny').value,
+        odpowiedzialny: getOdpowiedzialnyValue(),
         dataOd: document.getElementById('zadanieDataOd').value,
         dataDo: document.getElementById('zadanieDataDo').value,
         godzinyPlan: document.getElementById('zadanieGodziny').value || 0,
