@@ -433,10 +433,14 @@
       // Notatki
       if (dn.length) {
         html += '<div class="section-title">📝 Notatki (' + dn.length + ')</div>';
-        dn.forEach(function(n) {
-          html += '<div class="entry entry-note"><div class="e-info"><div class="e-title">' + esc(n.tytul) + '</div>';
-          if (n.tresc) html += '<div class="e-detail">' + esc(n.tresc) + '</div>';
+        dn.forEach(function(n, idx) {
+          html += '<div class="entry entry-note"><div class="e-info" style="cursor:pointer" onclick="toggleDetail(\'noteDetail' + idx + '\')">';
+          html += '<div class="e-title">📝 ' + esc(n.tytul) + ' <span style="font-size:11px;color:#999">▼</span></div>';
+          html += '<div id="noteDetail' + idx + '" class="e-detail-expand" style="display:none;margin-top:8px">';
+          if (n.tresc) html += '<div class="e-detail" style="background:#f8f9fa;padding:8px;border-radius:6px;margin-bottom:5px">' + esc(n.tresc) + '</div>';
           if (n.projektNazwa) html += '<div class="e-detail">📁 ' + esc(n.projektNazwa) + '</div>';
+          if (n.adresat) html += '<div class="e-detail">👤 Dla: ' + esc(n.adresat) + '</div>';
+          html += '</div>';
           html += '</div><div class="e-actions">';
           html += '<button class="btn-icon btn-edit" onclick="editNote(' + n.id + ')">✏️</button>';
           html += '<button class="btn-icon btn-del" onclick="delNote(' + n.id + ',\'' + escJ(n.tytul) + '\')">🗑️</button>';
@@ -447,11 +451,16 @@
       // Remindery
       if (dr.length) {
         html += '<div class="section-title">⏰ Przypomnienia (' + dr.length + ')</div>';
-        dr.forEach(function(r) {
+        dr.forEach(function(r, idx) {
           var done = r.status === 'Wykonane';
-          html += '<div class="entry entry-rem ' + (done?'done':'') + '"><div class="e-info"><div class="e-title">' + (done?'✅ ':'') + esc(r.tytul) + '</div>';
+          html += '<div class="entry entry-rem ' + (done?'done':'') + '"><div class="e-info" style="cursor:pointer" onclick="toggleDetail(\'remDetail' + idx + '\')">';
+          html += '<div class="e-title">' + (done?'✅ ':'⏰ ') + esc(r.tytul) + ' <span style="font-size:11px;color:#999">▼</span></div>';
+          html += '<div id="remDetail' + idx + '" class="e-detail-expand" style="display:none;margin-top:8px">';
+          if (r.opis) html += '<div class="e-detail" style="background:#f8f9fa;padding:8px;border-radius:6px;margin-bottom:5px">' + esc(r.opis) + '</div>';
           if (r.godzina) html += '<div class="e-detail">🕐 ' + r.godzina + '</div>';
-          if (r.dlaKogo) html += '<div class="e-detail">👤 ' + esc(r.dlaKogo) + '</div>';
+          if (r.dlaKogo) html += '<div class="e-detail">👤 Dla: ' + esc(r.dlaKogo) + '</div>';
+          if (r.dodal) html += '<div class="e-detail">✍️ Dodał: ' + esc(r.dodal) + '</div>';
+          html += '</div>';
           html += '</div><div class="e-actions">';
           if (!done) html += '<button class="btn-icon btn-done" onclick="markDone(' + r.id + ')">✓</button>';
           html += '<button class="btn-icon btn-del" onclick="delRem(' + r.id + ',\'' + escJ(r.tytul) + '\')">🗑️</button>';
@@ -524,6 +533,10 @@
     });
 
     // === HELPERS ===
+    function toggleDetail(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
     function closeM(id) { document.getElementById(id).classList.remove('active'); }
     function fd(y,m,d) { return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
     function trunc(s,n) { return s&&s.length>n ? s.substring(0,n)+'…' : (s||''); }
