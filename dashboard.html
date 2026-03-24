@@ -107,8 +107,6 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
-  <script src="dzwoneczek.js"></script>
   <div class="header">
     <div class="header-top">
       <div class="header-left">
@@ -194,38 +192,52 @@
     // === ŁADOWANIE DANYCH ===
     let loaded = 0;
     function loadAll() {
-      loaded = 0;
-      // Projekty
-      jp('getProjekty', { user: JSON.stringify(user) }, function(r) {
-        projekty = r.success ? (r.projekty || []) : [];
-        loaded++; checkReady();
-        // Ładuj zadania i etapy dla każdego projektu
-        zadaniaAll = []; etapyAll = [];
-        if (projekty.length === 0) { loaded += 2; checkReady(); return; }
-        let pDone = 0, pTotal = projekty.length * 2;
-        projekty.forEach(function(p) {
-          jp('getZadaniaHarmonogram', { projektId: p.id }, function(r2) {
-            if (r2.success && r2.zadania) r2.zadania.forEach(function(z) { z._projektId = p.id; zadaniaAll.push(z); });
-            pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
-          });
-          jp('getEtapy', { projektId: p.id }, function(r3) {
-            if (r3.success && r3.etapy) r3.etapy.forEach(function(e) { e._projektId = p.id; etapyAll.push(e); });
-            pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
+      // Jeden request zamiast 5+ (cache.js)
+      if (window.dataCache) {
+        dataCache.fetch(function(r) {
+          if (r.success) {
+            projekty = r.projekty || [];
+            zadaniaAll = r.zadania || [];
+            etapyAll = r.etapy || [];
+            var activeRem = (r.reminders || []).filter(function(rem) { return rem.status !== 'Wykonane'; });
+            document.getElementById('statReminders').textContent = activeRem.length;
+            document.getElementById('statMaterialy').textContent = (r.materialy || []).length;
+            renderDashboard();
+            initBell();
+          } else {
+            document.getElementById('projectsList').innerHTML = '<div class="empty-state">⚠️ Błąd ładowania danych</div>';
+          }
+        });
+      } else {
+        // Fallback bez cache.js
+        loaded = 0;
+        jp('getProjekty', { user: JSON.stringify(user) }, function(r) {
+          projekty = r.success ? (r.projekty || []) : [];
+          loaded++; checkReady();
+          zadaniaAll = []; etapyAll = [];
+          if (projekty.length === 0) { loaded += 2; checkReady(); return; }
+          let pDone = 0, pTotal = projekty.length * 2;
+          projekty.forEach(function(p) {
+            jp('getZadaniaHarmonogram', { projektId: p.id }, function(r2) {
+              if (r2.success && r2.zadania) r2.zadania.forEach(function(z) { z._projektId = p.id; zadaniaAll.push(z); });
+              pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
+            });
+            jp('getEtapy', { projektId: p.id }, function(r3) {
+              if (r3.success && r3.etapy) r3.etapy.forEach(function(e) { e._projektId = p.id; etapyAll.push(e); });
+              pDone++; if (pDone >= pTotal) { loaded += 2; checkReady(); }
+            });
           });
         });
-      });
-      // Reminders
-      jp('getReminders', {}, function(r) {
-        const active = r.success ? (r.reminders || []).filter(function(rem) { return rem.status !== 'Wykonane'; }) : [];
-        document.getElementById('statReminders').textContent = active.length;
-        loaded++; checkReady();
-      });
-      // Materiały
-      jp('getMaterialy', {}, function(r) {
-        const mat = r.success ? (r.materialy || []) : [];
-        document.getElementById('statMaterialy').textContent = mat.length;
-        loaded++; checkReady();
-      });
+        jp('getReminders', {}, function(r) {
+          const active = r.success ? (r.reminders || []).filter(function(rem) { return rem.status !== 'Wykonane'; }) : [];
+          document.getElementById('statReminders').textContent = active.length;
+          loaded++; checkReady();
+        });
+        jp('getMaterialy', {}, function(r) {
+          document.getElementById('statMaterialy').textContent = (r.success ? (r.materialy||[]) : []).length;
+          loaded++; checkReady();
+        });
+      }
     }
 
     function checkReady() {
