@@ -115,10 +115,7 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
-  <script src="cache.js"></script>
-  <script src="dzwoneczek.js"></script>
-   <div class="header">
+  <div class="header">
     <div class="header-top">
       <div class="header-left">
         <div class="logo">⏰</div>
@@ -139,7 +136,6 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item active">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -193,6 +189,13 @@
             <option value="">📢 Dla wszystkich</option>
           </select>
           <div class="hint">Zostaw "Dla wszystkich" lub wybierz konkretną osobę</div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f0f7ff;border-radius:8px;border:1px solid #cfe2ff">
+          <input type="checkbox" id="potwierdzenieCheck" checked style="width:18px;height:18px;cursor:pointer">
+          <label for="potwierdzenieCheck" style="cursor:pointer;margin:0;flex:1">
+            <strong>✉️ Wyślij potwierdzenie odczytu</strong>
+            <div class="hint" style="margin-top:3px">Otrzymasz powiadomienie gdy adresat przeczyta ten reminder</div>
+          </label>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
@@ -377,6 +380,7 @@
       document.getElementById('priorytet').value = reminder.priorytet || 'Średni';
       document.getElementById('projektId').value = reminder.projektId || '';
       document.getElementById('dlaKogoSelect').value = reminder.dlaKogo || '';
+      document.getElementById('potwierdzenieCheck').checked = (reminder.potwierdzenie === 'TAK');
       document.getElementById('modalAdd').classList.add('active');
     }
 
@@ -419,7 +423,8 @@
         opis: document.getElementById('opis').value,
         priorytet: document.getElementById('priorytet').value,
         projektId: document.getElementById('projektId').value || null,
-        dlaKogo: document.getElementById('dlaKogoSelect').value || ''
+        dlaKogo: document.getElementById('dlaKogoSelect').value || '',
+        potwierdzenie: document.getElementById('potwierdzenieCheck').checked ? 'TAK' : 'NIE'
       };
 
       let url;
