@@ -343,6 +343,7 @@
         sorted.map(m => {
           const stClass = 'status-' + (m.status||'').toLowerCase().replace(/\s+/g,'-').replace(/ę/g,'e').replace(/ó/g,'o').replace(/ą/g,'a');
           const szczegoly = [];
+          if (m.zadanieOpis) szczegoly.push('🔗 Zadanie: ' + escM(m.zadanieOpis));
           if (m.ktoZamowil) szczegoly.push('📦 ' + m.ktoZamowil + (m.dataZamowienia ? ' (' + m.dataZamowienia + ')' : ''));
           if (m.lokalizacja) szczegoly.push('📍 ' + m.lokalizacja);
           if (m.ktoPobral) szczegoly.push('👤 ' + m.ktoPobral);
