@@ -656,6 +656,23 @@
     </div>
   </div>
 
+  <!-- MODAL: SZCZEGÓŁY MATERIAŁÓW ZADANIA -->
+  <div id="modalMaterialy" class="modal">
+    <div class="modal-content" style="max-width:900px">
+      <div class="modal-header">
+        <h3>📦 Materiały zadania: <span id="matModalZadanie"></span></h3>
+        <button class="btn-close" onclick="closeModal('modalMaterialy')">&times;</button>
+      </div>
+      <div id="matModalBody">
+        <div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>
+      </div>
+      <div style="margin-top:20px;display:flex;justify-content:space-between">
+        <a href="magazyn.html" class="btn-secondary" style="text-decoration:none;display:inline-block">📋 Pełny magazyn</a>
+        <button class="btn-secondary" onclick="closeModal('modalMaterialy')">Zamknij</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx2tlGCQScIFrtnuawW_Q62QQmG2WuUyI1AMZ64x1t1KApuM1jQCM5RIHPMx8fkZ1s-/exec';
     let currentUser = null;
@@ -915,8 +932,7 @@
     }
 
     function renderMaterials(z) {
-      if (!z.materialInfo) return '-';
-      return '<span class="mat-link">📦 ' + esc(truncStr(z.materialInfo, 20)) + '</span>';
+      return '<button class="btn-icon" onclick="openMaterialyModal(' + z.id + ',\'' + escJ(z.opis||'') + '\')" title="Szczegóły materiałów" style="background:#e0e7ff;color:#3730a3">📦</button>';
     }
 
     // ==================== GANTT ====================
@@ -1386,6 +1402,59 @@
       localStorage.removeItem('harmonogram_token');
       localStorage.removeItem('harmonogram_user');
       window.location.href = 'index.html';
+    }
+
+    // ==================== MODAL: SZCZEGÓŁY MATERIAŁÓW ZADANIA ====================
+    function openMaterialyModal(zadanieId, opisZadania) {
+      document.getElementById('matModalZadanie').textContent = opisZadania || '';
+      document.getElementById('matModalBody').innerHTML = '<div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>';
+      document.getElementById('modalMaterialy').classList.add('active');
+
+      jsonpCall('getMaterialyDlaZadania', { zadanieId: zadanieId }, function(r) {
+        if (!r.success || !r.materialy || r.materialy.length === 0) {
+          document.getElementById('matModalBody').innerHTML =
+            '<div style="text-align:center;padding:40px;color:#999">📦 Brak materiałów przypisanych do tego zadania.<br><br>' +
+            'Dodaj je w zakładce <a href="magazyn.html" style="color:#667eea">📋 Magazyn</a> i przypisz do tego zadania.</div>';
+          return;
+        }
+        renderMaterialyModal(r.materialy);
+      });
+    }
+
+    function renderMaterialyModal(materialy) {
+      const stMap = {
+        'Do zamówienia': { bg:'#f8d7da', fg:'#721c24', icon:'📋' },
+        'Zamówione': { bg:'#fff3cd', fg:'#856404', icon:'📦' },
+        'W transporcie': { bg:'#cce5ff', fg:'#004085', icon:'🚚' },
+        'Dostarczone': { bg:'#d1ecf1', fg:'#0c5460', icon:'✅' },
+        'Pobrane': { bg:'#e2d5f0', fg:'#4b2e83', icon:'👤' },
+        'Wbudowane': { bg:'#d4edda', fg:'#155724', icon:'🏗️' }
+      };
+      let html = '<table style="width:100%;border-collapse:collapse"><thead style="background:#f8f9fa">' +
+        '<tr><th style="padding:10px;text-align:left;font-size:12px">Status</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Nazwa</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Kod KRES</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Ilość</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Cena</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Szczegóły</th></tr></thead><tbody>';
+      materialy.forEach(m => {
+        const st = stMap[m.status] || { bg:'#eee', fg:'#333', icon:'' };
+        const szczegoly = [];
+        if (m.ktoZamowil) szczegoly.push('📦 Zam: ' + m.ktoZamowil + (m.dataZamowienia ? ' (' + m.dataZamowienia + ')' : ''));
+        if (m.lokalizacja) szczegoly.push('📍 ' + m.lokalizacja);
+        if (m.ktoPobral) szczegoly.push('👤 Pobrał: ' + m.ktoPobral);
+        if (m.wzId) szczegoly.push('WZ: ' + m.wzId);
+        html += '<tr style="border-bottom:1px solid #f0f0f0">' +
+          '<td style="padding:10px"><span style="background:'+st.bg+';color:'+st.fg+';padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600">'+st.icon+' '+m.status+'</span></td>' +
+          '<td style="padding:10px">' + esc(m.nazwa||'') + (m.nrKat ? '<div style="font-size:10px;color:#999">NrKat: '+esc(m.nrKat)+'</div>':'') + '</td>' +
+          '<td style="padding:10px"><strong>' + (m.kodKres||'-') + '</strong></td>' +
+          '<td style="padding:10px">' + (m.ilosc||0) + ' ' + (m.jednostka||'') + '</td>' +
+          '<td style="padding:10px">' + (m.cenaOstatnia ? parseFloat(m.cenaOstatnia).toFixed(2)+' zł' : '-') + '</td>' +
+          '<td style="padding:10px;font-size:11px;color:#666">' + szczegoly.join('<br>') + '</td>' +
+        '</tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('matModalBody').innerHTML = html;
     }
   </script>
 </body>
