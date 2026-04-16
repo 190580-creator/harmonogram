@@ -31,11 +31,19 @@
     th { padding: 20px; text-align: left; font-weight: 600; color: #333; font-size: 14px; border-bottom: 2px solid #e0e0e0; }
     td { padding: 20px; border-bottom: 1px solid #f0f0f0; color: #666; font-size: 14px; }
     tr:hover { background: #f9f9f9; }
-    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
     .status-dostepny { background: #d4edda; color: #155724; }
+    .status-do-zamowienia { background: #f8d7da; color: #721c24; }
+    .status-zamowione { background: #fff3cd; color: #856404; }
+    .status-w-transporcie { background: #cce5ff; color: #004085; }
+    .status-dostarczone { background: #d1ecf1; color: #0c5460; }
+    .status-pobrane { background: #e2d5f0; color: #4b2e83; }
+    .status-wbudowane { background: #d4edda; color: #155724; opacity: 0.6; }
     .btn-icon { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; margin: 0 2px; }
     .btn-edit { background: #fff3cd; color: #856404; }
     .btn-edit:hover { background: #ffc107; color: #333; }
+    .btn-status { background: #cfe2ff; color: #084298; }
+    .btn-status:hover { background: #0d6efd; color: white; }
     .btn-delete { background: #f8d7da; color: #721c24; }
     .btn-delete:hover { background: #dc3545; color: white; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -71,10 +79,7 @@
   </style>
 </head>
 <body>
- <script src="licencja.js"></script>
-  <script src="cache.js"></script>
-  <script src="dzwoneczek.js"></script>
-   <div class="header">
+  <div class="header">
     <div class="header-top">
       <div class="header-left">
         <div class="logo">📦</div>
@@ -95,7 +100,6 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item">Reminder</a>
       <a href="magazyn.html" class="nav-item active">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -155,27 +159,45 @@
         </div>
         <div class="form-group">
           <label>Kod EAN (opcjonalnie)</label>
-          <input type="text" id="kodEan" placeholder="5901234567890">
-          <div class="hint">Kod kreskowy z hurtowni</div>
+          <input type="text" id="kodEan" placeholder="5901234567890, 5901111111111">
+          <div class="hint">Kod kreskowy z hurtowni. Można wpisać wiele oddzielonych przecinkami (słownik EAN).</div>
+        </div>
+        <div class="form-group">
+          <label>Numer katalogowy hurtowni (NrKat)</label>
+          <input type="text" id="nrKat" placeholder="np. BA-405510, TECH-0699 014 33">
+          <div class="hint">Numer z faktury/WZ - alternatywny identyfikator</div>
         </div>
         <div class="form-group">
           <label>Nazwa materiału *</label>
           <input type="text" id="nazwa" required placeholder="np. PEN 3x2,5 lub Gniazdo ELKO białe">
         </div>
-        <div class="form-group">
-          <label>Ilość *</label>
-          <input type="number" id="ilosc" required step="0.01" min="0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+          <div class="form-group">
+            <label>Ilość *</label>
+            <input type="number" id="ilosc" required step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label>Jednostka *</label>
+            <select id="jednostka" required>
+              <option value="">Wybierz...</option>
+              <option value="szt">szt</option>
+              <option value="mb">mb</option>
+              <option value="m2">m2</option>
+              <option value="kg">kg</option>
+              <option value="opak">opak</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Jednostka *</label>
-          <select id="jednostka" required>
-            <option value="">Wybierz...</option>
-            <option value="szt">szt</option>
-            <option value="mb">mb</option>
-            <option value="m2">m2</option>
-            <option value="kg">kg</option>
-            <option value="opak">opak</option>
-          </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+          <div class="form-group">
+            <label>Cena netto za jedn. (zł)</label>
+            <input type="number" id="cenaOstatnia" step="0.01" min="0" placeholder="np. 6.22">
+            <div class="hint">Ostatnia cena zakupu</div>
+          </div>
+          <div class="form-group">
+            <label>Termin zamówienia (dni)</label>
+            <input type="number" id="zamowDni" min="0" step="1" placeholder="np. 7">
+          </div>
         </div>
         <div class="form-group">
           <label>Projekt</label>
@@ -183,9 +205,87 @@
             <option value="">Brak powiązania (magazyn wspólny)</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="status">
+            <option value="Do zamówienia">📋 Do zamówienia</option>
+            <option value="Zamówione">📦 Zamówione</option>
+            <option value="W transporcie">🚚 W transporcie</option>
+            <option value="Dostarczone">✅ Dostarczone</option>
+            <option value="Pobrane">👤 Pobrane</option>
+            <option value="Wbudowane">🏗️ Wbudowane</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Numer WZ (opcjonalnie)</label>
+          <input type="text" id="wzId" placeholder="np. 00/WZ/2603/1481">
+        </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal()">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnSubmit">Dodaj materiał</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Zmiana statusu -->
+  <div id="modalStatus" class="modal">
+    <div class="modal-content" style="max-width:500px">
+      <div class="modal-header">
+        <h3>🔄 Zmiana statusu materiału</h3>
+        <button class="btn-close" onclick="closeStatusModal()">&times;</button>
+      </div>
+      <form id="formStatus">
+        <input type="hidden" id="statusMatId" value="">
+        <div class="form-group" style="background:#f0f7ff;padding:12px;border-radius:8px;border:1px solid #cfe2ff">
+          <div style="font-size:13px;color:#333" id="statusMatInfo"></div>
+        </div>
+        <div class="form-group">
+          <label>Nowy status *</label>
+          <select id="newStatus" required onchange="onStatusChange()">
+            <option value="Do zamówienia">📋 Do zamówienia</option>
+            <option value="Zamówione">📦 Zamówione</option>
+            <option value="W transporcie">🚚 W transporcie</option>
+            <option value="Dostarczone">✅ Dostarczone</option>
+            <option value="Pobrane">👤 Pobrane</option>
+            <option value="Wbudowane">🏗️ Wbudowane</option>
+          </select>
+        </div>
+        <!-- Pola dynamiczne zależne od statusu -->
+        <div id="statusFields">
+          <div class="form-group" id="fld_ktoZamowil" style="display:none">
+            <label>Kto zamówił *</label>
+            <select id="newKtoZamowil">
+              <option value="">-- Wybierz --</option>
+            </select>
+          </div>
+          <div class="form-group" id="fld_dataZamowienia" style="display:none">
+            <label>Data zamówienia *</label>
+            <input type="date" id="newDataZamowienia">
+          </div>
+          <div class="form-group" id="fld_wzId" style="display:none">
+            <label>Numer WZ</label>
+            <input type="text" id="newWzId" placeholder="np. 00/WZ/2603/1481">
+          </div>
+          <div class="form-group" id="fld_cena" style="display:none">
+            <label>Cena netto za jedn. (zł)</label>
+            <input type="number" id="newCena" step="0.01" min="0">
+            <div class="hint">Zaktualizuj cenę jeśli się zmieniła</div>
+          </div>
+          <div class="form-group" id="fld_lokalizacja" style="display:none">
+            <label>Miejsce składowania / lokalizacja *</label>
+            <input type="text" id="newLokalizacja" placeholder="np. Mag. główny / Hala A, oś M / piętro 1">
+          </div>
+          <div class="form-group" id="fld_ktoPobral" style="display:none">
+            <label>Kto pobrał *</label>
+            <select id="newKtoPobral">
+              <option value="">-- Wybierz --</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeStatusModal()">Anuluj</button>
+          <button type="submit" class="btn-submit">Zapisz status</button>
         </div>
       </form>
     </div>
@@ -232,28 +332,53 @@
     function displayMaterials(materialy) {
       const listDiv = document.getElementById('materialsList');
       if (!materialy || materialy.length === 0) { listDiv.innerHTML = '<div class="empty-state">📦 Brak materiałów. Dodaj pierwszy!</div>'; return; }
-      listDiv.innerHTML = '<table><thead><tr><th>Kod KRES</th><th>EAN</th><th>Nazwa</th><th>Ilość</th><th>Jedn.</th><th>Projekt</th><th>Status</th><th>Akcje</th></tr></thead><tbody>' +
-        materialy.map(m => '<tr>' +
-          '<td><strong>' + (m.kodKres||'-') + '</strong></td>' +
-          '<td>' + (m.kodEan||'-') + '</td>' +
-          '<td>' + (m.nazwa||'') + '</td>' +
-          '<td>' + (m.ilosc||0) + '</td>' +
-          '<td>' + (m.jednostka||'') + '</td>' +
-          '<td>' + (m.projektNazwa||'wspólny') + '</td>' +
-          '<td><span class="status-badge status-dostepny">' + (m.status||'Dostępny') + '</span></td>' +
-          '<td><button class="btn-icon btn-edit" onclick="editMaterial(' + m.id + ')" title="Edytuj">✏️</button>' +
-          '<button class="btn-icon btn-delete" onclick="deleteMaterial(' + m.id + ',\'' + (m.nazwa||'').replace(/'/g,"\\'") + '\')" title="Usuń">🗑️</button></td>' +
-        '</tr>').join('') + '</tbody></table>';
+
+      // Sortowanie: najpierw niższe statusy (Do zamówienia, Zamówione...) potem Wbudowane na końcu
+      const statusOrder = { 'Do zamówienia': 1, 'Zamówione': 2, 'W transporcie': 3, 'Dostarczone': 4, 'Pobrane': 5, 'Wbudowane': 6 };
+      const sorted = [...materialy].sort((a,b) => (statusOrder[a.status]||99) - (statusOrder[b.status]||99));
+
+      listDiv.innerHTML = '<table><thead><tr>' +
+        '<th>Status</th><th>Kod KRES</th><th>NrKat</th><th>Nazwa</th><th>Ilość</th><th>Projekt</th><th>Cena</th><th>Szczegóły</th><th>Akcje</th>' +
+        '</tr></thead><tbody>' +
+        sorted.map(m => {
+          const stClass = 'status-' + (m.status||'').toLowerCase().replace(/\s+/g,'-').replace(/ę/g,'e').replace(/ó/g,'o').replace(/ą/g,'a');
+          const szczegoly = [];
+          if (m.ktoZamowil) szczegoly.push('📦 ' + m.ktoZamowil + (m.dataZamowienia ? ' (' + m.dataZamowienia + ')' : ''));
+          if (m.lokalizacja) szczegoly.push('📍 ' + m.lokalizacja);
+          if (m.ktoPobral) szczegoly.push('👤 ' + m.ktoPobral);
+          if (m.wzId) szczegoly.push('WZ: ' + m.wzId);
+          return '<tr>' +
+            '<td><span class="status-badge ' + stClass + '">' + (m.status||'Do zamówienia') + '</span></td>' +
+            '<td><strong>' + (m.kodKres||'-') + '</strong>' + (m.kodEan ? '<div style="font-size:10px;color:#999">EAN: '+escM(m.kodEan)+'</div>':'') + '</td>' +
+            '<td>' + escM(m.nrKat||'-') + '</td>' +
+            '<td>' + escM(m.nazwa||'') + '</td>' +
+            '<td>' + (m.ilosc||0) + ' ' + escM(m.jednostka||'') + '</td>' +
+            '<td>' + escM(m.projektNazwa||'wspólny') + '</td>' +
+            '<td>' + (m.cenaOstatnia ? parseFloat(m.cenaOstatnia).toFixed(2) + ' zł' : '-') + '</td>' +
+            '<td style="font-size:11px;color:#666">' + szczegoly.join('<br>') + '</td>' +
+            '<td style="white-space:nowrap">' +
+              '<button class="btn-icon btn-status" onclick="openStatusModal(' + m.id + ')" title="Zmień status">🔄</button>' +
+              '<button class="btn-icon btn-edit" onclick="editMaterial(' + m.id + ')" title="Edytuj">✏️</button>' +
+              '<button class="btn-icon btn-delete" onclick="deleteMaterial(' + m.id + ',\'' + (m.nazwa||'').replace(/'/g,"\\'") + '\')" title="Usuń">🗑️</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') + '</tbody></table>';
     }
 
+    function escM(s) { s = String(s||''); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
     function filterMaterials() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
       if (!q) { displayMaterials(allMaterialy); return; }
-      const filtered = allMaterialy.filter(m =>
-        (m.nazwa||'').toLowerCase().includes(q) ||
-        (m.kodKres||'').toLowerCase().includes(q) ||
-        (m.kodEan||'').toLowerCase().includes(q)
-      );
+      const filtered = allMaterialy.filter(m => {
+        if ((m.nazwa||'').toLowerCase().includes(q)) return true;
+        if ((m.kodKres||'').toLowerCase().includes(q)) return true;
+        if ((m.nrKat||'').toLowerCase().includes(q)) return true;
+        // EAN może zawierać listę po przecinku - sprawdź każdy
+        const eany = (m.kodEan||'').split(',').map(x=>x.trim().toLowerCase());
+        if (eany.some(e => e.includes(q))) return true;
+        return false;
+      });
       displayMaterials(filtered);
     }
 
@@ -425,10 +550,15 @@
         document.getElementById('wariant').value = '';
       }
       document.getElementById('kodEan').value = mat.kodEan || '';
+      document.getElementById('nrKat').value = mat.nrKat || '';
       document.getElementById('nazwa').value = mat.nazwa || '';
       document.getElementById('ilosc').value = mat.ilosc || '';
       document.getElementById('jednostka').value = mat.jednostka || '';
       document.getElementById('projektId').value = mat.projektId || '';
+      document.getElementById('cenaOstatnia').value = mat.cenaOstatnia || '';
+      document.getElementById('zamowDni').value = mat.zamowDni || '';
+      document.getElementById('status').value = mat.status || 'Do zamówienia';
+      document.getElementById('wzId').value = mat.wzId || '';
       validateKodKres();
       document.getElementById('modalAdd').classList.add('active');
     }
@@ -452,6 +582,121 @@
       kodKresValid = true;
     }
 
+    // ==================== MODAL: ZMIANA STATUSU ====================
+    let allUsersCache = [];
+
+    function loadUsersForStatus() {
+      if (allUsersCache.length > 0) { populateUserSelects(); return; }
+      const url = API_URL + '?action=getUsers&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleUsersResp';
+      window.handleUsersResp = function(r) {
+        if (r.success && r.users) {
+          allUsersCache = r.users.filter(u => u.aktywny !== false);
+          populateUserSelects();
+        }
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+    }
+
+    function populateUserSelects() {
+      ['newKtoZamowil', 'newKtoPobral'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        while (sel.options.length > 1) sel.remove(1);
+        allUsersCache.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.name || u.imie_nazwisko || '';
+          opt.textContent = u.name || u.imie_nazwisko || '';
+          sel.appendChild(opt);
+        });
+      });
+    }
+
+    function openStatusModal(id) {
+      const mat = allMaterialy.find(m => m.id == id);
+      if (!mat) { alert('Nie znaleziono'); return; }
+      document.getElementById('statusMatId').value = id;
+      document.getElementById('statusMatInfo').innerHTML =
+        '<strong>' + escM(mat.nazwa) + '</strong><br>' +
+        'Ilość: ' + mat.ilosc + ' ' + (mat.jednostka||'') + ' | ' +
+        'Projekt: ' + (mat.projektNazwa||'wspólny') + ' | ' +
+        'Obecny status: <strong>' + (mat.status||'Do zamówienia') + '</strong>';
+      document.getElementById('newStatus').value = mat.status || 'Do zamówienia';
+      // Predefiniuj pola aktualnymi wartościami
+      document.getElementById('newKtoZamowil').value = mat.ktoZamowil || '';
+      document.getElementById('newDataZamowienia').value = mat.dataZamowienia || '';
+      document.getElementById('newWzId').value = mat.wzId || '';
+      document.getElementById('newCena').value = mat.cenaOstatnia || '';
+      document.getElementById('newLokalizacja').value = mat.lokalizacja || '';
+      document.getElementById('newKtoPobral').value = mat.ktoPobral || '';
+      loadUsersForStatus();
+      onStatusChange();
+      document.getElementById('modalStatus').classList.add('active');
+    }
+
+    function closeStatusModal() {
+      document.getElementById('modalStatus').classList.remove('active');
+    }
+
+    function onStatusChange() {
+      const st = document.getElementById('newStatus').value;
+      // Ukryj wszystkie
+      const fields = ['fld_ktoZamowil','fld_dataZamowienia','fld_wzId','fld_cena','fld_lokalizacja','fld_ktoPobral'];
+      fields.forEach(f => { document.getElementById(f).style.display = 'none'; });
+      // Pokaż zależnie od statusu
+      if (st === 'Zamówione' || st === 'W transporcie') {
+        document.getElementById('fld_ktoZamowil').style.display = 'block';
+        document.getElementById('fld_dataZamowienia').style.display = 'block';
+        document.getElementById('fld_wzId').style.display = 'block';
+        document.getElementById('fld_cena').style.display = 'block';
+      }
+      if (st === 'Dostarczone') {
+        document.getElementById('fld_lokalizacja').style.display = 'block';
+        document.getElementById('fld_wzId').style.display = 'block';
+      }
+      if (st === 'Pobrane' || st === 'Wbudowane') {
+        document.getElementById('fld_lokalizacja').style.display = 'block';
+        document.getElementById('fld_ktoPobral').style.display = 'block';
+      }
+    }
+
+    document.getElementById('formStatus').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const st = document.getElementById('newStatus').value;
+
+      // Walidacja wymaganych pól zależnie od statusu
+      if ((st === 'Zamówione' || st === 'W transporcie') && !document.getElementById('newKtoZamowil').value) {
+        alert('❌ Wybierz osobę która zamówiła materiał'); return;
+      }
+      if ((st === 'Zamówione' || st === 'W transporcie') && !document.getElementById('newDataZamowienia').value) {
+        alert('❌ Wpisz datę zamówienia'); return;
+      }
+      if ((st === 'Pobrane' || st === 'Wbudowane') && !document.getElementById('newKtoPobral').value) {
+        alert('❌ Wybierz osobę która pobrała materiał'); return;
+      }
+      if ((st === 'Dostarczone' || st === 'Pobrane' || st === 'Wbudowane') && !document.getElementById('newLokalizacja').value) {
+        alert('❌ Wpisz lokalizację składowania/wbudowania'); return;
+      }
+
+      const data = {
+        id: document.getElementById('statusMatId').value,
+        status: st,
+        ktoZamowil: document.getElementById('newKtoZamowil').value,
+        dataZamowienia: document.getElementById('newDataZamowienia').value,
+        wzId: document.getElementById('newWzId').value,
+        cenaOstatnia: document.getElementById('newCena').value,
+        lokalizacja: document.getElementById('newLokalizacja').value,
+        ktoPobral: document.getElementById('newKtoPobral').value
+      };
+      const url = API_URL + '?action=zmienStatusMaterialu&data=' + encodeURIComponent(JSON.stringify(data)) +
+        '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=handleStatusResp';
+      window.handleStatusResp = function(r) {
+        if (r.success) {
+          closeStatusModal(); loadMaterials();
+        } else alert('❌ ' + r.message);
+      };
+      document.body.appendChild(Object.assign(document.createElement('script'), { src: url }));
+    });
+
     document.getElementById('formAddMaterial').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -474,10 +719,15 @@
       const material = {
         kodKres: kodKres,
         kodEan: document.getElementById('kodEan').value,
+        nrKat: document.getElementById('nrKat').value,
         nazwa: document.getElementById('nazwa').value,
         ilosc: document.getElementById('ilosc').value,
         jednostka: document.getElementById('jednostka').value,
-        projektId: document.getElementById('projektId').value || null
+        projektId: document.getElementById('projektId').value || null,
+        cenaOstatnia: document.getElementById('cenaOstatnia').value,
+        zamowDni: document.getElementById('zamowDni').value || 0,
+        status: document.getElementById('status').value || 'Do zamówienia',
+        wzId: document.getElementById('wzId').value
       };
 
       let url;
