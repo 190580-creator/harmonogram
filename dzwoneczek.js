@@ -1,7 +1,7 @@
 // ============================================================================
-// DZWONECZEK - Moduł Powiadomień HARMONOGRAM
-// Podłącz: <script src="dzwoneczek.js"></script> w każdym HTML
-// Wymaga: API URL w zmiennej API lub API_URL, user w localStorage
+// DZWONECZEK - Moduł Powiadomień HARMONOGRAM v2.0
+// Podłącz: <script src="dzwoneczek.js"></script>
+// Zmiany v2.0: trwałe dismissy w Google Sheets (arkusz Powiadomienia_Odczytane)
 // ============================================================================
 
 (function() {
@@ -10,7 +10,8 @@
   try { user = JSON.parse(localStorage.getItem('harmonogram_user')); } catch(e) {}
   if (!user) return;
 
-  // Wstrzyknij CSS
+  var readNotifs = [];
+
   var style = document.createElement('style');
   style.textContent = 
     '.bell-wrap{position:relative;cursor:pointer;z-index:500}' +
@@ -30,13 +31,10 @@
     '.notif-empty{padding:30px;text-align:center;color:#999;font-size:14px}';
   document.head.appendChild(style);
 
-  // Wstrzyknij HTML dzwoneczka do headera
   function injectBell() {
     var userInfo = document.querySelector('.user-info');
     if (!userInfo) return;
-    // Sprawdź czy dzwoneczek już istnieje (np. w dashboard)
     if (document.getElementById('bellIcon')) return;
-
     var bellWrap = document.createElement('div');
     bellWrap.className = 'bell-wrap';
     bellWrap.onclick = function() { toggleNotifPanel(); };
@@ -55,14 +53,12 @@
     if (p) { p.classList.toggle('open'); if (p.classList.contains('open')) loadNotifications(); }
   }
 
-  // Zamknij panel po kliknięciu poza
   document.addEventListener('click', function(e) {
     var panel = document.getElementById('notifPanel');
     var wrap = document.querySelector('.bell-wrap');
     if (panel && wrap && !wrap.contains(e.target)) panel.classList.remove('open');
   });
 
-  // JSONP helper
   function jp(action, params, cb) {
     var cbN = 'cb_bell_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
     var url = API_BASE + '?action=' + action + '&callback=' + cbN;
@@ -75,41 +71,33 @@
 
   function escB(s) { s = String(s||''); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
 
-  // Dismissed notifications
-  function getDismissed() {
-    try {
-      var data = JSON.parse(localStorage.getItem('harmonogram_dismissed') || '{}');
-      var now = Date.now();
-      for (var k in data) { if (now - data[k] > 86400000) delete data[k]; }
-      localStorage.setItem('harmonogram_dismissed', JSON.stringify(data));
-      return data;
-    } catch(e) { return {}; }
-  }
-  function addDismissed(key) {
-    try {
-      var data = getDismissed();
-      data[key] = Date.now();
-      localStorage.setItem('harmonogram_dismissed', JSON.stringify(data));
-    } catch(e) {}
+  function makeKey(type, id, content) {
+    return type + '_' + id + '_' + (content || '').replace(/\s+/g,'').substring(0,30);
   }
 
   function loadNotifications() {
     var notifications = [];
     var userName = user ? user.name : '';
-    var dismissed = getDismissed();
+    var userEmail = user ? user.email : '';
     var loaded = 0;
+    var total = 3;
 
     function checkDone() {
       loaded++;
-      if (loaded >= 2) renderNotifications(notifications);
+      if (loaded >= total) renderNotifications(notifications);
     }
+
+    jp('getReadNotifs', { userEmail: userEmail }, function(r) {
+      readNotifs = (r.success && r.keys) ? r.keys : [];
+      checkDone();
+    });
 
     jp('getReminders', {}, function(r) {
       if (r.success && r.reminders) {
         var today = new Date(); today.setHours(0,0,0,0);
         r.reminders.forEach(function(rem) {
           if (rem.status === 'Wykonane') return;
-          var forMe = !rem.dlaKogo || rem.dlaKogo === userName || rem.dodal === userName;
+          var forMe = (rem.dlaKogo === userName) || !rem.dlaKogo || (rem.dodal === userName);
           if (!forMe) return;
           var remDate = rem.dataOd ? new Date(rem.dataOd) : null;
           if (remDate) remDate.setHours(0,0,0,0);
@@ -117,13 +105,17 @@
           var isToday = remDate && remDate.getTime() === today.getTime();
           var isFuture3 = remDate && remDate <= new Date(today.getTime() + 3*24*60*60*1000);
           if (isOverdue || isToday || isFuture3) {
-            var dk = 'rem_' + rem.id + '_' + (rem.dataOd||'') + '_' + (rem.tytul||'').substring(0,20);
-            if (dismissed[dk]) return;
+            var key = makeKey('rem', rem.id, (rem.dataOd||'') + (rem.tytul||''));
+            if (readNotifs.indexOf(key) !== -1) return;
+            var subText = (isOverdue ? 'Po terminie! ' : isToday ? 'Dziś ' : 'Za kilka dni ') + (rem.dataOd||'') + (rem.godzina ? ' ' + rem.godzina : '');
+            if (rem.dlaKogo) subText += ' | Dla: ' + rem.dlaKogo;
+            else if (rem.dodal === userName) subText += ' | Wysłane przez Ciebie';
+            else subText += ' | Dla wszystkich';
             notifications.push({
-              dismissKey: dk,
+              key: key,
               icon: isOverdue ? '🔴' : isToday ? '⏰' : '📌',
               text: rem.tytul,
-              sub: (isOverdue ? 'Po terminie! ' : isToday ? 'Dziś ' : 'Za kilka dni ') + (rem.dataOd||'') + (rem.godzina ? ' ' + rem.godzina : '') + (rem.dlaKogo ? ' | Dla: ' + rem.dlaKogo : ''),
+              sub: subText,
               link: 'reminder.html',
               priority: isOverdue ? 0 : isToday ? 1 : 2
             });
@@ -137,21 +129,23 @@
       if (r.success && r.notatki) {
         var weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
         r.notatki.forEach(function(n) {
-          if (n.adresat && n.adresat === userName) {
-            var nDate = new Date(n.data);
-            if (nDate >= weekAgo) {
-              var dk = 'note_' + n.id + '_' + (n.data||'') + '_' + (n.tytul||'').substring(0,20);
-              if (dismissed[dk]) return;
-              notifications.push({
-                dismissKey: dk,
-                icon: '📝',
-                text: n.tytul,
-                sub: 'Notatka na ' + (n.data||'') + (n.projektNazwa ? ' | ' + n.projektNazwa : ''),
-                link: 'kalendarz.html',
-                priority: 3
-              });
-            }
-          }
+          var forMe = (n.adresat === userName) || !n.adresat;
+          if (!forMe) return;
+          var nDate = n.data ? new Date(n.data) : null;
+          if (!nDate || nDate < weekAgo) return;
+          var key = makeKey('note', n.id, (n.data||'') + (n.tytul||''));
+          if (readNotifs.indexOf(key) !== -1) return;
+          var subText = 'Notatka na ' + (n.data||'');
+          if (n.projektNazwa) subText += ' | ' + n.projektNazwa;
+          if (!n.adresat) subText += ' | Dla wszystkich';
+          notifications.push({
+            key: key,
+            icon: '📝',
+            text: n.tytul,
+            sub: subText,
+            link: 'kalendarz.html',
+            priority: 3
+          });
         });
       }
       checkDone();
@@ -185,7 +179,7 @@
           '</div>' +
           '<div style="display:flex;gap:5px">' +
             '<button onclick="event.stopPropagation();window.location.href=\'' + n.link + '\'" style="padding:4px 8px;border:1px solid #ddd;border-radius:5px;background:#fff;cursor:pointer;font-size:11px" title="Otwórz">📂</button>' +
-            '<button onclick="event.stopPropagation();window._dismissNotif(this,\'' + escB(n.dismissKey) + '\')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Przeczytane">✓</button>' +
+            '<button onclick="event.stopPropagation();window._dismissNotif(this,\'' + escB(n.key) + '\')" style="padding:4px 8px;border:1px solid #28a745;border-radius:5px;background:#d4edda;cursor:pointer;font-size:11px;color:#155724" title="Przeczytane">✓</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -193,27 +187,32 @@
   }
 
   window._dismissNotif = function(btn, key) {
-    addDismissed(key);
+    var userEmail = user ? user.email : '';
     var item = btn.closest('.notif-item');
-    if (item) {
-      item.style.opacity = '0.3';
-      setTimeout(function() {
-        item.remove();
-        var items = document.querySelectorAll('#notifList .notif-item');
-        var badge = document.getElementById('bellBadge');
-        if (badge) {
-          badge.textContent = items.length;
-          badge.className = 'bell-badge' + (items.length === 0 ? ' hidden' : '');
-        }
-        if (items.length === 0) {
-          var list = document.getElementById('notifList');
-          if (list) list.innerHTML = '<div class="notif-empty">✅ Brak nowych powiadomień</div>';
-        }
-      }, 300);
-    }
+    if (item) { item.style.opacity = '0.3'; btn.disabled = true; }
+    jp('markNotifRead', { userEmail: userEmail, notifKey: key }, function(r) {
+      if (r.success) {
+        readNotifs.push(key);
+        setTimeout(function() {
+          if (item) item.remove();
+          var items = document.querySelectorAll('#notifList .notif-item');
+          var badge = document.getElementById('bellBadge');
+          if (badge) {
+            badge.textContent = items.length;
+            badge.className = 'bell-badge' + (items.length === 0 ? ' hidden' : '');
+          }
+          if (items.length === 0) {
+            var list = document.getElementById('notifList');
+            if (list) list.innerHTML = '<div class="notif-empty">✅ Brak nowych powiadomień</div>';
+          }
+        }, 300);
+      } else {
+        if (item) { item.style.opacity = '1'; btn.disabled = false; }
+        alert('Błąd: nie udało się zapisać odczytania');
+      }
+    });
   };
 
-  // Init
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() { injectBell(); loadNotifications(); });
   } else {
