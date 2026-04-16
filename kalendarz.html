@@ -546,7 +546,7 @@
     function esc(s) { return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
     function escJ(s) { return s?s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"):''; }
     function jp(action, params, cb) {
-      var cbN = 'cb_'+action+'_'+Date.now();
+      var cbN = 'cb_'+action+'_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
       var url = API+'?action='+action+'&callback='+cbN;
       for (var k in params) url += '&'+k+'='+encodeURIComponent(params[k]);
       window[cbN] = function(r) { cb(r); delete window[cbN]; };
