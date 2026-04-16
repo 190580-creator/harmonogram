@@ -609,6 +609,13 @@
           <label>Uwagi</label>
           <textarea id="zadanieUwagi" rows="2" placeholder="np. Nie wykonano spawania w osi M - brak wykonanej podbudowy"></textarea>
         </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:12px;background:#f0f7ff;border-radius:8px;border:1px solid #cfe2ff">
+          <input type="checkbox" id="zadaniePotwierdzenie" style="width:18px;height:18px;cursor:pointer">
+          <label for="zadaniePotwierdzenie" style="cursor:pointer;margin:0;flex:1">
+            <strong>📊 Wysyłaj powiadomienia o postępie</strong>
+            <div style="font-size:11px;color:#999;margin-top:3px">Dyrektor i kierownik projektu będą informowani o rozpoczęciu, postępie i zakończeniu zadania</div>
+          </label>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="closeModal('modalZadanie')">Anuluj</button>
           <button type="submit" class="btn-submit" id="btnZadanieSubmit">Dodaj zadanie</button>
@@ -1162,6 +1169,7 @@
       document.getElementById('zadanieDataDo').value = z.dataDo || '';
       document.getElementById('zadanieGodziny').value = z.godzinyPlan || '';
       document.getElementById('zadanieUwagi').value = z.uwagi || '';
+      document.getElementById('zadaniePotwierdzenie').checked = (z.potwierdzenie === 'TAK');
       document.getElementById('modalZadanie').classList.add('active');
     }
 
@@ -1187,7 +1195,8 @@
         dataOd: document.getElementById('zadanieDataOd').value,
         dataDo: document.getElementById('zadanieDataDo').value,
         godzinyPlan: document.getElementById('zadanieGodziny').value || 0,
-        uwagi: document.getElementById('zadanieUwagi').value
+        uwagi: document.getElementById('zadanieUwagi').value,
+        potwierdzenie: document.getElementById('zadaniePotwierdzenie').checked ? 'TAK' : 'NIE'
       };
       if (isEdit) data.id = eid;
       
