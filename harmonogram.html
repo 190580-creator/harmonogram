@@ -421,10 +421,7 @@
   </style>
 </head>
 <body>
-<script src="licencja.js"></script>
- <script src="cache.js"></script>
-  <script src="dzwoneczek.js"></script>
-   <div class="header">
+  <div class="header">
     <div class="header-top">
       <div class="header-left">
         <div class="logo">📋</div>
@@ -445,7 +442,6 @@
       <a href="kalendarz.html" class="nav-item">Kalendarz</a>
       <a href="reminder.html" class="nav-item">Reminder</a>
       <a href="magazyn.html" class="nav-item">Magazyn</a>
-      <a href="admin.html" class="nav-item">Admin</a>
     </div>
   </div>
 
@@ -1250,7 +1246,7 @@
     }
 
     function jsonpCall(action, params, callback) {
-      const cbName = 'cb_' + action + '_' + Date.now();
+      const cbName = 'cb_' + action + '_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
       let url = API_URL + '?action=' + action + '&user=' + encodeURIComponent(JSON.stringify(currentUser)) + '&callback=' + cbName;
       for (const key in params) {
         url += '&' + key + '=' + encodeURIComponent(params[key]);
