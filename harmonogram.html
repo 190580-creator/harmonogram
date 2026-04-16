@@ -837,16 +837,27 @@
     }
 
     // ==================== ŁADOWANIE HARMONOGRAMU ====================
+    let materialyCountByZadanie = {};
+
     function loadHarmonogram() {
-      // Ładuj etapy
       const urlE = API_URL + '?action=getEtapy&projektId=' + currentProjektId + '&callback=cbEtapy';
       window.cbEtapy = function(r) {
         allEtapy = r.success ? (r.etapy || []) : [];
-        // Ładuj zadania harmonogramu
         const urlZ = API_URL + '?action=getZadaniaHarmonogram&projektId=' + currentProjektId + '&callback=cbZadHarm';
         window.cbZadHarm = function(r2) {
           allZadaniaHarm = r2.success ? (r2.zadania || []) : [];
-          renderAll();
+          // Pobierz materiały i pogrupuj per zadanie
+          jsonpCall('getMaterialy', {}, function(r3) {
+            materialyCountByZadanie = {};
+            if (r3.success && r3.materialy) {
+              r3.materialy.forEach(function(m) {
+                if (m.zadanieId) {
+                  materialyCountByZadanie[m.zadanieId] = (materialyCountByZadanie[m.zadanieId]||0) + 1;
+                }
+              });
+            }
+            renderAll();
+          });
         };
         document.body.appendChild(Object.assign(document.createElement('script'), { src: urlZ }));
       };
@@ -959,7 +970,11 @@
     }
 
     function renderMaterials(z) {
-      return '<button class="btn-icon" onclick="openMaterialyModal(' + z.id + ',\'' + escJ(z.opis||'') + '\')" title="Szczegóły materiałów" style="background:#e0e7ff;color:#3730a3">📦</button>';
+      const count = materialyCountByZadanie[z.id] || 0;
+      if (count > 0) {
+        return '<button class="btn-icon" onclick="openMaterialyModal(' + z.id + ',\'' + escJ(z.opis||'') + '\')" title="' + count + ' materiał(ów) przypisanych" style="background:#d4edda;color:#155724;font-weight:700;font-size:12px;position:relative">📦 <span style="font-size:10px">' + count + '</span></button>';
+      }
+      return '<button class="btn-icon" onclick="openMaterialyModal(' + z.id + ',\'' + escJ(z.opis||'') + '\')" title="Brak materiałów - kliknij żeby przypisać" style="background:#f0f0f0;color:#999;opacity:0.5">📦</button>';
     }
 
     // ==================== GANTT ====================
