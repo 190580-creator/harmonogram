@@ -666,9 +666,36 @@
       <div id="matModalBody">
         <div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>
       </div>
-      <div style="margin-top:20px;display:flex;justify-content:space-between">
-        <a href="magazyn.html" class="btn-secondary" style="text-decoration:none;display:inline-block">📋 Pełny magazyn</a>
-        <button class="btn-secondary" onclick="closeModal('modalMaterialy')">Zamknij</button>
+      <div style="margin-top:20px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="openPrzypiszModal()" style="padding:10px 20px">+ Przypisz materiały</button>
+        <div>
+          <a href="magazyn.html" class="btn-secondary" style="text-decoration:none;display:inline-block;margin-right:10px">📋 Pełny magazyn</a>
+          <button class="btn-secondary" onclick="closeModal('modalMaterialy')">Zamknij</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PRZYPISANIE MATERIAŁÓW -->
+  <div id="modalPrzypisz" class="modal">
+    <div class="modal-content" style="max-width:900px">
+      <div class="modal-header">
+        <h3>➕ Przypisz materiały do zadania</h3>
+        <button class="btn-close" onclick="closeModal('modalPrzypisz')">&times;</button>
+      </div>
+      <div style="background:#fff3cd;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px;color:#856404">
+        ℹ️ Zaznacz materiały do przypisania. Możesz wybrać materiały niezwiązane z zadaniem (wolne) lub przenieść z innego zadania.
+      </div>
+      <input type="text" id="przypiszSearch" placeholder="🔍 Szukaj po nazwie, kodzie..." style="width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:8px;margin-bottom:15px" oninput="filterPrzypiszList()">
+      <div id="przypiszList" style="max-height:400px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:10px">
+        <div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>
+      </div>
+      <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+        <span id="przypiszCount" style="color:#666;font-size:13px">0 zaznaczonych</span>
+        <div>
+          <button class="btn-secondary" onclick="closeModal('modalPrzypisz')">Anuluj</button>
+          <button class="btn-primary" onclick="zatwierdzPrzypisanie()" style="margin-left:10px">Przypisz zaznaczone</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1405,16 +1432,26 @@
     }
 
     // ==================== MODAL: SZCZEGÓŁY MATERIAŁÓW ZADANIA ====================
+    let currentMatZadanieId = null;
+    let currentMatProjektId = null;
+    let przypiszCache = [];
+
     function openMaterialyModal(zadanieId, opisZadania) {
+      currentMatZadanieId = zadanieId;
+      const z = allZadaniaHarm.find(x => x.id == zadanieId);
+      currentMatProjektId = z ? z.projektId : currentProjektId;
       document.getElementById('matModalZadanie').textContent = opisZadania || '';
       document.getElementById('matModalBody').innerHTML = '<div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>';
       document.getElementById('modalMaterialy').classList.add('active');
+      refreshMaterialyModal();
+    }
 
-      jsonpCall('getMaterialyDlaZadania', { zadanieId: zadanieId }, function(r) {
+    function refreshMaterialyModal() {
+      jsonpCall('getMaterialyDlaZadania', { zadanieId: currentMatZadanieId }, function(r) {
         if (!r.success || !r.materialy || r.materialy.length === 0) {
           document.getElementById('matModalBody').innerHTML =
             '<div style="text-align:center;padding:40px;color:#999">📦 Brak materiałów przypisanych do tego zadania.<br><br>' +
-            'Dodaj je w zakładce <a href="magazyn.html" style="color:#667eea">📋 Magazyn</a> i przypisz do tego zadania.</div>';
+            'Kliknij <strong>"+ Przypisz materiały"</strong> żeby dodać z magazynu.</div>';
           return;
         }
         renderMaterialyModal(r.materialy);
@@ -1436,7 +1473,8 @@
         '<th style="padding:10px;text-align:left;font-size:12px">Kod KRES</th>' +
         '<th style="padding:10px;text-align:left;font-size:12px">Ilość</th>' +
         '<th style="padding:10px;text-align:left;font-size:12px">Cena</th>' +
-        '<th style="padding:10px;text-align:left;font-size:12px">Szczegóły</th></tr></thead><tbody>';
+        '<th style="padding:10px;text-align:left;font-size:12px">Szczegóły</th>' +
+        '<th style="padding:10px;text-align:left;font-size:12px">Akcje</th></tr></thead><tbody>';
       materialy.forEach(m => {
         const st = stMap[m.status] || { bg:'#eee', fg:'#333', icon:'' };
         const szczegoly = [];
@@ -1451,10 +1489,105 @@
           '<td style="padding:10px">' + (m.ilosc||0) + ' ' + (m.jednostka||'') + '</td>' +
           '<td style="padding:10px">' + (m.cenaOstatnia ? parseFloat(m.cenaOstatnia).toFixed(2)+' zł' : '-') + '</td>' +
           '<td style="padding:10px;font-size:11px;color:#666">' + szczegoly.join('<br>') + '</td>' +
+          '<td style="padding:10px"><button class="btn-icon btn-delete" onclick="odepnijMaterial(' + m.id + ')" title="Odepnij od zadania">✂️</button></td>' +
         '</tr>';
       });
       html += '</tbody></table>';
       document.getElementById('matModalBody').innerHTML = html;
+    }
+
+    function odepnijMaterial(matId) {
+      if (!confirm('Odepnij ten materiał od zadania? Materiał pozostanie w magazynie projektu.')) return;
+      jsonpCall('przypiszMaterial', { materialId: matId, zadanieId: '' }, function(r) {
+        if (r.success) refreshMaterialyModal();
+        else alert('❌ ' + (r.message||'Błąd'));
+      });
+    }
+
+    function openPrzypiszModal() {
+      document.getElementById('modalPrzypisz').classList.add('active');
+      document.getElementById('przypiszList').innerHTML = '<div style="text-align:center;padding:40px;color:#999">⏳ Ładowanie...</div>';
+      document.getElementById('przypiszSearch').value = '';
+      document.getElementById('przypiszCount').textContent = '0 zaznaczonych';
+      jsonpCall('getMaterialyDoPrzypisania', { projektId: currentMatProjektId }, function(r) {
+        przypiszCache = (r.success && r.materialy) ? r.materialy : [];
+        renderPrzypiszList(przypiszCache);
+      });
+    }
+
+    function renderPrzypiszList(materialy) {
+      if (!materialy.length) {
+        document.getElementById('przypiszList').innerHTML = '<div style="text-align:center;padding:40px;color:#999">Brak materiałów. Dodaj w <a href="magazyn.html">magazynie</a>.</div>';
+        return;
+      }
+      let html = '';
+      materialy.forEach(m => {
+        const isCurrent = m.zadanieId == currentMatZadanieId;
+        const isAssigned = m.zadanieId && !isCurrent;
+        const bg = isCurrent ? '#d4edda' : (isAssigned ? '#fff3cd' : '#fff');
+        const badge = isCurrent ? '<span style="background:#28a745;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px;margin-left:5px">PRZYPISANE</span>' :
+                       isAssigned ? '<span style="background:#ffc107;color:#333;padding:2px 6px;border-radius:8px;font-size:10px;margin-left:5px">W: '+esc(m.zadanieOpis||'')+'</span>' : '';
+        const projInfo = m.projektId ? '' : '<span style="background:#6c757d;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px;margin-left:5px">WSPÓLNY</span>';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px;background:'+bg+';border-radius:6px;margin-bottom:5px;cursor:pointer;border:1px solid #eee">' +
+          '<input type="checkbox" class="przypisz-check" data-id="'+m.id+'" ' + (isCurrent?'checked':'') + ' onchange="updatePrzypiszCount()" style="width:18px;height:18px">' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:600;font-size:13px">' + esc(m.nazwa||'') + badge + projInfo + '</div>' +
+            '<div style="font-size:11px;color:#666;margin-top:3px">' +
+              (m.kodKres ? 'KRES: <strong>'+m.kodKres+'</strong> | ' : '') +
+              (m.nrKat ? 'NrKat: '+esc(m.nrKat)+' | ' : '') +
+              'Ilość: ' + (m.ilosc||0) + ' ' + (m.jednostka||'') + ' | Status: ' + (m.status||'') +
+            '</div>' +
+          '</div>' +
+        '</label>';
+      });
+      document.getElementById('przypiszList').innerHTML = html;
+      updatePrzypiszCount();
+    }
+
+    function updatePrzypiszCount() {
+      const n = document.querySelectorAll('.przypisz-check:checked').length;
+      document.getElementById('przypiszCount').textContent = n + ' zaznaczonych';
+    }
+
+    function filterPrzypiszList() {
+      const q = document.getElementById('przypiszSearch').value.toLowerCase().trim();
+      if (!q) { renderPrzypiszList(przypiszCache); return; }
+      const filtered = przypiszCache.filter(m => {
+        if ((m.nazwa||'').toLowerCase().includes(q)) return true;
+        if ((m.kodKres||'').toLowerCase().includes(q)) return true;
+        if ((m.nrKat||'').toLowerCase().includes(q)) return true;
+        const eany = (m.kodEan||'').split(',').map(x=>x.trim().toLowerCase());
+        if (eany.some(e => e.includes(q))) return true;
+        return false;
+      });
+      renderPrzypiszList(filtered);
+    }
+
+    function zatwierdzPrzypisanie() {
+      const checked = Array.from(document.querySelectorAll('.przypisz-check'));
+      // Materiały do przypisania: zaznaczone
+      // Materiały do odpięcia: były przypisane do tego zadania, teraz odznaczone
+      const toAssign = [];
+      const toUnassign = [];
+      checked.forEach(cb => {
+        const id = cb.dataset.id;
+        const mat = przypiszCache.find(m => m.id == id);
+        if (!mat) return;
+        if (cb.checked && mat.zadanieId != currentMatZadanieId) toAssign.push(id);
+        if (!cb.checked && mat.zadanieId == currentMatZadanieId) toUnassign.push(id);
+      });
+      const total = toAssign.length + toUnassign.length;
+      if (total === 0) { closeModal('modalPrzypisz'); return; }
+      let done = 0;
+      const onDone = () => {
+        done++;
+        if (done >= total) {
+          closeModal('modalPrzypisz');
+          refreshMaterialyModal();
+        }
+      };
+      toAssign.forEach(id => jsonpCall('przypiszMaterial', { materialId: id, zadanieId: currentMatZadanieId }, onDone));
+      toUnassign.forEach(id => jsonpCall('przypiszMaterial', { materialId: id, zadanieId: '' }, onDone));
     }
   </script>
 </body>
